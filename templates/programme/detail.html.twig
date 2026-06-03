@@ -1,0 +1,144 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Calendrier des programmes{% endblock %}
+
+{% block body %}
+<div class="card card-primary">
+    <div class="card-body"> 
+        <a href='{{ path('programme') }}' class="btn btn-success">
+            <i class="fas fa-list"></i> Liste des programmes
+        </a>
+        <a href='{{ path('programme_add') }}' class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouveau programme
+        </a>
+    </div>
+
+    <div id="calendrier" style="padding: 20px;"></div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let calendarElt = document.querySelector("#calendrier");
+    
+    if (!calendarElt) return;
+    
+    let calendar = new FullCalendar.Calendar(calendarElt, {
+        initialView: 'timeGridWeek',
+        locale: 'fr',
+        timeZone: 'Africa/Abidjan',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        buttonText: {
+            today: "Aujourd'hui",
+            month: "Mois",
+            week: "Semaine",
+            day: "Jour"
+        },
+        events: {{ data|raw }},
+        editable: true,
+        eventResizableFromStart: true,
+        eventStartEditable: true,
+        eventDurationEditable: true,
+        
+        // Gestion du drag & drop (déplacement)
+        eventDrop: function(info) {
+            updateEvent(info.event);
+        },
+        
+        // Gestion du redimensionnement
+        eventResize: function(info) {
+            updateEvent(info.event);
+        },
+        
+        // Gestion du clic sur un événement pour modification
+        eventClick: function(info) {
+            if (confirm('Voulez-vous modifier cet événement ?')) {
+                // Rediriger vers la page d'édition
+                window.location.href = '/programme/' + info.event.id + '/update';
+            }
+        },
+        
+        // Personnalisation des événements
+        eventDidMount: function(info) {
+            // Ajouter une tooltip avec la description
+            if (info.event.extendedProps.description) {
+                info.el.setAttribute('title', info.event.extendedProps.description);
+            }
+        }
+    });
+    
+    calendar.render();
+    
+    // Fonction pour mettre à jour un événement
+   // Fonction pour mettre à jour un événement
+function updateEvent(event) {
+    let url = `/programme/api/${event.id}/edit`;  // Nouvelle URL
+    
+    let donnees = {
+        id: event.id,
+        title: event.title,
+        description: event.extendedProps.description || '',
+        start: event.start ? event.start.toISOString() : null,
+        end: event.end ? event.end.toISOString() : null,
+        allDay: event.allDay,
+        backgroundColor: event.backgroundColor,
+        borderColor: event.borderColor,
+        textColor: event.textColor
+    };
+    
+    console.log('Envoi des données:', donnees);
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(donnees)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Événement mis à jour avec succès', 'success');
+        } else {
+            showNotification('Erreur: ' + (data.error || 'Inconnue'), 'error');
+            calendar.refetchEvents();
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showNotification('Erreur lors de la mise à jour', 'error');
+        calendar.refetchEvents();
+    });
+
+    }
+    
+    // Fonction pour afficher les notifications
+    function showNotification(message, type) {
+        let alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        let notification = document.createElement('div');
+        notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.style.minWidth = '300px';
+        notification.innerHTML = `
+            <strong>${type === 'success' ? 'Succès!' : 'Erreur!'}</strong> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(notification);
+        
+        // Auto-fermeture après 5 secondes
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

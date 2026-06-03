@@ -1,0 +1,86 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Fidèles de la zone :{{ nomzone|upper }}{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title">Liste des fidèles de la zone :{{ nomzone|upper }} </h3>
+        </div>
+
+        <!-- /.card-header -->
+        <div class="card-body">
+
+            <a href='{{ path('zone_printmembre',{'id':id}) }}'>
+                {#  <a href='commune/printmembre/on?id={{ id }}'  target='_blank'>#}
+
+                <button class="btn btn-primary">Impression avancée</button>
+            </a>
+            <hr style="visibility: hidden" />
+
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Fidèle</th>
+                        <th>Teléphone</th>
+                        <th>Baptisé(e)</th>
+                        <th>Quartier</th>
+                        <th>Photo</th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fidele in fideles %}
+                        <tr>
+                            <td>{{ fidele.nomfidele|upper}}</td>
+                            <td>{{ fidele.contact1}}</td>
+                            <td> {% set stutbapteme= fidele.stutbapteme %}
+                                {% set sexe= fidele.sexe %}
+
+                                {% if stutbapteme == 'Oui' and sexe == 'Homme' %}
+                                    Baptisé
+                                {% elseif stutbapteme == 'Non' and sexe == 'Homme' %}
+                                    Non baptisé
+                                {% elseif stutbapteme == 'Oui' and sexe == 'Femme' %}
+                                    Baptisée
+                                {% else %}
+                                    Non Baptisée
+                                {% endif %}
+
+
+                            </td>
+
+
+                            <td> {% if  fidele.quartier is not empty %} {{ fidele.quartier.libelle}} {% else %} {% endif %}</td>
+
+                            <td>
+
+                                <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" />                                               
+
+
+                            </td>
+
+                        </tr>
+                    {% else %}
+                       
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+{% endblock %}

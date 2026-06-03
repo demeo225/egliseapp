@@ -1,0 +1,91 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des pastorales {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_pastorale') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.type, {'label':'Type'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+    </div>
+</form>    
+</div> 
+
+<div class="rows">
+    {% if app.request.method == 'POST' and pastorales |length==0 %}
+        Aucune donnée trouvée
+
+    {% else %}
+
+        {% if pastorales |length >0 %}
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Resultats de la recherche</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Date debut</th>
+                                <th>Date fin</th>
+                                <th>Rencontre</th>
+                                <th>Lieu</th>
+                                <th>Dirigeant</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for pastorale in pastorales %}
+
+                                <tr>
+                                    <td> {% if pastorale.datepastorale is not empty  %} {{ date_format( pastorale.datepastorale)}} à {{  pastorale.datepastorale|date('H:i:s') }} {% else %} {% endif %}</td>
+                                    <td> {{ date_format( pastorale.datefin)}} à {{  pastorale.datefin|date('H:i:s') }} </td>
+                                    <td>{{ pastorale.type }}</td>
+                                    <td>{{ pastorale.lieu }}</td>
+                                    <td>{% if pastorale.pasteur1 is not empty %} {{ pastorale.pasteur1.nomfidele  }}{% else %} {% endif %} </td>
+
+                                </tr>
+                            {% endfor %}
+
+
+                        </tbody>
+                    </table>
+                </div>
+                </div>
+                </div>
+            {% endif %}
+        {% endif %}
+
+
+    {% endblock %}
+

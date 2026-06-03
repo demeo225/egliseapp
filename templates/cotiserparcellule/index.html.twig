@@ -1,0 +1,80 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Cotiserparcellule index{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste de paiement des cotisations</h3>
+            </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('app_cotiserparcellule_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('app_cotisationparcellule_index') }}'>
+                    <button class="btn btn-success">Liste des cotisations</button>
+                </a>
+                <a href='{{ path('cotiserparcellule_detailcotisation') }}'>
+                    <button class="btn btn-danger">Details paiement</button>
+                </a>
+
+                <hr style="visibility: hidden" />  
+
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+
+                            <th>Cellule</th>
+                            <th>Objet </th>
+                            <th>Montant </th>
+                            <th>Montant payé</th>
+                            <th>Reste</th>
+                            <th>Date limite</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cotiserparcellule in cotiserparcellules %}
+                            <tr>
+                                <td> {% if cotiserparcellule.cellule is not empty %} {{ cotiserparcellule.cellule.nom }} {% else %} {% endif %}</td>
+                                <td> {% if cotiserparcellule.cotisationparcellule is not empty %} {{ cotiserparcellule.cotisationparcellule.objet }} {% else %} {% endif %}</td>
+                                <td> {% if cotiserparcellule.cotisationparcellule is not empty %} {{ cotiserparcellule.cotisationparcellule.montant }} {% else %} {% endif %}</td>
+                                <td>{{ cotiserparcellule.montantpayer }}</td>
+                                <td>
+                                    {% if  cotiserparcellule.reste ==0 %} <b>Soldé</b> 
+                                    {% elseif cotiserparcellule.reste >0 %} {{ cotiserparcellule.reste }} {% elseif cotiserparcellule.reste < 0 %} 
+                                        <i class="btn btn-success"> Soldé </i> {% endif %}
+
+
+                                    </td>
+
+                                    <td>{{ cotiserparcellule.datecotiser ? cotiserparcellule.datecotiser|date('d-m-Y') : '' }}</td>
+
+                                    {# <td>
+                                              {% if cotiserparcellule.reste <= 0 %} {% else %}
+                                                 <a href="{{ path('app_cotiserparcellule_edit', {'id': cotiserparcellule.id}) }}">   <span style="font-size: 1em; color: Dodgerblue;">
+                                                         <i class="fas fa-edit"></i>
+                                                     </span></a>
+                                             {% endif %}
+                                     </td> #}
+                                </tr>
+                          
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endblock %}

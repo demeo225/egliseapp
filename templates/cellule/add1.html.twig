@@ -1,0 +1,109 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion Cellule{% endblock %}
+
+{% block body %}
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion des Cellules</h3>
+        </div>
+                   <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        <div class="card card-body">
+
+   
+
+            <div class="row mb-4">
+
+
+                <div class="col-md-3">
+                    {{ form_row(form.nom, {'libelle':'Cellule ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.description, {'libelle':'Description ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.responsable1, {'libelle':'Responsable ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.responsable2, {'libelle':'Responsable 2nd. ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+
+            </div>
+
+
+
+
+            <div class="row mb-4">
+
+
+                <div class="col-md-3">
+                    {{ form_row(form.lattitude, {'libelle':'Latttitude ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.longitude, {'libelle':'Longitude ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.adresse, {'libelle':'Contact du responsable ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.lieu, {'libelle':'Lieu ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+            </div>
+
+
+            <div class="row mb-4">
+
+
+                <div class="col-md-3">
+                    {{ form_row(form.jour, {'libelle':'Jour ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.heure, {'libelle':'Heure '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.quartier, {'libelle':'Quartier '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.zone, {'libelle':'Zone '}) }}
+                </div>
+
+            </div>
+
+
+
+
+            <div class="row"> 
+                <div class="col-md-1">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save'}}) }}</div></p>
+
+                <div class="col-md-2.5"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                <div class="col-md-2"><a href="{{ path('cellule') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+{% endblock %}

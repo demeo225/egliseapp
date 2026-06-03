@@ -1,0 +1,178 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Details de {{ enfant.nom}}
+{% endblock %}
+
+{% block body %}
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">
+
+                <h3>
+
+                    Enfant  <u class="center"> {{ enfant.nom }}</u>
+                </h3>
+            </h3>
+        </div>
+        <div class="card card-body">
+
+
+            <div class="container-fluid">
+                <table class="table" border="1">
+
+                    <thead>
+
+                    </thead>
+                    <tbody>
+                        <tr class="btn-success">
+
+                    <b><td>Code</td>
+                        <td>Enfant</td>
+                        <td>Sexe</td>
+                        <td>Contact parent</td>
+                        <td>Cellule</td>
+                        <td>Ethnie</td>
+                        <td>Whatssap</td>
+                        </tr>
+                        <tr>
+
+                            <td>{{ enfant.code|upper}}</td>
+                            <td>{{ enfant.nom}}</td>
+                            <td>{{ enfant.sexe}}</td>
+                            <td>{{ enfant.contact}}</td>
+                            <td> {% if enfant.cellule is not empty %} {{ enfant.cellule.nom}} {% else %}{% endif %} </td>
+                            <td>{% if enfant.ethnie is not empty %}{{ enfant.ethnie.libelle}}{% else %}{% endif %}</td>
+                            <td>{{ enfant.contactwhatssap}}</td>
+                        </tr>   
+                        <tr class="btn-success">
+
+                            <td>Email</td>
+                            <td>Né(e) le</td>
+                            <td>Lieu naissance</td>
+                            <td>N° Pièce</td>
+                            <td>Niveau</td>
+                            <td>CLasse</td>
+                            <td>Groupe sanguin</td>
+                        </tr>
+                        <tr>
+                            <td>{{ enfant.email}}</td>
+                            <td>{{ enfant.datenaiss|date('d-m-Y')}}</td>
+                            <td>{{ enfant.lieunaiss}}</td>
+                            <td>{{ enfant.numpiece}}</td>
+                            <td>{{ enfant.niveauetude}}</td>
+                            <td>{{ enfant.classenfant}}</td>
+                            <td>{{ enfant.groupesang }}</td>
+
+                        </tr>
+
+
+                        <tr class="btn-success">
+                            <td>Nationalité</td>
+                            <td>Commune</td>
+                            <td>Date enreg.</td>
+                            <td>Facebook</td>
+                            <td>Famille Eglise</td>
+                            <td>Zone</td>
+                            <td>Père</td>
+                        </tr>
+
+                        <tr>
+                            <td>{% if enfant.nationalite is not empty %}{{ enfant.nationalite|country_name}}{% else %}{% endif %} </td>
+                            <td>{% if enfant.commune is not empty %}{{ enfant.commune.nom|upper}}{% else %}{% endif %} </td>
+                            <td>{{ enfant.createAt|date('d-m-Y')}}</td>
+                            <td>{{ enfant.comptefacebook}}</td>
+                            <td>{% if enfant.famille is not empty %}{{ enfant.famille.nom}}{% else %}{% endif %} </td>
+                            <td>{% if enfant.cellule is empty %} {% else %} {{ enfant.cellule.zone.nom}}{% endif %} </td>
+                            <td>{% if enfant.peremembre is not empty %} {{ enfant.peremembre.nomfidele}} {% else %}{{ enfant.pere}}{% endif %}</td>
+                        </tr>
+
+
+                        <tr class="btn-success">
+
+                            <td>Mère</td>   
+                            <td>Lieu d'habitation</td>  
+                            <td>Etat de vie parents</td>  
+                            <td>Etat physique</td>
+                            <td>Age</td>
+                            <td>Maladie</td>
+                            <td>Photo</td>
+
+                        </tr>
+
+                        <tr>
+                            <td>{% if enfant.merembre is not empty %} {{ enfant.merembre.nomfidele}} {% else %}{{ enfant.mere}}{% endif %}</td>
+                            <td> {{ enfant.lieuvivre}} </td>
+                            <td>{% if enfant.situationparent == 1 %} {{ enfant.vieparent}} {% else %} Parents en vie{% endif %}</td>
+                            <td>{% if enfant.situation == 1 %} {{ enfant.handicap}} {% else %}Bien portant{% endif %}</td>
+
+                            <td>
+                                {% set naissance = enfant.datenaiss|date('Y') %}
+                                {% set today = "now"|date('Y') %}
+                                {% set difference = today - naissance %}
+
+                                {{ difference }}
+                            </td>
+                            <td> {% if enfant.maladie is not empty %} {{ enfant.maladie }} {% else %} Aucune maladie {% endif %}</td>
+                            <td>  {% if enfant.photoFile is not empty %} <a href="{{ asset('uploads/photos/' ~ enfant.photoFile) }}">Voir photo</a> {% else %} Photo indisponible {% endif %}</td>
+
+                        </tr>
+
+
+
+
+
+
+                        </tbody>
+
+                        <tfooter>
+                            <tr>
+                                <td>
+                                    <a href='{{ path('enfant') }}'>
+                                        <button class="btn btn-primary">Afficher la liste</button>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ path('enfant_update', {'id': enfant.id}) }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit" title="Modifier"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                {#
+                                                              <td>
+                                                                  <a href="{{ path('enfant_printbyid', {'id': enfant.id}) }}">
+                                                                      <span style="font-size: 1em; color: Dodgerblue;">
+                                                                          <i class="fa fa-print" title="Imprimer la fiche"></i>
+                                                                      </span>
+                                                                  </a>
+                                                              </td>
+                                                            
+                                                              <td>
+                                                                  <a href="{{ path('enfant_supp', {'id': enfant.id}) }}">
+                                                                      <span style="font-size: 1em; color: red;">
+                                                                          <i class="fas fa-trash-alt" title="Supprimer"></i>
+                                                                      </span>
+                                                                  </a>
+                                                              </td>#}
+
+                                <td>
+                                    <form method="post" action="{{ path('enfant_delete', {'id': enfant.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ enfant.id) }}">
+
+                                        <button class="btn">
+                                            <span style="font-size: 1em; color: red;">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                </td>
+
+                            </tr></tfooter>
+                        </form>
+                </table>
+
+
+            </div>
+        </div>
+    {% endblock %}

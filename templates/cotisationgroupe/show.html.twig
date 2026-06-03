@@ -1,0 +1,64 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotisationgroupe{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Details cotisation :{{ cotisationgroupe.objet }} </h3>
+            </div>
+
+            <table class="table">
+                <tbody>
+
+                    <tr>
+                        <th>Date limite</th>
+                        <td>{{ cotisationgroupe.datefin ? cotisationgroupe.datefin|date('d-m-Y') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Objet</th>
+                        <td>{{ cotisationgroupe.objet }}</td>
+                    </tr>
+                    <tr>
+                        <th>Montant</th>
+                        <td>{{ cotisationgroupe.montant|number_format(0, '.', ' ') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Montantal cotisé</th>
+                        <td>
+                            {% set detail = cotisationgroupe.cotisergroupes  %}
+                            {% for detail in detail %}
+                                {% set sum = detail.montantpayer + sum ?? 0 %}
+                                {% if loop.last  %} <b> {{ sum|number_format(0, '.', ' ') }}</b>  {% endif %}
+                            {% endfor %}
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Etat </th>
+                        <td>
+                            {% if date('now') < date(cotisationgroupe.datefin) %}
+                                <b>En cours</b>
+
+                            {% else %}
+
+                                <i class="btn btn-success">  Achévée</i>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+
+        </div>
+        <a href='{{ path('cotisationgroupe_index') }}'>
+            <button class="btn btn-success">Liste cotisations</button>
+        </a>
+    </div>
+
+
+
+{% endblock %}

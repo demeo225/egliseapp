@@ -1,0 +1,1367 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan global des activités {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_global') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+
+
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and cenes |length==0 %}
+            Aucune Sainte Cène
+
+        {% else %}
+
+            {% if cenes |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan Saintes Cènes</h3>
+                    </div>
+
+
+                    <div style="align-content: center">
+                        {% for cene in cenes %}
+                            {% set seance = cenes|length %}
+
+                            {% if loop.last  %}
+                                Total :   {{ seance }} <br /> 
+
+                            {% endif %}
+
+                        {% endfor %}
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Date </th>
+                                    <th>Pasteur officiant</th>
+                                    <th>Pasteur 2nd</th>
+
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for cene in cenes %}
+
+                                    <tr>
+
+                                        <td>{{ date_format(cene.datescene) }}</td>
+
+                                        <td>{{ cene.pasteur1 }}</td>
+                                        <td>{{ cene.pasteur2 }}</td>
+
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and baptemes |length==0 %}
+            Aucun Baptème
+
+        {% else %}
+
+            {% if baptemes |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan baptêmes</h3>
+                    </div>
+                    <div class="center">
+                        {% for bapteme in baptemes %}
+                            {% set seance = (baptemes|length)  %}
+
+                            {% if loop.last  %}
+                                Total :   {{ seance }} <br /> 
+
+                            {% endif %}
+
+                        {% endfor %}
+                    </div>
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Promotion</th>
+                                    <th>Pasteur officiant</th>
+                                    <th>Parrain</th>
+                                    <th>Lieu </th>
+                                    <th>Date </th>
+                                    <th>Voir les fidèles </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for bapteme in baptemes %}
+
+                                    <tr>
+                                        <td>{{ bapteme.promotion }}</td>
+                                        <td>{{ bapteme.pasteurofficient }}</td>
+                                        <td>{{ bapteme.parrain }}</td>
+                                        <td>{{ bapteme.lieubapteme }}</td>
+                                        <td>{{ bapteme.datebapteme ? date_format(bapteme.datebapteme) }}</td>
+                                        <td>
+                                            <button type="button" id="btn-evangile-modal" class="btn btn-primary" data-target="{{ path('bapteme_search_ames', {'id':bapteme.id}) }}"> 
+                                                <i class="fas fa-users" title="Details"></i>
+                                            </button> 
+                                        </td>
+
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and conges |length==0 %}
+            Aucun congé
+
+        {% else %}
+
+            {% if conges |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan congés</h3>
+                    </div>
+                    <div class="center">
+                        {% for conge in conges %}
+                            {% set conge = (conges|length)  %}
+
+                            {% if loop.last  %}
+                                Total:  <b> {{ conge }} </b> <br /> 
+
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Fidèle</th>
+                                    <th>Contact</th>
+                                    <th>Photo</th>
+                                    <th>Date debut</th>
+                                    <th>Date fin</th>
+                                    <th>Cause</th>
+                                    <th>Etat</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for conge in conges %}
+
+                                    <tr>
+
+                                        <td> {% if conge.fidele is not empty %} {{ conge.fidele.nomfidele|upper }} {% else %} {% endif %}</td>
+
+                                        <td> {% if conge.fidele is not empty %} {{ conge.fidele.contact1 }} {% else %} {% endif %}</td>
+                                        <td> 
+
+                                            {% if conge.fidele.photoFile is not empty %}<img src="{{ asset('uploads/photos/'~conge.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" title="Voir details" style="max-width: 100%;  max-height: 100%"/>{% else %} {% endif %}</td>
+
+                                        <td>{{ conge.dateconge ?  date_format(conge.dateconge) }}</td>
+                                        <td>{{ conge.datefin ?  date_format(conge.datefin) }}</td>
+                                        <td>{{ conge.cause }}</td>
+                                        <td>
+
+
+                                            {% if conge.datefin is empty or conge.datefin|date('Y-m-d') > "now"|date('Y-m-d')  %}<b style="color: red"> En cours </b> {% else %} Achevé {% endif %} </td>
+
+
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and cultes |length==0 %}
+            Aucun culte
+
+        {% else %}
+
+            {% if cultes |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan cultes</h3>
+                    </div>
+                    <div style="align-content: center">
+
+                        {% for culte in cultes %}
+                            {% set seancec =   cultes|length  %}
+
+
+                            {% set nmbrehomme =culte.nmbrehomme%}
+                            {% set nobrefemme = culte.nobrefemme %}
+                            {% set nbrefant = culte.nbrefant %}
+                            {% set nbreinvite = culte.invite %}
+                            {% set totalc = nmbrehomme + nobrefemme + nbrefant + nbreinvite + totalc ?? 0 %}
+
+                            {% if loop.last  %}
+
+
+                                Nombre total cultes:   {{ seancec }} <br />
+
+                                {% set moyene1 = totalc / seancec %}
+                                Moyenne :<b> {{ moyene1|number_format() }} personnes / culte</b> 
+
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Thème</th>
+                                    <th>Dirigeant</th>
+                                    <th>Orateur</th>
+                                    <th>Total fidèles</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+
+                                <tr>
+
+                                    {% for culte in cultes %}
+                                        <td>{{ date_format(culte.dateculte)}}</td>
+                                        <td>{{ culte.theme}}</td>
+                                        <td>{% if culte.dirigeant is not empty %} {{ culte.dirigeant.nomfidele}} {% else %}{% endif %}</td>
+
+                                        <td>{% if culte.messager is not empty %} {{ culte.messager.nomfidele}} {% else %}{{ culte.orateur}}{% endif %}</td>
+                                        <td>
+                                            {% set nmbrehomme =culte.nmbrehomme%}
+                                            {% set nobrefemme = culte.nobrefemme %}
+                                            {% set nbrefant = culte.nbrefant %}
+                                            {% set nbreinvite = culte.invite %}
+
+                                            {{ nmbrehomme + nobrefemme + nbrefant + nbreinvite }}</td>
+                                    </tr>
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and disciplines |length==0 %}
+            Aucune sanction
+
+        {% else %}
+
+            {% if disciplines |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan des sous-disciplines</h3>
+                    </div>
+                    <div style="align-content: center">
+                        {% for discipline in disciplines %}
+                            {% set seance = disciplines|length %}
+
+                            {% if loop.last  %}
+                                Nombre total:   {{ seance }} <br />
+
+
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Fidèle</th>
+                                    <th>Contact</th>
+                                    <th>Photo</th>
+                                    <th>Date debut</th>
+                                    <th>Date fin</th>
+                                    <th>Etat</th>
+                                    <th>Details</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for discipline in disciplines %}
+
+                                    <tr>
+
+                                        <td> {% if discipline.fidele is not empty %} {{ discipline.fidele.nomfidele|upper }} {% else %} {% endif %}</td>
+
+                                        <td> {% if discipline.fidele is not empty %} {{ discipline.fidele.contact1 }} {% else %} {% endif %}</td>
+                                        <td> 
+
+                                            {% if discipline.fidele.photoFile is not empty %}<img src="{{ asset('uploads/photos/'~discipline.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" title="Voir details" style="max-width: 100%;  max-height: 100%"/>{% else %} {% endif %}</td>
+
+                                        <td>{{ discipline.datedebut ? discipline.datedebut|date('d-m-Y') : '' }}</td>
+                                        <td>{{ discipline.datefin ? discipline.datefin|date('d-m-Y') : '' }}</td>
+                                        <td> {% if discipline.etat == 0  %}<b style="color: red"> En cours </b> {% else %} Achevé {% endif %} </td>
+
+                                        <td>
+
+                                            <button type="button" id="btn-evangile-modal" data-target="{{ path('app_discipline_show', {'id': discipline.id}) }}"> 
+                                                <span style="font-size: 1em; color: Dodgerblue;">
+                                                    <i class="fas fa-list" title="Details"></i>
+                                                </span>
+                                            </button>
+
+
+                                        </td>
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and invites |length==0 %}
+            Aucun invité
+
+        {% else %}
+
+            {% if invites |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan des nouvelles personnes</h3>
+                    </div>
+                </div>
+                <div style="align-content: center">
+                    {% for invite in invites %}
+                        {% set seance = invites|length%}
+
+                        {% if loop.last  %}
+
+                            Nombre total:   {{ seance }} <br />
+
+
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="card-body">
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Invite</th>
+                                <th>Numéro</th>
+                                <th>Genre</th>
+                                <th>Invité(e) par</th>
+                                <th>Culte</th>
+
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for invite in invites %}
+
+                                <tr>
+
+                                    <td>{{ invite.nom}}</td>
+                                    <td>{{ invite.contact}}</td>
+                                    <td> {% if invite.fidele is not empty %} {{ invite.fidele.nomfidele}} {% else %} {{ invite.invitant}} {% endif %}</td>                <td>
+                                    <td> {% if invite.culte is not empty %} {{ date_format(invite.culte.dateculte)}} {% else %} {% endif %}</td>
+
+
+
+
+
+                                </tr>
+
+
+                            {% endfor %}
+
+
+                        </tbody>
+                    </table>
+                </div>
+
+
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and evangelisations |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+
+            {% if evangelisations |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan évangelisation</h3>
+                    </div>
+
+
+                    <div style="align-content: center">
+                        {% for evangelisation in evangelisations %}
+                            {% set nombre = evangelisations|length  %}
+                            {% set sum = evangelisation.personnes1 + sum ?? 0 %}
+                            {% if loop.last  %} 
+                                Total séances: <b>{{ nombre }}</b> <br />
+                                Personnes contactées: <b> {{ sum|number_format(0, '.', ' ')}} personne(s)</b>  {% endif %}
+                                {% endfor %}
+                                </div>
+
+                                <hr style="visibility: hidden" /> 
+                                <div class="card-body">
+
+                                    <table id="example1" class="table table-bordered table-striped">
+
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Lieu</th>
+                                                <th>Responsable</th>
+                                                <th>Nouvelles âmes</th>
+                                                <th>Details</th>
+
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {% for evangelisation in evangelisations %}
+                                                <tr>
+                                                    <td>{{ evangelisation.dateop ? evangelisation.dateop|date('d-m-Y') : '' }}</td>
+                                                    <td>{{ evangelisation.lieu }}</td>
+                                                    <td>{{ evangelisation.responsable1 }}</td>
+
+
+                                                    <td>
+                                                        <button type="button" id="btn-evangile-modal" class="btn btn-primary" data-target="{{ path('evangelisation_search_ames', {'id':evangelisation.id}) }}"> 
+                                                            <i class="fas fa-users" title="Details"></i>
+                                                        </button> 
+                                                    </td>
+
+                                                    <td>
+                                                        <button type="button" id="btn-evangile-modal" class="btn btn-primary" data-target="{{ path('app_evangelisation_show', {'id':evangelisation.id}) }}"> 
+                                                            <i class="fas fa-list" title="Details"></i>
+                                                        </button> 
+
+                                                    </td>
+
+                                                </tr>
+
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% endif %}
+                                    {% endif %}
+
+                                    </div>
+                                </div>
+
+
+                                <div class="rows">
+                                    {% if app.request.method == 'POST' and patrimoines |length==0 %}
+                                        Aucune donnée pour Patrimoine
+
+                                    {% else %}
+
+                                        {% if patrimoines |length >0 %}
+                                            <div class="card card-primary">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Bilan du patrimoine</h3>
+                                                </div>
+                                                <div style="align-content: center">
+                                                    <div style="align-content: center">
+                                                        Montant depensé à cette periode:
+                                                    </div>
+                                                    <div class="btn btn-success">
+
+                                                        {% for patrimoine in patrimoines %}
+                                                            {% set quantite = patrimoine.quantite %}
+                                                            {% set prixunitaire = patrimoine.prixunitaire %}
+                                                            {% set montant = quantite * prixunitaire  %}
+                                                            {% set sum = montant + sum ?? 0 %}
+                                                            {% if loop.last  %} <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} F CFA </b>  {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                <hr style="visibility: hidden" /> 
+                                                <div class="card-body">
+
+                                                    <table id="example1" class="table table-bordered table-striped">
+
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Date</th>
+                                                                <th>Article</th>
+                                                                <th>Quantité</th>
+                                                                <th>Prix unitaire</th>
+                                                                <th>Prix total</th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                            {% for patrimoine in patrimoines %}
+
+                                                                <tr>
+
+                                                                    <td>{{ date_format(patrimoine.datepatrimoine)}}</td>
+                                                                    <td>{{ patrimoine.article|upper}}</td>
+                                                                    <td>{{ patrimoine.quantite}}</td>
+
+                                                                    <td>{{ patrimoine.prixunitaire}}</td>
+                                                                    <td>  {% set quantite = patrimoine.quantite %}
+                                                                        {% set prixunitaire = patrimoine.prixunitaire %}
+                                                                        {% set montant = quantite * prixunitaire  %}
+
+                                                                        <b> {{ montant|number_format(0, '.', ' ') }}</b>
+
+                                                                    </td>
+
+
+
+                                                                </tr>
+
+
+                                                            {% endfor %}
+
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+
+
+                                <div class="rows">
+                                    {% if app.request.method == 'POST' and pastorales |length==0 %}
+                                        Aucune reunion pastorale
+
+                                    {% else %}
+
+                                        {% if pastorales |length >0 %}
+                                            <div class="card card-primary">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Bilan des reunions pastorales</h3>
+                                                </div>
+
+                                                {% for pastorale in pastorales %}
+                                                    {% set seance = pastorales|length %}
+
+
+
+                                                    {% if loop.last  %}
+
+
+                                                        Nombre total:   {{ seance }} <br />
+
+
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <div class="card-body">
+
+                                                    <table id="example1" class="table table-bordered table-striped">
+
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Date debut</th>
+                                                                <th>Date fin</th>
+                                                                <th>Rencontre</th>
+                                                                <th>Lieu</th>
+                                                                <th>Dirigeant</th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                            {% for pastorale in pastorales %}
+
+                                                                <tr>
+                                                                    <td> {% if pastorale.datepastorale is not empty  %} {{ date_format( pastorale.datepastorale)}} à {{  pastorale.datepastorale|date('H:i:s') }} {% else %} {% endif %}</td>
+                                                                    <td> {{ date_format( pastorale.datefin)}} à {{  pastorale.datefin|date('H:i:s') }} </td>
+                                                                    <td>{{ pastorale.type }}</td>
+                                                                    <td>{{ pastorale.lieu }}</td>
+                                                                    <td>{% if pastorale.pasteur1 is not empty %} {{ pastorale.pasteur1.nomfidele  }}{% else %} {% endif %} </td>
+
+                                                                </tr>
+                                                            {% endfor %}
+
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+
+
+                                <div class="rows">
+                                    {% if app.request.method == 'POST' and visites |length==0 %}
+                                        Aucune visite
+
+                                    {% else %}
+
+                                        {% if visites |length >0 %}
+                                            <div class="card card-primary">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Bilan visiteurs</h3>
+                                                </div>
+                                                {% for visite in visites %}
+                                                    {% set seance = visites|length %}
+                                                    {% if loop.last  %}
+                                                        Nombre total:   {{ seance }} <br />
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <div class="card-body">
+
+                                                    <table id="example1" class="table table-bordered table-striped">
+
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Date visite</th>
+                                                                <th>Visiteurs</th>
+                                                                <th>Genre</th>
+                                                                <th>Contact</th>
+                                                                <th>Reçu par</th>
+
+
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                            {% for visite in visites %}
+
+                                                                <tr>
+
+                                                                    <td>{{ visite.datevisite ? date_format(visite.datevisite) }}</td>
+                                                                    <td>{{ visite.visiteur }}</td>
+                                                                    <td>{{ visite.sexe }}</td>
+                                                                    <td>{{ visite.contact1 }}</td>
+                                                                    <td> {% if visite.receptionpar is not empty %} {{ visite.receptionpar }} {% else %} {% endif %}</td>
+
+                                                                </tr>
+
+
+                                                            {% endfor %}
+
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+
+
+                                <div class="rows">
+                                    {% if app.request.method == 'POST' and sociales |length==0 %}
+                                        Aucune  action sociale
+
+                                    {% else %}
+
+                                        {% if sociales |length >0 %}
+                                            <div class="card card-primary">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Bilan actions sociales</h3>
+                                                </div>
+                                                {% for sociale in sociales %}
+                                                    {% set seance = sociales|length%}
+                                                    {% if loop.last  %}
+                                                        Nombre total:   {{ seance }} <br />
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <div class="card-body">
+
+                                                    <table id="example1" class="table table-bordered table-striped">
+
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Date</th>
+                                                                <th>Don en espèce</th>
+                                                                <th>Dons en nature</th>
+                                                                <th>Beneficiaire</th>
+                                                                <th>Detail</th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                            {% for sociale in sociales %}
+
+                                                                <tr>
+
+                                                                    <td>{{  date_format(sociale.datesociale) }}</td>
+                                                                    <td>{{ sociale.montant }}</td>
+                                                                    <td>{{ sociale.nature }}</td>
+                                                                    <td>{{ sociale.beneficiaire }}</td>
+                                                                    <td>{{ sociale.detail }}</td>
+
+                                                                </tr>
+
+
+
+                                                            {% endfor %}
+
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+
+                                <div class="rows">
+                                    {% if app.request.method == 'POST' and recommandations |length==0 %}
+                                        Aucune recommandation
+
+                                    {% else %}
+
+                                        {% if recommandations |length >0 %}
+                                            <div class="card card-primary">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Bilan Lettres de recommandation</h3>
+                                                </div>
+
+                                                <div style="align-content: center">
+
+                                                    {% for recommandation in recommandations %}
+                                                        {% set seance = recommandations|length %}
+                                                        {% if loop.last  %}
+                                                            Nombre total:   {{ seance }} <br />
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div class="card-body">
+
+                                                    <table id="example1" class="table table-bordered table-striped">
+
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Fidèle</th>
+                                                                <th>Contact</th>
+                                                                <th>Date</th>
+                                                                <th>Reférence</th>
+
+                                                                <th>Lettre</th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                            {% for recommandation in recommandations %}
+
+                                                                <tr>
+
+                                                                    <td>{{ recommandation.fidele.nomfidele|upper}}</td>
+                                                                    <td>{{ recommandation.fidele.contact1 }}</td>
+                                                                    <td>{{ recommandation.dateop|date('d-m-Y') }}</td>
+
+                                                                    <td>{{ recommandation.reference }}</td>
+                                                                    <td>
+                                                                        <a href="{{ path('recommandation_print', {'id': recommandation.id}) }}">
+                                                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                                                <i class="fa fa-print"></i>
+                                                                            </span>
+                                                                        </a>
+                                                                    </td>
+
+                                                                </tr>
+
+
+                                                            {% endfor %}
+
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+
+
+
+                                <div class="rows">
+                                    {% if app.request.method == 'POST' and programmes |length==0 %}
+                                        Aucun programme
+
+                                    {% else %}
+
+                                        {% if programmes |length >0 %}
+                                            <div class="card card-primary">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Bilan des programmes</h3>
+                                                </div>
+                                                <div style="align-content: center">
+
+                                                    {% for programme in programmes %}
+                                                        {% set seance = programmes|length %}
+                                                        {% if loop.last  %}
+                                                            Nombre total:   {{ seance }} <br />
+
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div class="card-body">
+
+                                                    <table id="example1" class="table table-bordered table-striped">
+
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Programme</th>
+                                                                <th>Description</th>
+                                                                <th>Debut</th>
+                                                                <th>Fin</th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                            {% for programme in programmes %}
+
+                                                                <tr>
+
+                                                                    <td>{{ programme.title}}</td>
+
+                                                                    <td>{{ programme.description|raw}}</td>
+
+
+                                                                    <td>{{ date_format(programme.start)}} à {{ programme.start|date('H:i:s') }}</td>
+                                                                    <td>{{ date_format(programme.end)}} à {{ programme.end|date('H:i:s') }}</td>
+
+
+
+
+                                                                </tr>
+
+
+                                                            {% endfor %}
+
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+
+
+                                <div class="rows">
+                                    {% if app.request.method == 'POST' and naissances |length==0 %}
+                                        Aucune naissance
+
+                                    {% else %}
+
+                                        {% if naissances |length >0 %}
+                                            <div class="card card-primary">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Bilan naissances</h3>
+                                                </div>
+
+                                                <div style="align-content: center">
+
+                                                    {% for naissance in naissances %}
+                                                        {% set seance = naissances|length %}
+
+                                                        {% if loop.last  %}
+
+                                                            Nombre total:   {{ seance }} <br />
+
+
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+
+                                                <div class="card-body">
+
+                                                    <table id="example1" class="table table-bordered table-striped">
+
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Date présentation</th>
+                                                                <th>Enfant</th>
+                                                                <th>Sexe</th>
+                                                                <th>Image </th>
+                                                                <th>Details </th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                            {% for naissance in naissances %}
+
+                                                                <tr>
+
+                                                                    <td>{{ date_format(naissance.datepresentation) }}</td>
+                                                                    <td>{{ naissance.nomnaiss|upper}}</td>
+                                                                    <td>{% set sexe = naissance.sexenaiss %}
+                                                                        {% if sexe == 1 %} Garçon
+                                                                        {% else %}
+                                                                            Fille
+                                                                        {% endif %}
+
+                                                                    </td>
+
+                                                                    <td> {% if naissance.photoFile is not empty %}  <a href="{{ asset('uploads/photos/' ~ naissance.photoFile) }}">Voir photo</a>
+                                                                    {% else %} Aucune image {% endif %}</td>
+
+
+
+                                                                        <td>
+                                                                            <button type="button" id="btn-evangile-modal" class="btn btn-primary" data-target="{{ path('naissance_show', {'id':naissance.id}) }}"> 
+                                                                                <i class="fas fa-list" title="Details"></i>
+                                                                            </button> 
+
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+
+
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+
+                                                        {% endif %}
+                                                            {% endif %}
+                                                            </div>
+
+
+
+                                                            <div class="rows">
+                                                                {% if app.request.method == 'POST' and nomminations |length==0 %}
+                                                                    Aucune nommination
+
+                                                                {% else %}
+
+                                                                    {% if nomminations |length >0 %}
+                                                                        <div class="card card-primary">
+                                                                            <div class="card-header">
+                                                                                <h3 class="card-title">Bilan des nomminations</h3>
+                                                                            </div>
+
+                                                                            <div style="align-content: center">
+
+                                                                                {% for nommination in nomminations %}
+                                                                                    {% set seancen = nomminations|length  %}
+
+                                                                                    {% if loop.last  %}
+
+                                                                                        Nombre total:   {{ seancen }} <br />
+
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                            </div>
+
+
+                                                                            <div class="card-body">
+
+                                                                                <table id="example1" class="table table-bordered table-striped">
+
+                                                                                    <thead>
+                                                                                        <tr>
+                                                                                            <th>Date nomination</th>
+                                                                                            <th>Decret</th>
+                                                                                            <th>Fidèles</th>
+
+                                                                                        </tr>
+                                                                                    </thead>
+
+                                                                                    <tbody>
+                                                                                        {% for nommination in nomminations %}
+
+                                                                                            <tr>
+
+                                                                                                <td>  {{ nommination.datenomination|date('d-m-Y')  }} </td>
+                                                                                                <td>{{ nommination.decret }} </td>
+                                                                                                <td> 
+                                                                                                    <div>
+
+
+                                                                                                        <button type="button" id="btn-evangile-modal" class="btn btn-primary" data-target="{{ path('nommination_search_fideles', {'id':nommination.id}) }}">Voir les fideles</button>
+
+                                                                                                    </div>
+
+                                                                                                </td>
+
+                                                                                            </tr>
+
+
+                                                                                        {% endfor %}
+
+
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    {% endif %}
+                                                                {% endif %}
+
+
+
+                                                            </div>
+
+                                                            <div class="rows">
+                                                                {% if app.request.method == 'POST' and visite2s |length==0 %}
+                                                                    Aucune visite effectuée
+
+                                                                {% else %}
+
+                                                                    {% if visite2s |length >0 %}
+                                                                        <div class="card card-primary">
+                                                                            <div class="card-header">
+                                                                                <h3 class="card-title">Bilan des visites</h3>
+                                                                            </div>
+
+                                                                            <div class="card-body">
+
+                                                                                <table id="example1" class="table table-bordered table-striped">
+
+                                                                                    <thead>
+                                                                                        <tr>
+                                                                                            <th>Lieu</th>
+                                                                                            <th>Date</th>
+                                                                                            <th>Heure</th>
+                                                                                            <th>Verset</th>
+                                                                                            <th>Responsable</th>
+                                                                                            <th>Details</th>
+
+                                                                                        </tr>
+                                                                                    </thead>
+
+                                                                                    <tbody>
+                                                                                        {% for visite2 in visite2s %}
+                                                                                            <tr>
+                                                                                                <td>{{ visite2.lieu }}</td>
+                                                                                                <td>{{ date_format(visite2.datevisite) }} </td>
+                                                                                                <td> {{ visite2.heure|date('H:i:s')}}</td>
+                                                                                                <td>{{ visite2.verset }}</td>
+                                                                                                <td>{{ visite2.responsable }}</td>
+
+                                                                                                <td>
+
+
+
+                                                                                                    <button type="button" id="btn-evangile-modal" data-target="{{ path('app_visite2_show', {'id': visite2.id}) }}"> 
+                                                                                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                                                                                            <i class="fas fa-users" title="Voir details"></i>
+                                                                                                        </span>
+                                                                                                    </button>
+
+                                                                                                </td>
+
+                                                                                            </tr>
+                                                                                        {% else %}
+
+                                                                                        {% endfor %}
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </div>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="rows">
+                                                                {% if app.request.method == 'POST' and decess |length==0 %}
+                                                                    Aucun décès
+
+                                                                {% else %}
+
+                                                                    {% if decess |length >0 %}
+                                                                        <div class="card card-primary">
+                                                                            <div class="card-header">
+                                                                                <h3 class="card-title">Bilan décès</h3>
+                                                                            </div>
+                                                                            <div style="align-content: center">
+
+                                                                                {% for deces in decess %}
+                                                                                    {% set seance = decess|length %}
+
+                                                                                    {% if loop.last  %}
+
+                                                                                        Nombre total:   {{ seance }} <br />
+
+
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                            </div>
+                                                                            <div class="card-body">
+
+                                                                                <table id="example1" class="table table-bordered table-striped">
+
+                                                                                    <thead>
+                                                                                        <tr>
+                                                                                            <th>Date</th>
+                                                                                            <th>Code fidèle</th>
+                                                                                            <th>Fidèle</th>
+                                                                                            <th>Lieu</th>
+                                                                                            <th>Cause du décès</th>
+                                                                                            <th>Image</th>
+                                                                                        </tr>
+                                                                                    </thead>
+
+                                                                                    <tbody>
+                                                                                        {% for deces in decess %}
+
+                                                                                            <tr>
+                                                                                                <td>{{ deces.datedeces ? date_format(deces.datedeces) }}</td>
+                                                                                                <td>{{ deces.fidele.code|upper}}</td>
+                                                                                                <td>{{ deces.fidele.nomfidele }}</td>
+                                                                                                <td>{{ deces.lieudeces }}</td>
+                                                                                                <td>{{ deces.raisondeces }}</td>
+                                                                                                <td>
+                                                                                                    <img src="{{ asset('uploads/photos/'~deces.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" title="Photo" /> 
+                                                                                                </td>
+
+                                                                                            </tr>
+
+
+                                                                                        {% endfor %}
+
+
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            </div>
+
+       
+                                                            
+                                                            
+                                                            <div class="rows">
+    {% if app.request.method == 'POST' and cultecodims |length==0 %}
+        Aucune donnée trouvée
+
+    {% else %}
+
+        {% if cultecodims |length >0 %}
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Resultats cultes ECODIM</h3>
+                </div>
+
+                <div  class="card-body">
+                    {% for cultecodim in cultecodims %}
+                        {% set seance = cultecodims|length %}
+                        {% set sum = cultecodim.offrande + sum ?? 0 %}
+                        {% set nmbrehomme =cultecodim.nbregarcon %}
+                        {% set nobrefemme = cultecodim.nbrefille %}
+                        {% set total = nobrefemme + nmbrehomme + total ?? 0 %}
+
+                        {% if loop.last  %}
+
+                            Moyenne : <b> {{ (total / seance ) |number_format}} </b> enfants par culte <br />
+                            Totale offrande :  <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} C CFA</b>  {% endif %}
+                            {% endfor %}
+                            </div>
+
+                            <hr style="visibility: hidden" /> 
+
+                            <div class="card-body">
+
+                                <table id="example1" class="table table-bordered table-striped">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Classe</th>
+                                            <th>Garçons</th>
+                                            <th>Filles</th>
+                                            <th>Total</th>
+                                            <th>Detail</th>
+
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        {% for cultecodim in cultecodims %}
+
+
+                                            <tr>
+                                                <td>{{ date_format(cultecodim.dateculte)}}</td>
+                                                <td>{{ cultecodim.classecodim.nom|upper}}</td>
+                                                <td>{{ cultecodim.nbregarcon}}</td>
+                                                <td>{{ cultecodim.nbrefille}}</td>
+                                                {% set nmbrehomme =cultecodim.nbregarcon %}
+                                                {% set nobrefemme = cultecodim.nbrefille %}
+                                                <td>{{ nmbrehomme + nobrefemme}}</td>
+
+
+
+                                                <td>
+
+                                                    <button type="button" id="btn-evangile-modal" class="btn btn-primary" data-target="{{ path('cultecodim_detail', {'id': cultecodim.id}) }}"> 
+                                                        <i class="fas fa-list" title="Details"></i>
+                                                    </button>
+
+
+                                                </td>
+
+
+                                            </tr>
+                                        {% else %}
+
+                                        {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {% endif %}
+                            {% endif %}
+                            </div>
+
+
+                                                            <div class="modal fade bd-example-modal-lg" id="evangileModal" tabindex="-1" aria-labelledby="evangileModalLabel" aria-hidden="true">
+
+                                                                <div class="modal-dialog modal-lg">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-body">
+
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {% endblock %}
+
+
+                                                                {% block javascripts %}
+                                                                    {{ parent() }}
+                                                                 
+
+                                                                    <script>
+                                                                        $(document).ready(function () {
+                                                                            // quand on clic sur le button voir les evangile pour ouvrir la fenêtre modal
+                                                                            $(document).on('click', 'button#btn-evangile-modal', function () {
+                                                                                // créer le modal qui porte l'id evangileModal
+                                                                                let modal = new bootstrap.Modal(document.getElementById('evangileModal'), {
+                                                                                    keyboard: false
+                                                                                });
+
+                                                                                // recupere le div class="modal-body" du div id="evangileModal"
+                                                                                let container = $('#evangileModal .modal-body');
+
+                                                                                $.ajax({
+                                                                                    type: 'POST',
+                                                                                    url: $(this).attr('data-target'),
+                                                                                    async: true,
+                                                                                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                                                                                        container.empty();
+                                                                                    },
+                                                                                    success: function (html) {
+                                                                                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                                                                                        modal.show(); // on affiche la fenêtre modal
+                                                                                        //console.log(html);
+                                                                                    }
+                                                                                });
+                                                                            });
+                                                                        });
+                                                                    </script>
+                                                                {% endblock %}
+

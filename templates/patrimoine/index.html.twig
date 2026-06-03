@@ -1,0 +1,111 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Patrimoine de l'Eglise{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Valeur financière de l'église</h3>
+        </div>
+ <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+            <a href='{{ path('patrimoine_add') }}'>
+                <button class="btn btn-primary">Nouveau</button>
+            </a>
+
+            La valeur monétaire de notre Eglise est estimée à:
+            <div class="btn btn-success">
+
+                {% for patrimoine in patrimoine %}
+                    {% set sum = patrimoine.prixtotal + sum ?? 0 %}
+                    {% if loop.last  %} <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} F CFA </b>  {% endif %}
+                {% endfor %}
+            </div>
+            <hr style="visibility: hidden" />
+
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Article</th>
+                        <th>Quantité</th>
+                        <th>Prix unitaire</th>
+                        <th>Prix total</th>
+                        <th>Detail</th>
+                        <th>Modifier</th>
+                        <th>Supprimer</th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patrimoine in patrimoine %}
+                        <tr>
+                            <td>{{ patrimoine.article|upper}}</td>
+                            <td>{{ patrimoine.quantite}}</td>
+                            <td>{{ patrimoine.prixunitaire}}</td>
+                            <td>  {% set quantite = patrimoine.quantite %}
+                                {% set prixunitaire = patrimoine.prixunitaire %}
+                                {% set a = quantite * prixunitaire  %}
+
+                                <b> {{ a|number_format(0, '.', ' ') }}</b></td>
+
+
+
+
+                            <td>
+                                <a href="{{ path('patrimoine_detail', {'id': patrimoine.id}) }}">
+                                    <span style="font-size: 1em; color: Dodgerblue;">
+                                        <i class="fas fa-address-card"></i>
+                                    </span>
+                                </a>
+                            </td>
+
+
+                            <td>
+                                <a href="{{ path('patrimoine_update', {'id': patrimoine.id}) }}">
+                                    <span style="font-size: 1em; color: Dodgerblue;">
+                                        <i class="fas fa-edit"></i>
+                                    </span>
+                                </a>
+                            </td>
+                            <td>
+                                <form method="post" action="{{ path('patrimoine_delete', {'id': patrimoine.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ patrimoine.id) }}">
+
+                                    <button class="btn">
+                                        <span style="font-size: 1em; color: red;">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+
+        </div>
+    </div>
+
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des saintes cenes {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_cene') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+ 
+
+</form>    
+</div> 
+
+  <div class="rows">
+        {% if app.request.method == 'POST' and cenes |length==0 %}
+            Aucune Sainte Cène
+
+        {% else %}
+
+            {% if cenes |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan Saintes Cènes</h3>
+                    </div>
+
+
+                    <div style="align-content: center">
+                        {% for cene in cenes %}
+                            {% set seance = cenes|length %}
+
+                            {% if loop.last  %}
+                                Total :   {{ seance }} <br /> 
+
+                            {% endif %}
+
+                        {% endfor %}
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Date </th>
+                                    <th>Pasteur officiant</th>
+                                    <th>Pasteur 2nd</th>
+
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for cene in cenes %}
+
+                                    <tr>
+
+                                        <td>{{ date_format(cene.datescene) }}</td>
+
+                                        <td>{{ cene.pasteur1 }}</td>
+                                        <td>{{ cene.pasteur2 }}</td>
+
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            
+        {% endif %}
+    {% endif %}
+
+</div>
+{% endblock %}

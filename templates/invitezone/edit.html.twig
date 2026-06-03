@@ -1,0 +1,49 @@
+
+<div class="card card-primary">
+
+    <div class="card card-body">
+        {{ form_start(form, {'attr': {'action': path('app_invitezone_edit', {'id': invitezone.id}) }}) }}
+        <div class="my-custom-class-for-errors">
+            {{ form_errors(form) }}
+            {% for message in app.flashes('enregame') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                {{ form_row(form.seancezone, {'label':'Date '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.nom, {'label':'Nom & pénoms  '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.contact, {'label':'Contact '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.sexe, {'label':'Sexe '}) }}
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-md-3">
+                {{ form_row(form.habitation, {'label':'Lieu d\'habitation '}) }}
+            </div>
+
+            <div class="col-md-3">
+                {{ form_row(form.fonction, {'label':'Fonction  '}) }}
+            </div>
+     
+
+        </div>
+
+        <div class="row"> 
+            <div class="col-md-1">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save'}}) }}</div>
+            <div class="col-md-2.5" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+        </div> 
+        {{ form_end(form) }}
+
+    </div>
+</div>

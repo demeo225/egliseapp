@@ -1,0 +1,52 @@
+
+
+<div class="card card-body">
+        <div class="row">
+
+            <!-- /.card-header -->
+            <div class="card-body">
+           
+
+                <form action="{{ path('presenceactivite') }}" method="post">
+                    <div class="row">
+                        <div class="md-col-5">
+                            <select name="ecodimactivitie" id="ecodimactivitie" required="true" class="select2">
+                                <option value=""> -- Choix activité--</option>
+                                {% for ecoactivite in ecoactivite %}
+                                    <option value="{{ ecoactivite.id }}"> {{ ecoactivite.nomactivite }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <hr style="visibility: hidden" />  
+
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Enfant</th>
+                                <th>Code</th>
+                                <th>Photo</th>
+                                <th>Choix</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for enfant in enfant %}
+
+                                <tr>
+                                    <td> {{enfant.nom|upper }}</td>
+                                    <td> {{enfant.code|upper }}</td>
+                                    <td>  
+                                        <img src="{{ asset('uploads/photos/'~enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/>
+                                    </td>
+                                    <td><input type="checkbox" name ="tab[]" id="tab[]" value="{{ enfant.id }}" title="Participe"> </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <button class="btn btn-primary">{{ button_label|default('Valider') }}</button>
+                    <a href="{{ path('enfantactivite_listeparticipant') }}" class="btn btn-success">Liste de présence</a>
+                </form>
+            </div>
+        </div>
+
+    </div>

@@ -1,0 +1,66 @@
+
+
+
+<div class="card card-primary">
+
+    <div class="card-header">
+        <h3 class="card-title">Liste des fidèles  </h3>
+    </div>
+
+    <!-- /.card-header -->
+    <div class="card-body">
+
+        <table id="example1" class="table table-bordered table-striped">
+
+            <thead>
+                <tr>
+                    <th>Fidèle</th>
+                    <th>Teléphone</th>
+                    <th>Statut matrimonial</th>
+                    <th>Baptisé(e)</th>
+
+
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for fidele in fideles %}
+                    <tr>
+                        <td>{{ fidele.nomfidele|upper}}</td>
+                        <td>{{ fidele.contact1}}</td>
+                        <td>{{ fidele.statutmatri}}</td>
+
+                        <td> {% set stutbapteme= fidele.stutbapteme %}
+                            {% set sexe= fidele.sexe %}
+
+                            {% if stutbapteme == 'Oui' and sexe == 'Homme' %}
+                                Baptisé
+                            {% elseif stutbapteme == 'Non' and sexe == 'Homme' %}
+                                Non baptisé
+                            {% elseif stutbapteme == 'Oui' and sexe == 'Femme' %}
+                                Baptisée
+                            {% else %}
+                                Non Baptisée
+                            {% endif %}
+
+
+                        </td>
+
+
+
+                    </tr>
+                {% else %}
+                      <tr>
+                    <td colspan="5">aucune donnée trouvée</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+</div>
+

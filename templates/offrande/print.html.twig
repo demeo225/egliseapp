@@ -1,0 +1,45 @@
+
+{% block body %}
+
+
+
+    <div class="intro-header" style="background-image: url('/images/logo.jpg');"><br><br>
+        <!-- /.card-header -->
+        <center>
+            <h2><u><b>LISTE DES COMMUNES</b></u></h2>
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Montant</th>
+
+
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offrande in offrande %}
+                        <tr>
+                            <td>{{ offrande.dateoff|date('d-m-Y') }}</td>
+                            <td>{{ offrande.montant }}</td>
+
+                            <td>
+
+
+
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5">aucune donnée trouvée</td>
+                        </tr>                                    {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </center>
+        </div>
+
+        {% endblock %}

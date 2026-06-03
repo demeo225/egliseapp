@@ -1,0 +1,48 @@
+
+{% block body %}
+
+
+
+    <div class="intro-header" style="background-image: url('/images/logo.jpg');"><br><br>
+        <!-- /.card-header -->
+        <center>
+            <h2><u><b>PATRIMOINE DE L'EGLISE</b></u></h2>
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Article</th>
+                        <th>Quantité</th>
+                        <th>Montant</th>
+
+
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patrimoine in patrimoine %}
+                        <tr>
+                            <td>{{ patrimoine.article}}</td>
+                            <td>{{ patrimoine.quantite}}</td>
+                            <td>{{ patrimoine.prixunitaire}}</td>
+
+                            <td>
+
+
+
+                        </tr>
+                        
+                    {% else %}
+                        <tr>
+                            <td colspan="5">aucune donnée trouvée</td>
+                        </tr>                                    {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </center>
+        </div>
+
+        {% endblock %}

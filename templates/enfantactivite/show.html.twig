@@ -1,0 +1,53 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Details participation {% endblock %}
+
+{% block body %}
+  <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Details de participation</h3>
+            </div>
+
+    <table class="table">
+        <tbody>
+            <tr>
+            </tr>
+            <tr>
+                <th>Activité payante ? </th>
+                <td>
+                    {% if enfantactivite.etat == 0 %} <b>Gratuit</b>{% else %} Payant {% endif %}
+                 
+                
+                </td>
+            </tr>
+           <tr>
+                <th>Enfant</th>
+                <td>{{ enfantactivite.enfant.nom|upper }}</td>
+            </tr>
+              <tr>
+                <th>Code</th>
+                <td>{{ enfantactivite.enfant.code|upper}}</td>
+            </tr>
+              <tr>
+                <th>Contact</th>
+                <td>{{ enfantactivite.enfant.contact}}</td>
+            </tr>
+                <tr>
+                <th>Contact des parents</th>
+                <td>{{ enfantactivite.enfant.contactwhatssap }}</td>
+            </tr>
+            <tr>
+                <th>Date enregistrement</th>
+                <td>{{ enfantactivite.createAt ? enfantactivite.createAt|date('d-m-Y à H:i:s') : '' }}</td>
+            </tr>
+     
+        </tbody>
+    </table>
+        </div>
+
+                <div class="btn btn-default"><a href="{{ path('enfantactivite_listeparticipant') }}" class="btn btn-success">Afficher la liste des participants</a> </div>
+
+  </div>
+{% endblock %}

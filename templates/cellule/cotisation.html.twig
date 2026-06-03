@@ -1,0 +1,69 @@
+{% extends 'home/index.html.twig' %}
+{% block title %}{{ eglise.denomination }} : Cotisations de: {{ nomcellule|upper }} {% endblock %}
+
+{% block body %}
+
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    <a href='{{ path('cellule') }}'>
+                        <button class="btn btn-success">Retour à la liste</button>
+                    </a>
+                        <div class="btn btn-primary">
+                            Cotisations de : {{ nomcellule|upper }} </div>
+                    <hr style="visibility: hidden" />
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Cellule</th>
+                                <th>Cotisation</th>
+                                <th>Montant</th>
+                                <th>Date buttoire</th>
+                                <th>Etat</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cotisationcellule in cotisationcellules %}
+                                <tr>
+
+                                    <td> {% if cotisationcellule.cellule is not null  %} {{ cotisationcellule.cellule.nom|upper }}{% else %} {% endif %}</td>
+                                    <td>{{ cotisationcellule.objet }}</td>
+                                    <td>{{ cotisationcellule.montant }}</td>
+                                    <td>{{ cotisationcellule.datefin ? cotisationcellule.datefin|date('d-m-Y') : '' }}</td>
+
+                                    <td>
+                                        {% if date('now') < date(cotisationcellule.datefin) %}
+                                            <b>En cours</b>
+
+                                        {% else %}
+
+                                            <i class="btn btn-success">  Achévée</i>
+                                        {% endif %}
+                                    </td>
+
+
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="16">Aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+{% endblock %}

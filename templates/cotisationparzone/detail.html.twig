@@ -1,0 +1,73 @@
+{% extends 'home/index.html.twig' %}
+
+
+{% block title %}
+    Details {{ nomcotisationparzone|upper }} {% endblock %}
+
+    {% block body %}
+
+
+
+        <div class="card card-primary">
+
+            <div class="card-header">
+                <h3 class="card-title">Fidèles ayant cotisé pour: {{ nomcotisationparzone|upper }} </h3>
+            </div>
+            <h3><b> </b></h3>
+            <div class="container-fluid">
+                <div class="row">
+
+                    <!-- /.card-header -->
+                    <div class="card-body">
+
+                        <a href='{{ path('app_cotisationparzone_index') }}'>
+                            <button class="btn btn-success">Liste des cotisations</button>
+                        </a>
+                        {% for cotiserparzone in cotiserparzones %}
+                            
+                            {% set sum = cotiserparzone.montantpayer + sum ?? 0 %}
+                            {% if loop.last  %} Total cotisé :<b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} F CFA</b>  {% endif %}
+                             
+                        {% endfor %}
+                        <hr style="visibility: hidden" />
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Objet</th>
+                                    <th>Zone</th>
+                                    <th>Montant </th>
+                                    <th>Montant payé</th>
+                                    <th>Reste</th>
+                                  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cotiserparzone in cotiserparzones %}
+                                        <tr>
+                                            <td> {% if cotiserparzone.cotisationparzone is not null  %} {{ cotiserparzone.cotisationparzone.objet|upper }}{% else %} {% endif %}</td>
+                                            <td>{% if cotiserparzone.zone is not null  %}{{ cotiserparzone.zone.nom|upper }}{% else %} {% endif %}</td>
+                                            <td>{{ cotiserparzone.cotisationparzone.montant|number_format(0, '.', ' ') }}</td>
+                                            <td>{{ cotiserparzone.montantpayer|number_format(0, '.', ' ') }}</td>
+                                            <td>  {% if  cotiserparzone.reste == 0 %} <b>Soldé</b> 
+                                            {% elseif cotiserparzone.reste >0 %} {{ cotiserparzone.reste|number_format(0, '.', ' ') }} {% elseif cotiserparzone.reste < 0 %} 
+                                                <i class="btn btn-success"> Soldé </i> {% endif %}
+
+                                            </td>
+                                   
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4">Aucune donnée trouvée</td>
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+                    {% endblock %}

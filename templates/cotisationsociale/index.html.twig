@@ -1,0 +1,89 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Cotisations pour social{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Liste des cotisations</h3>
+        </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <div class="card-body">
+            <a href="{{ path('app_cotisationsociale_new') }}">
+                <button class="btn btn-primary">Nouveau</button></a>
+            <a href="{{ path('app_cotisersociale_index') }}">
+                <button class="btn btn-success">Paiements de cotisation</button>
+            </a>
+            <a href="{{ path('app_activitesociale_index') }}">
+                <button class="btn btn-success">Actions sociales</button>
+            </a>
+            <a href="{{ path('app_activitesociale_adultesociaux') }}">
+                <button class="btn btn-success">Cas sociaux</button>
+            </a>
+            <hr style="visibility: hidden" />
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+
+                        <th>Date limite</th>
+                        <th>Montant</th>
+                        <th>Objet</th>
+                        <th>Detail</th>
+                        <th>Modifier</th>
+                        <th>Supprimer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cotisationsociale in cotisationsociales %}
+                        <tr>
+                            <td>{{ date_format(cotisationsociale.datecotiser) }}</td>
+                            <td>{{ cotisationsociale.montant|number_format(0, '.', ' ') }}</td>
+                            <td>{{ cotisationsociale.objet }}</td>
+
+                            <td>
+                                <a href="cotiser/se?id={{ cotisationsociale.id }}">
+                                    <span style="font-size: 1em; color: Dodgerblue;">
+                                        <i class="fas fa-list" title="Details"></i>
+                                    </span>
+                                </a>
+
+                            </td>
+
+                            <td>
+                                <a href="{{ path('app_cotisationsociale_edit', {'id': cotisationsociale.id}) }}"><span style="font-size: 1em; color: Dodgerblue;">
+                                        <i class="fas fa-edit" title="Modifier"></i>
+                                    </span></a>
+                            </td>
+
+                            <td>
+                                {% if cotisationsociale.detailsociales is empty %}
+                                    <form method="post" action="{{ path('app_cotisationsociale_delete', {'id': cotisationsociale.id}) }}" onsubmit="return confirm('êtes-vous sûr de vouloir supprimer?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ cotisationsociale.id) }}">
+
+                                        <button class="btn">
+                                            <span style="font-size: 1em; color: red;">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                {% else %}
+
+                                {% endif %}
+                            </td>
+                        </tr>
+                    
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+    <head>
+        <meta charset="UTF-8" />
+
+
+        {% block stylesheets %}
+
+            {# { encore_entry_link_tags('app') } #}
+
+            <style>
+                *{
+                    padding: 0;
+                    margin: 0;
+                    box-sizing: border-box;
+                }
+                bodyf {
+                    font-family: "Montserrat";
+                }
+                section {
+                    min-height: 100vh;
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: aliceblue;
+                }
+                .containerf {
+                    max-width: 400px;
+                    width: 90%;
+                    padding: 20px;
+                    box-shadow: 0px 0px 20px #00000020;
+                    border-radius: 8px;
+                    background-color: white;
+                }
+                .step {
+                    display: none;
+                }
+                .step.active {
+                    display: block;
+                }
+                .form-group {
+                    width: 100%;
+                    margin-top: 20px;
+                }
+                .form-group input {
+                    width: 100%;
+                    border: 1.5px solid rgba(128, 128, 128, 0.418);
+                    padding: 5px;
+                    font-size: 18px;
+                    margin-top: 5px;
+                    border-radius: 4px;
+                }
+                button.next-btn,
+                button.previous-btn,
+                button.submit-btn {
+                    float: right;
+                    margin-top: 20px;
+                    padding: 10px 30px;
+                    border: none;
+                    outline: none;
+                    background-color: rgb(180, 220, 255);
+                    font-family: "Montserrat";
+                    font-size: 18px;
+                    cursor: pointer; /* text-align: right; */
+                }
+                button.previous-btn {
+                    float: left;
+                }
+                button.submit-btn {
+                    background-color: aquamarine;
+                }
+            </style>
+  <style>
+            /* Vos styles existants */
+            .church-info {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+            }
+            .step-indicator {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 30px;
+                padding: 0 20px;
+            }
+            .step-item {
+                flex: 1;
+                text-align: center;
+                position: relative;
+            }
+            .step-item:not(:last-child):before {
+                content: '';
+                position: absolute;
+                top: 20px;
+                right: -50%;
+                width: 100%;
+                height: 2px;
+                background: #e0e0e0;
+                z-index: 1;
+            }
+            .step-number {
+                width: 40px;
+                height: 40px;
+                background: #e0e0e0;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 10px;
+                font-weight: bold;
+                position: relative;
+                z-index: 2;
+            }
+            .step-item.active .step-number {
+                background: #667eea;
+                color: white;
+            }
+            .step-item.completed .step-number {
+                background: #28a745;
+                color: white;
+            }
+            .step-label {
+                font-size: 0.9rem;
+                color: #666;
+            }
+        </style>
+            <!-- Formulaire fidèle avec etape -->
+
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+
+            <!-- Formulaire fidèle avec etape -->
+
+            <!-- DataTables -->
+            <link rel="stylesheet" href="{{asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+            <link rel="stylesheet" href="{{asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css')}}">
+            <!-- Theme style -->
+            <link rel="stylesheet" href="{{asset('plugins/daterangepicker/daterangepicker.css')}}">
+            <!-- Google Font: Source Sans Pro -->
+            <link rel="stylesheet" href="{{asset('plugins/select2/css/select2.min.css')}}">
+
+            <link
+                href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+            <link rel="stylesheet" type="text/css" href="{{asset('plugins/DataTables/DataTables/css/dataTables.bootstrap4.min.css')}}"/>
+            <link rel="stylesheet" type="text/css" href="{{asset('plugins/DataTables-Buttons/css/buttons.bootstrap4.min.css')}}"/>
+            <!-- Custom styles for this template-->
+            <link href="{{asset('plugins/DataTables/datatables.min.css')}}" rel="stylesheet">
+            <link href="{{asset('plugins/DataTables/DataTables/css/dataTables.bootstrap4.min.css')}}" rel="stylesheet">
+            <link href="{{asset('plugins/DataTables-Buttons/css/dataTables.bootstrap4.min.css')}}" rel="stylesheet">
+
+
+
+
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <!-- Font Awesome -->
+            <!-- Ionicons -->
+            <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/duotone.css" integrity="sha384-R3QzTxyukP03CMqKFe0ssp5wUvBPEyy9ZspCB+Y01fEjhMwcXixTyeot+S40+AjZ" crossorigin="anonymous"/>
+            <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/fontawesome.css" integrity="sha384-eHoocPgXsiuZh+Yy6+7DsKAerLXyJmu2Hadh4QYyt+8v86geixVYwFqUvMU8X90l" crossorigin="anonymous"/>
+            <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+            <!-- Tempusdominus Bbootstrap 4 -->
+            <link rel="stylesheet" href="{{asset('plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}">
+            <!-- iCheck -->
+            <link rel="stylesheet" href="{{asset('plugins/icheck-bootstrap/icheck-bootstrap.min.css')}}">
+            <!-- JQVMap -->
+            <link rel="stylesheet" href="{{asset('plugins/jqvmap/jqvmap.min.css')}}">
+            <!-- Theme style -->
+            <link rel="stylesheet" href="{{asset('dist/css/adminlte.min.css')}}">
+            <!-- overlayScrollbars -->
+            <link rel="stylesheet" href="{{asset('plugins/overlayScrollbars/css/OverlayScrollbars.min.css')}}">
+            <!-- Daterange picker -->
+            <link rel="stylesheet" href="{{asset('plugins/daterangepicker/daterangepicker.css')}}">
+            <!-- summernote -->
+            <link rel="stylesheet" href="{{asset('plugins/summernote/summernote-bs4.css')}}">
+            <!-- Google Font: Source Sans Pro -->
+            <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+            {# bootstrap #}
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+            {# custom #}
+            <link rel="stylesheet" href="{{ asset('assets/css/styles.css')}}">
+            <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css')}}">
+            <!-- Ionicons -->
+            <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+            <!-- SweetAlert2 -->
+            <link rel="stylesheet" href="{{asset('plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css')}}">
+            <!-- Toastr -->
+            <link rel="stylesheet" href="{{asset('plugins/toastr/toastr.min.css')}}">
+            <!-- fullCalendar -->
+
+
+            <!-- Theme style -->
+            <style>
+                #calendrier{
+                    width: 80%;
+                    margin: auto;
+                }
+                #watermark {
+                    quartier: fixed;
+                    bottom:   0px;
+                    left:     0px;
+                    /** The width and height may change 
+                        according to the dimensions of your letterhead
+                    **/
+                    width:    21.8cm;
+                    height:   28cm;
+
+                    /** Your watermark should be behind every content**/
+                    z-index:  -1000;
+                }
+            </style>
+            <style>
+                .center {
+                    margin: auto;
+                    width: 80%;
+                    border: 3px solid #73AD21;
+                    padding: 10px;
+                }
+            </style>
+        {% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico')}}" />
+
+    </head>
+
+
+
+
+
+
+    {% block body %}
+
+  {% if eglise is defined and eglise %}
+                    <!-- Informations de l'église -->
+                    <div class="church-info">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h4>
+                                    <i class="fas fa-church"></i> 
+                                    {{ eglise.denomination }}
+                                </h4>
+                                <p class="mb-0">
+                                    <i class="fas fa-map-marker-alt"></i> 
+                                    {{ eglise.adresse ?? 'Adresse non disponible' }} |
+                                    <i class="fas fa-phone"></i> {{ eglise.contact1 ?? 'Contact non disponible' }} |
+                                    <i class="fas fa-qrcode"></i> Code: <strong>{{ eglise.code }}</strong>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <a href="{{ path('fidele_preinscription') }}" class="btn btn-light">
+                                    <i class="fas fa-sync-alt"></i> Changer d'église
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+
+
+        <div class="card card-primary center" >
+            <div class="card-header">
+                <h3 class="card-title">Preinscription</h3>
+            </div>
+
+
+           {{ form_start(form) }}
+           <input type="hidden" name="codeeglise" value="{{ eglise.code }}">
+            {{ form_errors(form) }}
+            <div class="card card-primary card-tabs">
+
+                <div class="card-body">
+
+
+
+
+                    <div class="step step-1 active">
+                        <div class="row mb-4">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.typefidele, "Catégorie de fidèle")}}
+                                    {{ form_errors(form.typefidele)  }}
+                                    <div>
+                                        {{ form_widget(form.typefidele) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.sexe, "Sexe")}}
+                                    {{ form_errors(form.sexe)  }}
+                                    <div>
+                                        {{ form_widget(form.sexe) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.nomfidele, "Nom & Prénoms *") }}
+                                    {{ form_errors(form.nomfidele)  }}
+                                    <div>
+                                        {{ form_widget(form.nomfidele) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.contact1, "Contact *") }}
+                                    {{ form_errors(form.contact1)  }}
+                                    <div>
+                                        {{ form_widget(form.contact1) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.comptefacebook, "Compte Facebook") }}
+                                    {{ form_errors(form.comptefacebook)  }}
+                                    <div>
+                                        {{ form_widget(form.comptefacebook) }}
+                                    </div>
+                                </div> 
+                            </div> 
+
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.email, "Email") }}
+                                    {{ form_errors(form.email)  }}
+                                    <div>
+                                        {{ form_widget(form.email) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.contactwhatssap, "N° Whatssap") }}
+                                    {{ form_errors(form.contactwhatssap)  }}
+                                    <div>
+                                        {{ form_widget(form.contactwhatssap) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.profession, "Profession") }}
+                                    {{ form_errors(form.profession)  }}
+                                    <div>
+                                        {{ form_widget(form.profession) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row mb-4">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.datenaiss, "Date de naissance *") }}
+                                    {{ form_errors(form.datenaiss)  }}
+                                    <div>
+                                        {{ form_widget(form.datenaiss) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.typepiece, "Type pièce") }}
+                                    {{ form_errors(form.typepiece)  }}
+                                    <div>
+                                        {{ form_widget(form.typepiece) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+
+                                <div class="form-group">
+                                    {{ form_label(form.numpiece, "N° Pièce") }}
+                                    {{ form_errors(form.numpiece)  }}
+                                    <div>
+                                        {{ form_widget(form.numpiece) }}
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.statutmatri, "Statut matrimonial *") }}
+                                    {{ form_errors(form.statutmatri)  }}
+                                    <div>
+                                        {{ form_widget(form.statutmatri) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row mb-4" id="bloc-mariage">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.datemariage, "Date du mariage") }}
+                                    {{ form_errors(form.datemariage)  }}
+                                    <div>
+                                        {{ form_widget(form.datemariage) }}
+                                    </div>
+                                </div> 
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.lieumariage, "Lieu du mariage") }}
+                                    {{ form_errors(form.lieumariage)  }}
+                                    <div>
+                                        {{ form_widget(form.lieumariage) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.pasteurmariage, "Pasteur officiant") }}
+                                    {{ form_errors(form.pasteurmariage)  }}
+                                    <div>
+                                        {{ form_widget(form.pasteurmariage) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.nommariage, "Nom conjoint(e) ") }}
+                                    {{ form_errors(form.nommariage) }}
+                                    <div>
+                                        {{ form_widget(form.nommariage)  }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+
+
+                        <div class="row mb-4">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.nbrenfant, "Nombre enfant") }}
+                                    {{ form_errors(form.nbrenfant)  }}
+                                    <div>
+                                        {{ form_widget(form.nbrenfant) }}
+                                    </div>
+                                </div> 
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.domaineactivite, "Domaine d'activités") }}
+                                    {{ form_errors(form.domaineactivite)  }}
+                                    <div>
+                                        {{ form_widget(form.domaineactivite) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.groupesang, "Groupe sanguin") }}
+                                    {{ form_errors(form.groupesang)  }}
+                                    <div>
+                                        {{ form_widget(form.groupesang) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.photo, "Photo *") }}
+                                    {{ form_errors(form.photo) }}
+                                    <div>
+                                        {{ form_widget(form.photo)  }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                {{ form_row(form.vieseul, {'label':'Habitation :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.langue, {'label':'Langues étrangères  :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.choiculte, {'label':'Choix du culte :'}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.cultefamille, {'label':'Priez-vous en famille ? :','attr':{'class':'select2'}}) }}
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                {{ form_row(form.situation, {'label':'Etat physique :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.handicap, {'label':'Preciser handicap :','attr':{'class':'select2'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.etatvieparent, {'label':'Etat de vie parents :','attr':{'class':'select2'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.etatparent, {'label':' Préciser si anormale :'}) }}
+                            </div>
+
+
+
+
+                        </div>
+
+
+
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                {{ form_row(form.priere, {'label':'Prière quotidienne ? :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.lecture, {'label':'Vie de méditation :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.temoignage, {'label':'Temoignez-vous de Jésus ? :','attr':{'class':'select2'}}) }}
+                            </div>
+
+
+                            <div class="col-md-3">
+                                {{ form_row(form.maladie, {'label':'Maladie eventuelle :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                {{ form_row(form.bibleformation, {'label':'Formation théologique ? :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.datearriver, {'label':'* Date d\'arrivée :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.urgence, {'label':'Numero d\'urgence *:','attr':{'class':'form-control', 'placeholder':'Numero à contacter en cas d\'urgence'}}) }}
+                            </div> 
+                            <div class="col-md-3">
+                                {{ form_row(form.etude, {'label':'Niveau d\'étude *:','attr':{'class':'form-control', 'placeholder':'Numero à contacter en cas d\'urgence'}}) }}
+                            </div>
+                        </div>
+
+
+                    </div> 
+
+                    <div class="card-body">
+
+
+
+
+                        <div class="row mb-4">
+
+
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.famille, "Famille chrétienne *") }}
+                                    {{ form_errors(form.famille) }}
+                                    <div>
+                                        {{ form_widget(form.famille)  }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.dateconversion, "Année de conversion *") }}
+                                    {{ form_errors(form.dateconversion)  }}
+                                    <div>
+                                        {{ form_widget(form.dateconversion) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.fonction, "Fonction *") }}
+                                    {{ form_errors(form.fonction) }}
+                                    <div>
+                                        {{ form_widget(form.fonction)  }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="Click"  onclick="maFonction()">
+
+                                <div class="form-group">
+                                    {{ form_label(form.stutbapteme, "Baptisé(e)? *") }}
+                                    {{ form_errors(form.stutbapteme) }}
+                                    <div>
+                                        {{ form_widget(form.stutbapteme)  }}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class=" row mb-4" id="bloc-bapteme">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.lieubapteme, "Lieu du baptème") }}
+                                    {{ form_errors(form.lieubapteme) }}
+                                    <div>
+                                        {{ form_widget(form.lieubapteme)  }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.pasteurbapteme, "Pasteur officiant") }}
+                                    {{ form_errors(form.pasteurbapteme) }}
+                                    <div>
+                                        {{ form_widget(form.pasteurbapteme)  }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.anciennecommunaute, "Ancienne communauté") }}
+                                    {{ form_errors(form.anciennecommunaute) }}
+                                    <div>
+                                        {{ form_widget(form.anciennecommunaute)  }}
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.datebapteme, "Date de baptème") }}
+                                    {{ form_errors(form.datebapteme)  }}
+                                    <div>
+                                        {{ form_widget(form.datebapteme)   }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.commune, "Choix de la commune *") }}
+                                    {{ form_errors(form.commune) }}
+                                    <div>
+                                        {{ form_widget(form.commune)  }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.quartier, "Quartier *") }}
+                                    {{ form_errors(form.quartier) }}
+                                    <div>
+                                        {{ form_widget(form.quartier)  }}
+                                    </div>
+                                </div>
+                            </div>   
+
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.zone, "Choix de la zone *") }}
+                                    {{ form_errors(form.zone) }}
+                                    <div>
+                                        {{ form_widget(form.zone)  }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.cellule, "Choix de la cellule *") }}
+                                    {{ form_errors(form.cellule) }}
+                                    <div>
+                                        {{ form_widget(form.cellule)  }}
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+
+
+                        <div class="row mb-4">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.nationalite, "Nationalité *") }}
+                                    {{ form_errors(form.nationalite) }}
+                                    <div>
+                                        {{ form_widget(form.nationalite)  }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    {{ form_label(form.ethnie, "Choix ethnie *") }}
+                                    {{ form_errors(form.ethnie) }}
+                                    <div>
+                                        {{ form_widget(form.ethnie)  }}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row"> 
+<!-- Dans votre formulaire, remplacez le bouton submit existant par : -->
+<button type="submit" class="btn btn-success btn-lg px-5">
+    Valider ma préinscription
+</button>
+                        </div> 
+                    </div>
+                </div> 
+
+                <div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+
+
+
+
+        {% endblock %}
+        {% block javascripts %}
+
+            <script src="{{asset('plugins/jquery/jquery.min.js')}}"></script>
+            <!-- jQuery UI 1.11.4 -->
+            <script src="{{asset('plugins/jquery-ui/jquery-ui.min.js')}}"></script>
+            <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+            <script>
+                                $.widget.bridge('uibutton', $.ui.button)
+            </script>
+            <!-- Bootstrap 4 -->
+            <script src="{{asset('plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+            <!-- ChartJS -->
+
+
+
+            <script src="{{asset('plugins/select2/js/select2.full.min.js')}}"></script>
+            <script src="{{asset('plugins/moment/moment.min.js')}}"></script>
+
+
+
+
+            <script>
+                                $('.loader').hide();
+                                jQuery('document').ready(function () {
+                                    jQuery('.select2').select2(
+                                            {width: '100%', allowClear: true, theme: "classic"}
+                                    );
+                                });
+            </script>
+          <script>
+            // Validation du formulaire
+            document.getElementById('preinscriptionForm')?.addEventListener('submit', function(e) {
+                let isValid = true;
+                const requiredFields = this.querySelectorAll('[required]');
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Veuillez remplir tous les champs obligatoires.');
+                }
+            });
+            
+            // Gestion des champs conditionnels (baptême)
+            document.querySelector('[name$="[stutbapteme]"]')?.addEventListener('change', function() {
+                const baptemeFields = document.querySelectorAll('.bapteme-fields');
+                if (this.value === 'Oui') {
+                    baptemeFields.forEach(field => field.style.display = 'block');
+                } else {
+                    baptemeFields.forEach(field => field.style.display = 'none');
+                }
+            });
+        </script>
+    
+        
+        <script>
+document.getElementById('preinscription_commune').addEventListener('change', function() {
+    const communesId = this.value;
+
+    if (communesId === '') return;
+
+    fetch(`/fidele/quartiers/${communesId}`)
+        .then(response => response.json())
+        .then(data => {
+            const quartierSelect = document.getElementById('preinscription_quartier');
+            quartierSelect.innerHTML = '<option value="">-- Choisissez un quartier --</option>';
+
+            data.forEach(quartier => {
+                const option = document.createElement('option');
+                option.value = quartier.id;
+                option.textContent = quartier.libelle;
+                quartierSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Erreur lors du chargement des quartiers:', error));
+});
+</script>
+
+    
+        <script>
+document.getElementById('preinscription_zone').addEventListener('change', function() {
+    const zonesId = this.value;
+
+    if (zonesId === '') return;
+
+    fetch(`/fidele/cellules/${zonesId}`)
+        .then(response => response.json())
+        .then(data => {
+            const celluleSelect = document.getElementById('preinscription_cellule');
+            celluleSelect.innerHTML = '<option value="">-- Choisissez une cellule --</option>';
+
+            data.forEach(cellule => {
+                const option = document.createElement('option');
+                option.value = cellule.id;
+                option.textContent = cellule.nom;
+                celluleSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Erreur lors du chargement des cellules:', error));
+});
+</script>
+
+
+            <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+    const statut = document.getElementById("preinscription_statutmatri");
+    const blocMariage = document.getElementById("bloc-mariage");
+
+    function toggleMariage() {
+        if (statut.value === "Marié(e)") {
+            blocMariage.style.display = "flex"; // ou "block"
+        } else {
+            blocMariage.style.display = "none";
+        }
+    }
+
+    // Vérifie au chargement
+    toggleMariage();
+
+    // Vérifie à chaque changement
+    statut.addEventListener("change", toggleMariage);
+});
+            </script>
+
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+
+                const statut = document.getElementById("preinscription_stutbapteme");
+                const blocMariage = document.getElementById("bloc-bapteme");
+
+                function toggleMariage() {
+                if (statut.value === "Oui") {
+                blocMariage.style.display = "flex"; // ou "block"
+                } else {
+                blocMariage.style.display = "none";
+                }
+                }
+
+                // Vérifie au chargement
+                toggleMariage();
+
+                // Vérifie à chaque changement
+                statut.addEventListener("change", toggleMariage);
+                });
+                
+          </script>
+
+        {% endblock %}

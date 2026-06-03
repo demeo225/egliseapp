@@ -1,0 +1,76 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Cotiserparfamille index{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste de paiements des cotisations</h3>
+            </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('app_cotiserparfamille_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+     <a href='{{ path('cotiserparfamille_detailcotisation') }}'>
+                    <button class="btn btn-danger">Details paiement</button>
+                </a>
+
+                <hr style="visibility: hidden" />  
+
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+
+                            <th>Famille</th>
+                            <th>Objet </th>
+                            <th>Montant </th>
+                            <th>Montant payé</th>
+                            <th>Reste</th>
+                            <th>Date limite</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cotiserparfamille in cotiserparfamilles %}
+                            <tr>
+                                <td> {% if cotiserparfamille.famille is not empty %} {{ cotiserparfamille.famille.nom }} {% else %} {% endif %}</td>
+                                <td> {% if cotiserparfamille.cotisationparfamille is not empty %} {{ cotiserparfamille.cotisationparfamille.objet }} {% else %} {% endif %}</td>
+                                <td> {% if cotiserparfamille.cotisationparfamille is not empty %} {{ cotiserparfamille.cotisationparfamille.montant|number_format(0, '.', ' ') }} {% else %} {% endif %}</td>
+                                <td>{{ cotiserparfamille.montantpayer|number_format(0, '.', ' ') }}</td>
+                                <td>
+                                    {% if  cotiserparfamille.reste ==0 %} <b>Soldé</b> 
+                                    {% elseif cotiserparfamille.reste >0 %} {{ cotiserparfamille.reste|number_format(0, '.', ' ') }} {% elseif cotiserparfamille.reste < 0 %} 
+                                            <i class="btn btn-success"> Soldé </i> {% endif %}
+                                        
+                                    
+                                   </td>
+                                
+                                <td>{{ cotiserparfamille.datecotiser ? cotiserparfamille.datecotiser|date('d-m-Y') : '' }}</td>
+                      
+                               {# <td>
+                                         {% if cotiserparfamille.reste <= 0 %} {% else %}
+                                            <a href="{{ path('app_cotiserparfamille_edit', {'id': cotiserparfamille.id}) }}">   <span style="font-size: 1em; color: Dodgerblue;">
+                                                    <i class="fas fa-edit"></i>
+                                                </span></a>
+                                        {% endif %}
+                                </td> #}
+                            </tr>
+                      
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

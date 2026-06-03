@@ -1,0 +1,14 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}New Culte{% endblock %}
+
+{% block body %}
+  <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Enregistrement Culte</h3>
+        </div>
+
+    {{ include('culte/_form.html.twig') }}
+</div>
+{% endblock %}
+

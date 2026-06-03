@@ -1,0 +1,29 @@
+<div class="card card-primary">
+
+    <div class="card card-body">
+        {{ form_start(form) }}
+        <div class="my-custom-class-for-errors">
+            {{ form_errors(form) }}
+            {% for message in app.flashes('message') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {{ form_start(form) }}
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.libelle, {'label':'Categorie * :','attr':{'class':'form-control'}}) }}
+            </div>
+       
+
+        </div>
+ 
+            <div class="row"> 
+                <div class="col-md-2">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save', 'onclick' :'compareDates()'}}) }}</div>
+                <div class="col-md-4"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add', 'onclick' :'compareDates()'}}) }} </div>
+                <div class="col-md-4"><a href="{{ path('app_objetrecette_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+            {{ form_end(form) }}
+        </div>
+    </div>

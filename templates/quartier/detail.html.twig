@@ -1,0 +1,73 @@
+{% extends 'home/index.html.twig' %}
+
+
+{% block title %}
+    {{ eglise.denomination }} : Membres du quartier{{ nomquartier|upper }} {% endblock %}
+
+    {% block body %}
+
+
+
+        <div class="card card-primary">
+
+            <div class="card-header">
+                <h3 class="card-title">LISTE DES MEMBRES DU QUARTIER :{{ nomquartier|upper }} </h3>
+            </div>
+            <h3><b> </b></h3>
+            <div class="container-fluid">
+                <div class="row">
+
+                    <!-- /.card-header -->
+                    <div class="card-body">
+
+                        <a href='{{ path('quartier') }}'>
+                            <button class="btn btn-success">Liste des quartiers</button>
+                        </a>
+                        <a href='{{ path('quartier_printmembre',{'id':id}) }}'>
+                            {#  <a href='commune/printmembre/on?id={{ id }}'  target='_blank'>#}
+
+                            <button class="btn btn-primary">Impression avancée</button>
+                        </a>      
+                        <hr style="visibility: hidden" />
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                               <tr>
+                            <th>Fidèle</th>
+                            <th>Whatssap</th>
+                            <th>Fonction</th>
+                            <th>Cellule</th>
+                            <th>Photo</th>
+                               </tr>
+                            </thead>
+                         
+                            <tbody>
+                                {% for fidele in fideles %}
+
+                                    <tr>
+
+                                        <td>{{ fidele.nomfidele|upper}}</td>
+                                        <td> {% if fidele.contactwhatssap is not empty %} {{ fidele.contactwhatssap}} {% else %} {{ fidele.contact1}} {% endif %}</td>
+                                        <td> {% if fidele.fonction is not null %} {{ fidele.fonction.libelle}} {% else %}  {% endif %}</td>
+                                        <td> {% if fidele.cellule is not null %} {{ fidele.cellule.nom}} {% else %}  {% endif %}</td>
+                                        <td>    <a href="{{ path('fidele_detail', {'id': fidele.id}) }}"> 
+                                                <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> 
+                                            </a>  </td>
+
+                                    </tr>
+
+                        
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+
+
+    {% endblock %}

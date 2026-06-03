@@ -1,0 +1,272 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion enfants{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Enregistrement enfant</h3>
+        </div>
+
+
+        <div class="card card-body">
+
+
+            {{ form_start(form) }}
+           
+<div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+ </div>
+     
+                <div class="row mb-4">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form.nom, {'label':'Nom & prenomss :','attr':{'class':'form-control'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.contact, {'label':'Contact :','attr':{'class':'form-control'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.contactwhatssap, {'label':'Contact parent :','attr':{'class':'form-control'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.sexe, {'label':'Sexe :','attr':{'class':'form-control'}}) }}
+                    </div>
+
+                </div>
+
+
+                <div class="row mb-4">
+
+                    <div class="col-md-3">
+                        {{ form_row(form.datenaiss, {'label':'Date de naissance :','attr':{'class':'form-control'}}) }}
+                    </div> 
+                    <div class="col-md-3">
+                        {{ form_row(form.comptefacebook, {'label':'Compte Facebook :','attr':{'class':'form-control'}}) }}
+                    </div>  
+                    <div class="col-md-3">
+                        {{ form_row(form.email, {'label':'Email :','attr':{'class':'form-control'}}) }}
+                    </div>  
+                    <div class="col-md-3">
+                        {{ form_row(form.niveauetude, {'label':'Niveau d\'étude :','attr':{'class':'form-control'}}) }}
+                    </div>
+
+
+                </div>
+
+
+                <div class="row mb-4">
+
+                    <div class="col-md-3">
+                        {{ form_row(form.numpiece, {'label':'N° pièce :','attr':{'class':'form-control'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.lieunaiss, {'label':'Lieu de naissance :','attr':{'class':'form-control'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.classenfant, {'label':'CLasse :','attr':{'class':'form-control'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.ethnie, {'label':'Ethnie:'}) }}
+                    </div>
+
+                </div>
+              
+      
+
+     
+
+                <div class="row mb-4">
+
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form.pere, {'label':'Père non fidèle:','attr':{'class':'form-control'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.mere, {'label':'Mère non fidèle:','attr':{'class':'form-control'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.peremembre, {'label':'Choix du père :'}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.merembre, {'label':'Choix de la mère:'}) }}
+                    </div>
+
+                </div>
+
+
+
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        {{ form_row(form.lieuvivre, {'label':'Situation sociale :','attr':{'class':'select2'}}) }}
+                    </div>
+
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form.situationparent, {'label':'Parents en vie ? :','attr':{'class':'select2'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.vieparent, {'label':'Si non, preciser :','attr':{'class':'select2'}}) }}
+                    </div>
+
+                <div class="col-md-3">
+                        {{ form_row(form.situation, {'label':'Handicapé(e) :','attr':{'class':'select2'}}) }}
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+
+                  
+                    <div class="col-md-3">
+                        {{ form_row(form.handicap, {'label':'Si oui choisir :','attr':{'class':'select2'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.maladie, {'label':'Maladie eventuelle :','attr':{'class':'select2'}}) }}
+                    </div>
+              
+
+                <div class="col-md-3">
+                        {{ form_row(form.commune, {'label':'Commune * :'}) }}
+                </div>  
+                    <div class="col-md-3">
+                        {{ form_row(form.quartier, {'label':'Quartier * :'}) }}
+                    </div> 
+
+            </div>
+          
+
+                <div class="row mb-4">
+
+                
+                    <div class="col-md-3">
+                        {{ form_row(form.zone, {'label':'Zone :'}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.cellule, {'label':'Cellule:'}) }}
+                    </div>
+
+
+                <div class="col-md-3">
+                        {{ form_row(form.groupesang, {'label':'Groupe sanguin:','attr':{'class':'form-control'}}) }}
+                    </div>
+                       <div class="col-md-3">
+                        {{ form_row(form.famille, {'label':'Famille / Tribu:'}) }}
+                    </div>
+
+                </div>
+
+                <div class="row mb-4">
+
+                     
+                    
+                    <div class="col-md-3">
+                        {{ form_row(form.nationalite, {'label':'Nationalité:'}) }}
+                    </div>
+                  
+
+                    <div id="camera" style="height:auto;width:auto; text-align:left;"  class="col-md-3"></div>
+
+                    <div class="col-md-3">
+                        <input type="button" value="Capturer photo" id="btPic" onclick="takeSnapShot()" class="btn btn-primary"  /> 
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.photo, {'label':'* Télécharger photo :','attr':{'class':'form-control'}}) }}
+                    </div>
+
+
+                </div>
+
+                <div class="row"> 
+
+                    <div class="col-md-2">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div>
+
+                    <div class="col-md-3"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                    <div class="col-md-2"> <a href="{{ path('enfant') }}" class="btn btn-success">Afficher la liste</a> </div>
+                </div> 
+
+            </div>
+
+      
+            {{ form_end(form) }}
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+  
+        <script>
+document.getElementById('enfant_commune').addEventListener('change', function() {
+    const communesId = this.value;
+
+    if (communesId === '') return;
+
+    fetch(`/fidele/quartiers/${communesId}`)
+        .then(response => response.json())
+        .then(data => {
+            const quartierSelect = document.getElementById('enfant_quartier');
+            quartierSelect.innerHTML = '<option value="">-- Choisissez un quartier --</option>';
+
+            data.forEach(quartier => {
+                const option = document.createElement('option');
+                option.value = quartier.id;
+                option.textContent = quartier.libelle;
+                quartierSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Erreur lors du chargement des quartiers:', error));
+});
+</script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.25/webcam.js"></script>
+
+
+    <script>
+        // CAMERA SETTINGS.
+        Webcam.set({
+            width: 220,
+            height: 190,
+            image_format: 'jpeg',
+            jpeg_quality: 100
+        });
+        Webcam.attach('#camera');
+
+        // TAKE A SNAPSHOT.
+        takeSnapShot = function () {
+            Webcam.snap(function (data_uri) {
+                downloadImage('arun', data_uri);
+            });
+        }
+
+        // DOWNLOAD THE IMAGE.
+        downloadImage = function (name, datauri) {
+            var a = document.createElement('a');
+            a.setAttribute('download', name + '.png');
+            a.setAttribute('href', datauri);
+            a.click();
+        }
+    </script>
+
+
+{% endblock %}

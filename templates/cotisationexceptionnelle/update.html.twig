@@ -1,0 +1,107 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion Cotisation excepetionnelle{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification cotisation exceptionnelle</h3>
+        </div>
+        <div class="card card-body">
+
+
+            {{ form_start(form) }}
+       <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+
+            <div class="row">
+                
+                  <div class="col-md-4">
+                    {{ form_row(form.datecotise, {'label':'Date '}) }}
+                </div>
+                
+                  <div class="col-md-4">
+                    {{ form_row(form.objet,{'label':'Objet '}) }}
+                </div>
+                
+                  <div class="col-md-4">
+                    {{ form_row(form.montant, {'label':'Montant visé '}) }}
+                </div>
+                
+              
+                
+                
+                
+                <div class="col-md-4">
+                    {{ form_row(form.beneficiaire, {'label':'Béneficiaire '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.dixmille, {'label':'Nbre de billets de 10 000f '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.cinqmille, {'label':' Nbre de billets de 5 000f '}) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.deuxmille, {'label':'Nbre de billets de 2 000f '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.mille, {'label':'Nbre de billets de 1 000f '}) }}
+                </div>
+                  <div class="col-md-4">
+                    {{ form_row(form.centbillet, {'label':'Nbre de billets de 500f '}) }}
+                </div>
+                  <div class="col-md-4">
+                    {{ form_row(form.centpiece, {'label':'Nbre de pièces de 500f '}) }}
+                </div>
+                  <div class="col-md-4">
+                    {{ form_row(form.deuxcent, {'label':'Nbre depièces de 200f '}) }}
+                </div>
+                  <div class="col-md-4">
+                    {{ form_row(form.cent, {'label':'Nbre depièces de 100f '}) }}
+                </div>
+                  <div class="col-md-4">
+                    {{ form_row(form.cinquante, {'label':'Nbre de pièces de 50f '}) }}
+                </div>
+                  <div class="col-md-4">
+                    {{ form_row(form.vingtcinq, {'label':'Nbre de pièces de 25f '}) }}
+                </div>
+                  <div class="col-md-4">
+                    {{ form_row(form.dix, {'label':'Nbre de pièces de 10f '}) }}
+                </div>
+                    <div class="col-md-4">
+                    {{ form_row(form.cinq, {'label':'Nbre de pièces de 5f '}) }}
+                </div>
+
+            </div>
+
+
+
+
+
+            <div class="row"> 
+                <div class="btn btn-default">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+
+                               <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+                <div class="btn btn-default"><a href="{{ path('cotisationexceptionnelle') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+          
+            {{ form_end(form) }}
+        </div>
+
+
+    </div>
+
+
+{% endblock %}

@@ -1,0 +1,47 @@
+  <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Liste des fidèles baptisés</h3>
+        </div>
+    <table class="table">
+
+                <thead>
+                    <tr>
+                        <th>Fidèle</th>
+                        <th>Teléphone</th>
+                        <th>Situation matrimoniale</th>
+                  
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fidele in fideles %}
+                        <tr>
+                            <td>{{ fidele.nomfidele|upper}}</td>
+                            <td>{{ fidele.contact1}}</td>
+                            <td>{{ fidele.statutmatri }}
+
+
+                            </td>
+
+
+
+                   
+
+                        </tr>
+                    {% else %}
+                     
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+
+    
+
+
+
+
+
+
+

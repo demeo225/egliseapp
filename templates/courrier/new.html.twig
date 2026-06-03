@@ -1,0 +1,14 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}New Courrier{% endblock %}
+
+{% block body %}
+  <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Enregistrement Courrier</h3>
+        </div>
+
+    {{ include('courrier/_form.html.twig', {'button_label': 'Update'}) }}
+</div>
+{% endblock %}
+

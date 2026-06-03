@@ -1,0 +1,133 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Seance famille{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title"> Details activités du {{ seancefamille.datesuper ? seancefamille.datesuper|date('d-m-Y') : '' }} </h3>
+        </div>
+        <div class="card body">
+
+            <table class="table">
+                <tbody>
+
+                    <tr>
+                        <th>Date</th>
+                        <td>{{ seancefamille.datesuper ? seancefamille.datesuper|date('d-m-Y') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Lieu</th>
+                        <td>{{ seancefamille.lieu }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Theme</th>
+                        <td>{{ seancefamille.theme }}</td>
+                    </tr>
+                    <tr>
+                        <th>Homme</th>
+                        <td>{{ seancefamille.nbrepresent }}</td>
+                    </tr>
+                    <tr>
+                        <th>Femmes</th>
+                        <td>{{ seancefamille.femme }}</td>
+                    </tr>
+                    <tr>
+                        <th>Enfants</th>
+                        <td>{{ seancefamille.enfant }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Total présents</th>
+                        <td>
+                            {% set nbrepresent =seancefamille.nbrepresent %}
+                            {% set femme =seancefamille.femme %}
+                            {% set enfant =seancefamille.enfant %}
+                            {% set total = enfant +nbrepresent + femme %}
+
+                            {{ total }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Objet</th>
+                        <td>{{ seancefamille.objet }}</td>
+                    </tr>
+                    <tr>
+                        <th>Versets bibliques</th>
+                        <td>{{ seancefamille.versets }}</td>
+                    </tr>
+                    <tr>
+                        <th>Resume</th>
+                        <td>{{ seancefamille.resume|raw }}</td>
+                    </tr>
+                    <tr>
+                        <th>Offrande</th>
+                        <td>{{ seancefamille.offrande }}</td>
+                    </tr>
+                    <tr>
+                        <th>Heure debut</th>
+                        <td>{{ seancefamille.heuredebut ? seancefamille.heuredebut|date('H:i:s')}}</td>
+                    </tr>
+                    <tr>
+                        <th>Heure fin</th>
+                        <td>{{ seancefamille.heurefin ? seancefamille.heurefin|date('H:i:s')}}</td>
+                    </tr>
+                    <tr>
+                        <th>Durée</th>
+                        <td>
+                            {% set difference = date(seancefamille.heuredebut).diff(seancefamille.heurefin) %}
+                            {{ difference.format('%H:%I:%S') }}
+
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Intervenant</th>
+                        <td> {% if seancefamille.fidele is not null  %}  {{ seancefamille.fidele.nomfidele }} {% else %}{{ seancefamille.typeofficiant }} {% endif %}</td>
+                    </tr>
+
+
+                    <tr>
+                    <th>Type activité</th>
+                    <td>
+            
+
+                {{ seancefamille.typeactivite }}
+
+                    </td>
+                </tr>
+                    <tr>
+                    <th>Fiche rapport</th>
+                    <td>
+                        {% if seancefamille.photo is not empty %} <a href="{{ asset('uploads/photos/' ~ seancefamille.photo) }}" target="_blank">
+                        Afficher rapport</a> {% else %} Fiche rapport indisponible {% endif %}
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col-md-3"><a href="{{ path('seancefamille_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+
+                <div class="col-md-3">   <a href="{{ path('seancefamille_edit', {'id': seancefamille.id}) }}" class="btn btn-primary">Modifier</a></div>
+
+                <div class="col-md-3">
+
+                    <form method="post" action="{{ path('seancefamille_delete', {'id': seancefamille.id}) }}" onsubmit="return confirm('Voulez-vous supprimer?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ seancefamille.id) }}">
+                        <button class="btn">
+                            <span style="font-size: 1em; color: red;">
+                                <i class="fas fa-trash-alt" title="Supprimer"></i>
+                            </span>
+                        </button>
+                    </form> 
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}

@@ -1,0 +1,94 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-danger">
+                <strong>Séance du :</strong> {{ seance.datesuper ? seance.datesuper|date('d/m/Y') : '-' }}<br>
+                <strong>Département :</strong> {{ seance.departement ? seance.departement.nom : '-' }}<br>
+                <strong>Lieu :</strong> {{ seance.lieu|default('-') }}
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="alert alert-warning">
+                        <strong>Total des absents :</strong> {{ total }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="alert alert-info">
+                        <strong>Total des membres :</strong> {{ totalMembres }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress mb-3">
+                {% set pourcentage = totalMembres > 0 ? ((totalMembres - total) / totalMembres * 100) : 0 %}
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ pourcentage }}%">
+                    Taux de présence: {{ pourcentage|round(1) }}%
+                </div>
+                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ 100 - pourcentage }}%">
+                    Absentéisme: {{ (100 - pourcentage)|round(1) }}%
+                </div>
+            </div>
+            
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Fidèle</th>
+                        <th>Contact</th>
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for absent in absents %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ absent.nom }}</td>
+                       
+                        <td>{{ absent.contact|default('-') }}</td>
+                      
+                    </tr>
+                    {% else %}
+                    <td>
+                        <td colspan="5" class="text-center">Tous les membres sont présents !</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </td>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('.btn-add-presence').click(function() {
+        let fideleId = $(this).data('fidele');
+        let seanceId = $(this).data('seance');
+        let button = $(this);
+        
+        $.ajax({
+            type: 'POST',
+            url: '{{ path('seancedepartement_absents') }}',
+            data: {
+                fidele_id: fideleId,
+                seance_id: seanceId
+            },
+            success: function(response) {
+                if (response.success) {
+                    button.closest('tr').fadeOut();
+                    // Mettre à jour les compteurs
+                    let absentCount = parseInt($('.alert-warning .badge').text()) || 0;
+                    let presentCount = parseInt($('.alert-success .badge').text()) || 0;
+                    // Recharger la page ou mettre à jour les stats
+                    location.reload();
+                } else {
+                    alert('Erreur: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('Erreur lors de l\'ajout de la présence');
+            }
+        });
+    });
+});
+</script>

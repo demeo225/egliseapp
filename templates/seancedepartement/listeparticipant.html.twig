@@ -1,0 +1,166 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste de presence Departement{% endblock %}
+
+{% block body %}
+
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Liste de présence des départements</h3>
+    </div>
+    
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h5 class="m-0 flash-text">{{ message }}</h5>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    
+    <div class="row">
+        <div class="card-body">
+            <!-- Boutons d'action -->
+            <a href="{{ path('seancedepartement_presence') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nouveau
+            </a>
+            <a href="{{ path('seancedepartement_index') }}" class="btn btn-success">
+                <i class="fas fa-list"></i> Liste des activités
+            </a>
+            
+            <hr style="visibility: hidden" />
+
+            <div class="table-responsive">
+            <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Département</th>
+                            <th>Objet</th>
+                            <th>Date</th>
+                            <th>Lieu</th>
+                            <th>Fidèle</th>
+                            <th>Photo</th>
+                            <th>Retirer</th>
+                        </thead>
+                    <tbody>
+                        {% for diff in differences %}
+                            {% set presence = 0 %}
+                            {% set presencedepartement = 0 %}
+                            {% for presencedepartement in presencedepartements %}
+                                {% if is_granted("seancedepartement_presence", presencedepartement) %}
+                                    {% if diff.datesuper == presencedepartement.seancedepartement.datesuper %}
+                                        {% set presence = presence + 1 %}
+                                        <tr>
+                                            <td>{{ presencedepartement.departement.nom|upper }}</td>
+                                            <td>{{ presencedepartement.seancedepartement.objet }}</td>
+                                            <td>{{ presencedepartement.seancedepartement.datesuper ? presencedepartement.seancedepartement.datesuper|date('d-m-Y') : '' }}</td>
+                                            <td>{{ presencedepartement.seancedepartement.lieu }}</td>
+                                            <td>{{ presencedepartement.fidele.nomfidele|upper }} {{ presencedepartement.fidele.contact1|upper }}</td>
+                                            <td class="text-center">
+                                                {% if presencedepartement.fidele.photoFile %}
+                                                    <img src="{{ asset('uploads/photos/' ~ presencedepartement.fidele.photoFile) }}" class="img-size-50 img-circle" width="50" height="50" style="object-fit: cover;"/>
+                                                {% else %}
+                                                    <img src="{{ asset('uploads/photos/default.png') }}" class="img-size-50 img-circle" width="50" height="50" style="object-fit: cover;"/>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                <form method="post" action="{{ path('presencedepartement_delete', {'id': presencedepartement.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette présence ?');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ presencedepartement.id) }}">
+                                                    <button class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if presence > 0 %}
+                                <tr class="table-info">
+                                    <td colspan="6"><strong>Total fidèles pour cette séance</strong></td>
+                                    <td colspan="2"><strong class="badge badge-primary badge-lg">{{ presence }}</strong></td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                   
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+
+
+<style>
+    /* Styles personnalisés pour le tableau */
+    .table thead th {
+        background-color: #007bff;
+        color: white;
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    .table tbody td {
+        vertical-align: middle;
+        text-align: center;
+    }
+    
+    .img-size-50 {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #ddd;
+    }
+    
+    .img-size-50:hover {
+        transform: scale(1.1);
+        transition: transform 0.3s;
+        border-color: #007bff;
+    }
+    
+    .table-info td {
+        background-color: #e3f2fd;
+        font-weight: bold;
+    }
+    
+    .badge-lg {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+    
+    .btn-sm {
+        margin: 2px;
+    }
+    
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .table thead th {
+            font-size: 12px;
+        }
+        .table tbody td {
+            font-size: 11px;
+        }
+        .img-size-50 {
+            width: 35px;
+            height: 35px;
+        }
+        .btn-sm {
+            padding: 2px 5px;
+            font-size: 10px;
+        }
+    }
+</style>
+{% endblock %}

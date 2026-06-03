@@ -1,0 +1,60 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotisationzone{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Details {{ cotisationsociale.objet }} </h3>
+            </div>
+
+            <table class="table">
+                <tbody>
+
+                    <tr>
+                        <th>Date buttoire</th>
+                        <td>{{ cotisationsociale.datecotiser ? cotisationsociale.datecotiser|date('d-m-Y') : '' }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Montant</th>
+                        <td>{{ cotisationsociale.montant }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Montantal cotisé</th>
+                        <td>
+                            {% set detail = cotisationsociale.cotisersociales  %}
+                            {% for detail in detail %}
+                                {% set sum = detail.montantpayer + sum ?? 0 %}
+                                {% if loop.last  %} <b> {{ sum }}</b>  {% endif %}
+                            {% endfor %}
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Etat</th>
+
+                        <td> 
+                            {% if date('now') < date(cotisationsociale.datecotiser) %}
+                                <b>En cours</b>
+
+                            {% else %}
+
+                                <i class="btn btn-success">  Achévée</i>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <a href='{{ path('app_cotisationsociale_index') }}'>
+                <button class="btn btn-success">Liste cotisations</button>
+            </a>
+        </div>
+
+    </div>
+{% endblock %}

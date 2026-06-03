@@ -1,0 +1,78 @@
+security:
+    enable_authenticator_manager: true
+    encoders:
+        App\Entity\User:
+            algorithm: auto
+
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            login_throttling:
+                max_attempts: 3
+                #switch_user: true
+#            anonymous: true
+            lazy: true
+            provider: app_user_provider
+            guard:
+                authenticators:
+                    - App\Security\LoginFormAuthenticator
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                target: app_login
+            user_checker: App\Security\UserChecker
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#firewalls-authentication
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+            
+    role_hierarchy:
+                ROLE_RESPONSABLE_CELLULE: ROLE_USER
+                ROLE_RESPONSABLE_GROUPE: ROLE_USER
+                ROLE_RESPONSABLE_FAMILLE: ROLE_USER
+                ROLE_RESPONSABLE_SOCIAL: ROLE_USER
+                ROLE_RESPONSABLE_ECODIM: ROLE_USER
+                ROLE_RESPONSABLE_TRESORERIE: ROLE_USER
+                ROLE_RESPONSABLE_EVANGELISATION: ROLE_USER
+                ROLE_RESPONSABLE_FINANCE: ROLE_RESPONSABLE_TRESORERIE
+                ROLE_RESPONSABLE_FINANCE_NATIONAL:   ROLE_RESPONSABLE_FINANCE
+                ROLE_RESPONSABLE_CONJUGAL: ROLE_USER
+                ROLE_RESPONSABLE_DEPARTEMENT: ROLE_RESPONSABLE_GROUPE
+                ROLE_MODERATEUR : [ROLE_RESPONSABLE_ECODIM,ROLE_RESPONSABLE_DEPARTEMENT, ROLE_RESPONSABLE_CELLULE ]
+                ROLE_EVANGELISATION_DEPARTEMENT : [ROLE_RESPONSABLE_EVANGELISATION,ROLE_RESPONSABLE_DEPARTEMENT ]
+                ROLE_EVANGELISATION_ZONE : [ROLE_RESPONSABLE_EVANGELISATION,ROLE_RESPONSABLE_ZONE ]
+                ROLE_ECODIM_GROUPE_CELLULE : [ROLE_RESPONSABLE_ECODIM,ROLE_RESPONSABLE_GROUPE, ROLE_RESPONSABLE_CELLULE ]
+                ROLE_ECODIM_GROUPE : [ROLE_RESPONSABLE_ECODIM,ROLE_RESPONSABLE_GROUPE]
+                ROLE_DEPARTEMENT_CELLULE : [ROLE_RESPONSABLE_DEPARTEMENT, ROLE_RESPONSABLE_CELLULE ]
+                ROLE_GROUPE_CELLULE : [ROLE_RESPONSABLE_GROUPE, ROLE_RESPONSABLE_CELLULE, ROLE_RESPONSABLE_FAMILLE ]
+                ROLE_SUPERVISEUR : [ROLE_RESPONSABLE_ZONE,ROLE_RESPONSABLE_DEPARTEMENT, ROLE_RESPONSABLE_FAMILLE ]
+                ROLE_RESPONSABLE_ZONE: [ROLE_RESPONSABLE_CELLULE, ROLE_RESPONSABLE_FAMILLE]
+                ROLE_SECRETAIRE: [ROLE_RESPONSABLE_SOCIAL,ROLE_RESPONSABLE_EVANGELISATION, ROLE_RESPONSABLE_FAMILLE, ROLE_RESPONSABLE_DEPARTEMENT,ROLE_RESPONSABLE_CONJUGAL, ROLE_RESPONSABLE_ZONE, ROLE_RESPONSABLE_CELLULE, ROLE_RESPONSABLE_ECODIM, ROLE_RESPONSABLE_GROUPE]
+                ROLE_PASTEUR: [ROLE_RESPONSABLE_FINANCE,ROLE_SECRETAIRE]
+                ROLE_ADMIN: ROLE_PASTEUR
+                ROLE_PRESIDENT: [ROLE_ADMIN, ROLE_RESPONSABLE_FINANCE_NATIONAL]
+                ROLE_SUPER_ADMIN: [ROLE_PRESIDENT, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+         - { path: ^/admin, roles: ROLE_ADMIN, requires_channel: https }
+         - { path: ^/profile, roles: ROLE_USER , requires_channel: https}
+         - { path: ’ˆ/login’, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
+         - { path: ’ˆ/*’, roles: [IS_AUTHENTICATED_FULLY] , requires_channel: https}
+         
+         
+         
+

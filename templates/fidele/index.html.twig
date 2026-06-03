@@ -1,0 +1,104 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des fideles{% endblock %}
+
+{% block body %}
+
+
+    <div class="card-body">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des fidèles</h3>
+            </div>
+<div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            
+            <!-- /.card-header -->
+            <div class="card-body">
+
+                <a href='{{ path('fidele_add') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+
+                <a href='{{ path('fidele_print') }}'>
+
+                    <button class="btn btn-primary">Impression avancée</button>
+                </a> 
+                <a href="{{ path('groupefidele') }}" class="btn btn-success">Insertion dans groupe</a> 
+
+                <hr style="visibility: hidden" />
+
+
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Fidèle</th>
+                            <th>Baptisé(e)</th>
+                            <th>Statut</th>
+                            <th>Quartier</th>
+                            <th>Famille/Tribu</th>
+                            <th>Cellule</th>
+                            <th>Photo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fidele in fidele %}
+                            <tr>
+                                <td>{{ fidele.code|upper}}</td>
+                                <td>{{ fidele.nomfidele|upper}}</td>
+                                <td> {% set stutbapteme= fidele.stutbapteme %}
+                                    {% set sexe= fidele.sexe %}
+
+                                    {% if stutbapteme == 'Oui' and sexe == 'Homme' %}
+                                        Baptisé
+                                    {% elseif stutbapteme == 'Non' and sexe == 'Homme' %}
+                                        Non baptisé
+                                    {% elseif stutbapteme == 'Oui' and sexe == 'Femme' %}
+                                        Baptisée
+                                    {% else %}
+                                        Non Baptisée
+                                    {% endif %}
+
+
+                                </td>
+
+
+
+                                <td>{{ fidele.statutmatri}}</td>
+                                <td>{% if fidele.quartier is not null %} {{ fidele.quartier.libelle}} {% else %} Non renseigné {% endif %} </td>
+                                <td>{% if fidele.famille is not null %} {{ fidele.famille.nom}} {% else %} Non renseigné {% endif %} </td>
+                                <td>{% if fidele.cellule is not null %} {{ fidele.cellule.nom}} {% else %} Non renseigné {% endif %} </td>
+
+                                <td> 
+                                    {% if fidele.photoFile is not empty %}
+                                    <a href="{{ path('fidele_detail', {'id': fidele.id}) }}">
+                                        <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" title="Voir details" style="max-width: 100%;  max-height: 100%"/> 
+
+                                    </a>
+                                    {% else %}<a href="{{ path('fidele_detail', {'id': fidele.id}) }}">Modifier</a> {% endif %}
+                                </td>
+
+                            </tr>
+                  
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+{% endblock %}

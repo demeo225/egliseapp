@@ -1,0 +1,71 @@
+
+
+*
+
+
+
+  <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Presentation enfant {{ naissance.nomnaiss|upper}}  </h3>
+        </div>
+    <table class="table">
+
+            <thead>
+
+            </thead>
+            <tbody>
+                <tr class="btn-success">
+
+                    <td>Enfant</td>
+                    <td>Sexe</td>
+                    <td>Poids à la naissance</td>
+                    <td>Lieu de naissance</td>
+                    <td>Date de naissance </td>
+                    <td>Heure</td>
+                </tr>
+                <tr>
+
+                    <td>{{ naissance.nomnaiss|upper}}</td>
+                    <td>{% set sexe = naissance.sexenaiss %}
+                        {% if sexe == 1 %} Garçon
+                        {% else %}
+                            Fille
+                        {% endif %}
+                    </td>
+                    <td>{{ naissance.poidsnaiss}}</td>
+                    <td>{{ naissance.lieunaissance}}</td>
+                    <td>{{ naissance.datenaissance|date('d-m-Y')}}</td>
+                    <td>{{ naissance.datenaissance|date('H:i:s')}}</td>
+                </tr>   
+                <tr class="btn-success">
+
+                    <td>Père</td>
+                    <td>Mère</td>
+                    <td>Don en nature</td>
+                    <td>Dons en espèce</td>
+                    <td>Présenté le</td>
+                   
+
+                </tr>
+                <tr>
+                    <td>{% if naissance.perenaisse is not empty %} {{ naissance.perenaisse.nomfidele}} {% else %}{{ naissance.perenaiss }}{% endif %}</td>
+                    <td>{% if naissance.merenaisse is not empty %} {{ naissance.merenaisse.nomfidele}} {% else %}{{ naissance.merenaiss }}{% endif %}</td>
+
+
+                    <td>{{ naissance.naturedon}}</td>
+                    <td>{{ naissance.especedon}}</td>
+                    <td>{{ naissance.datepresentation|date('m-d-Y')}}</td>
+                   
+
+
+                </tr>
+
+
+
+            </tbody>
+
+
+      </table>
+    </div>
+
+

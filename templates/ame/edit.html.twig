@@ -1,0 +1,13 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Edit Ame{% endblock %}
+
+{% block body %}
+    <h1>Edit Ame</h1>
+
+    {{ include('ame/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_ame_index') }}">back to list</a>
+
+    {{ include('ame/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Nouvelle presence{% endblock %}
+
+{% block body %}
+        <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Choix du participant</h3>
+        </div>
+        {% for message in app.flashes('success') %}
+            <div class="primary">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {{ include('presencecellule/_form.html.twig') }}
+
+    </div>
+
+{% endblock %}

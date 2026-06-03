@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Objetrecette{% endblock %}
+
+{% block body %}
+    <h1>Objetrecette</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ objetrecette.id }}</td>
+            </tr>
+            <tr>
+                <th>Libelle</th>
+                <td>{{ objetrecette.libelle }}</td>
+            </tr>
+            <tr>
+                <th>Ideglise</th>
+                <td>{{ objetrecette.ideglise }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ objetrecette.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ objetrecette.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ objetrecette.deletedAt ? objetrecette.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ objetrecette.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ objetrecette.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_objetrecette_index') }}">back to list</a>
+
+    <a href="{{ path('app_objetrecette_edit', {'id': objetrecette.id}) }}">edit</a>
+
+    {{ include('objetrecette/_delete_form.html.twig') }}
+{% endblock %}

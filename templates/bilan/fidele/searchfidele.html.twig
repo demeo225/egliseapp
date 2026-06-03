@@ -1,0 +1,262 @@
+{% extends "home/index.html.twig" %}
+{% block title %}Recherches multiples{% endblock %}
+{% block body %}
+
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h4 class="card-title">Recherche multiple sur fidèle</h4>
+        </div>
+        <div class="card card-body">
+            {{ form_start(form_recherche) }}
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.zone, {'label':'Zone '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.cellule, {'label':' Cellule '}) }}
+
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.commune, {'label':' Commune '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.quartier, {'label':' Quartier '}) }}
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.nationalite, {'label':'Pays '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.ethnie, {'label':' Ethnie '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.famille, {'label':' Famille/Tribu '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.fonction, {'label':' Fonction '}) }}
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.statutmatri, {'label':'Statut matrimonial '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.stutbapteme, {'label':'Baptisé ? '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.groupesang, {'label':' Groupe Sanguin '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.sexe, {'label':' Sexe '}) }}
+                </div>
+
+            </div>
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.domaineactivite, {'label':' Domaine de compétence '}) }}
+                </div>
+
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.choiculte, {'label':'Culte préferé '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.vieseul, {'label':' Situation de vie '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.langue, {'label':' Langue étrangère'}) }}
+                </div>
+
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.cultefamille, {'label':' Culte de famille '}) }}
+                </div>
+
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.priere, {'label':'Vie de prière '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.lecture, {'label':' Vie de méditation '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.temoignage, {'label':'Evangelisation'}) }}
+                </div>
+
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.bapteme, {'label':' Promotion de baptême '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.etatvieparent, {'label':'Situation de vie des parents '}) }}
+                </div>
+
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.etatparent, {'label':'Etat de vie des parents '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.situation, {'label':'Situation physique'}) }}
+                </div>
+
+
+
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.handicap, {'label':' Handicape '}) }}
+                </div>
+
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.bibleformation, {'label':'Formation théologique '}) }}
+                </div>
+
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.typefidele, {'label':'Type fidèle'}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.maladie, {'label':'Maladie eventuelle :','attr':{'class':'select2'}}) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.permis, {'label':'Permis :','attr':{'class':'select2'}}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.emploi, {'label':'Emploi :','attr':{'class':'select2'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.etude, {'label':'Diplome ou niveau d\'etude :','attr':{'class':'select2'}}) }}
+                </div>
+            </div>
+            <div class="calendar-time-">
+                <div class="card-header">
+                    <h3 class="card-title">Periode d'arrivée</h3>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Fin'}) }}
+                    </div>
+                </div>
+
+            </div> 
+
+
+
+
+            {{ form_end(form_recherche) }}
+
+        </div>
+
+    </div>
+    <div class="rows">
+        {% if app.request.method == 'POST' and fideles |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+
+            {% if fideles |length >0 %}
+                <div class="card-header">
+                    <h4 class="card-title">Resultats de la recherche</h4>
+                </div>
+
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Fidèle</th>
+                            <th>Contact</th>
+                            <th>Baptisé(e)</th>
+                            <th>Statut Mat.</th>
+                            <th>Photo</th>
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fidele in fideles %}
+                            <tr>
+
+                                <td>{{ fidele.nomfidele|upper}}</td>
+                                <td>{{ fidele.contact1}}</td>
+                                <td> {% set stutbapteme= fidele.stutbapteme %}
+                                    {% set sexe= fidele.sexe %}
+
+                                    {% if stutbapteme == 'Oui' and sexe == 'Homme' %}
+                                        Baptisé
+                                    {% elseif stutbapteme == 'Non' and sexe == 'Homme' %}
+                                        Non baptisé
+                                    {% elseif stutbapteme == 'Oui' and sexe == 'Femme' %}
+                                        Baptisée
+                                    {% else %}
+                                        Non Baptisée
+                                    {% endif %}
+
+
+                                </td>                         
+
+                                <td>{{ fidele.statutmatri}}</td>
+
+
+                                <td>
+                                    {% if fidele.photoFile is not empty %}
+
+                                        <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" />                                               
+                                    {% else %} {% endif %}
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+
+
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            $('select').formSelect();
+        });
+    </script>
+{% endblock %}

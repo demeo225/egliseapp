@@ -1,0 +1,66 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion groupe{% endblock %}
+
+{% block body %}
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h4 class="card-title">Gestion de groupes</h4>
+        </div>
+        <div class="card card-body">
+
+            {{ form_start(form) }}
+<div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <div class="row mb-4">
+
+                <div class="col-md-3">
+                    {{ form_row(form.departement, {'libelle':'Departement '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.nom, {'libelle':'Groupe ', 'attr':{'class':'form-control'}}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.responsable1, {'libelle':'Responsable ', 'attr':{'class':'form-control'}}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.responsable2, {'libelle':'Responsable 2nd ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+
+
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    {{ form_row(form.description, {'libelle':'Description ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+            </div>
+
+            <div class="row"> 
+                <div class="col-md-1">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save'}}) }}</div>
+
+                <div class="col-md-2"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                <div class="col-md-2"><a href="{{ path('groupe') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div>  
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+
+
+{% endblock %}

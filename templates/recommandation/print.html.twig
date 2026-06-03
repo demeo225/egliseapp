@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lettre de recommandation</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            color: black;
+            padding: 15px;
+            line-height: 1.4;
+        }
+        
+        .container-fluid {
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .style-bordure {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #333;
+            margin-bottom: 5px;
+        }
+        
+        .style-bordure td {
+            border: 1px solid #333;
+            padding: 5px;
+            vertical-align: top;
+        }
+        
+        .header-bulletin {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .text-gras {
+            font-weight: bold;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        .info-table th, .info-table td {
+            border: 1px solid #ccc;
+            padding: 6px;
+            text-align: left;
+        }
+        
+        .info-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .span2 {
+            font-weight: bold;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        
+        .signature {
+            margin-top: 50px;
+            text-align: right;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: 9px;
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+        
+        .page-break {
+            page-break-before: always;
+        }
+        
+        .logo-img {
+            max-width: 80px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+        
+        @media print {
+            body {
+                padding: 10px;
+            }
+            footer {
+                position: fixed;
+                bottom: 0;
+            }
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- En-tête -->
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="width: 25%; vertical-align: top;">
+                    <div style="font-size: 9px; text-align: center;">
+                      
+                        {% set mots = eglise.communaute.libelle|split(' ') %}
+                        {% set premierePartie = mots|slice(0, 5)|join(' ') %}
+                        {% set deuxiemePartie = mots|slice(5)|join(' ') %}
+                        {{ premierePartie }}<br>{{ deuxiemePartie }}<br>
+                        ----------<br>
+                        {{ eglise.denomination }}
+                    </div>
+                </td>
+                <td style="width: 55%; text-align: center;">
+                    <div class="header-bulletin">
+                        LETTRE DE RECOMMANDATION<br>
+                        N°: {{ recommandation.reference|replace({' ': ''}) }}
+                    </div>
+                </td>
+                <td style="width: 20%; vertical-align: top;">
+                    <div style="text-align: right; font-size: 9px;">
+                       
+                       {% if imageBase64 %}
+    <div style="text-align: center; margin-bottom: 10px;">
+        <img src="{{ imageBase64 }}" style="width: 100px; height: 120px; object-fit: cover; border: 2px solid #ccc; border-radius: 5px;" alt="Photo du fidèle">
+    </div>
+{% else %}
+    <div style="width: 100px; height: 120px; border: 2px solid #ccc; border-radius: 5px; text-align: center; line-height: 120px; background-color: #f5f5f5;">
+        Pas de photo
+    </div>
+{% endif %}
+                    </div>
+                </td>
+            </tr>
+        </table>
+        
+        <!-- Informations église -->
+        <table class="style-bordure">
+            <tr>
+                <td style="width: 35%;">
+                    Eglise:<strong>{{ eglise.denomination }}</strong> 
+                </td>
+                <td style="width: 30%; text-align: center;">
+                   Année ouverture: <strong> {{ eglise.annee }}</strong>
+                </td>
+                <td style="width: 15%;">
+                  Code:<strong>{{ eglise.code|upper }}</strong>   
+                </td>
+                <td style="width: 20%;">
+                   Communaute:<strong> {{ eglise.sigle }}</strong> 
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Adresse postale: <strong> {{ eglise.adresse }}</strong>
+                </td> 
+                <td>
+                    Agrement:<strong> {{ eglise.agrement }}</strong>
+                </td>
+                <td>
+                    Téléphone:<strong> {{ eglise.contact1 }}</strong>
+                </td>
+                <td>
+                    E-mail: <strong> {{ eglise.administrateur }}</strong>
+                </td>
+            </tr>
+        </table>
+        
+        <!-- Informations fidèle -->
+        <table class="style-bordure">
+            <tr>
+                <td colspan="4" style="text-align: center; background-color: #f0f0f0;">
+                    <span style="font-size: 16px; font-weight: bold;">{{ fidele.nomfidele }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 25%; text-align: right;"><strong>Matricule:</strong></td>
+                <td style="width: 25%;"><span style="font-size: 14px; font-weight: bold;">{{ fidele.code|upper }}</span></td>
+                <td style="width: 25%; text-align: right;"><strong>Sexe:</strong></td>
+                <td style="width: 25%;">{{ fidele.sexe }}</td>
+            </tr>
+            <tr>
+                <td style="text-align: right;"><strong>Statut matrimonial:</strong></td>
+                <td>{{ fidele.statutmatri }}</td>
+                <td style="text-align: right;"><strong>Fonction à l'église:</strong></td>
+                <td>{{ fidele.fonction.libelle ?? 'Membre' }}</td>
+            </tr>
+            <tr>
+                <td style="text-align: right;"><strong>Né(e) le:</strong></td>
+                <td>{{ fidele.datenaiss ? fidele.datenaiss|date('d-m-Y') : '' }}</td>
+                <td style="text-align: right;"><strong>Statut baptême:</strong></td>
+                <td>{{ fidele.stutbapteme }}</td>
+            </tr>
+            <tr>
+                <td style="text-align: right;"><strong>Année conversion:</strong></td>
+                <td>{{ fidele.dateconversion ? fidele.dateconversion|date('Y') : '' }}</td>
+                <td style="text-align: right;"><strong>Année d'arrivée:</strong></td>
+                <td>{{ fidele.datearriver ? fidele.datearriver|date('Y') : '' }}</td>
+            </tr>
+            <tr>
+                <td style="text-align: right;"><strong>Contact:</strong></td>
+                <td colspan="3">{{ fidele.contact1 }} - {{ fidele.contactwhatssap }}</td>
+            </tr>
+            <tr>
+                <td style="text-align: right;"><strong>Nationalité:</strong></td>
+                <td>{{ fidele.nationalite ?: 'Ivoirienne' }}</td>
+                <td style="text-align: right;"><strong>Objet:</strong></td>
+                <td>{{ recommandation.objet }}</td>
+            </tr>
+        </table>
+        
+        <!-- Référence -->
+        <table class="info-table">
+            <tr>
+                <th style="width: 15%;">Référence N°</th>
+                <td style="width: 35%;">{{ recommandation.reference }}</td>
+                <th style="width: 15%;">Date</th>
+                <td style="width: 35%;">{{ recommandation.dateop ? recommandation.dateop|date('d-m-Y') : '' }}</td>
+            </tr>
+        </table>
+        
+        <!-- Contenu de la lettre -->
+        <div style="margin: 20px 0; line-height: 1.6;">
+        <p>   {% if fidele.photoFile is not empty %}
+                                    
+
+{% if photoBase64 %}
+    <div style="text-align: center; margin-bottom: 10px;">
+        <img src="{{ photoBase64 }}" style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ccc; border-radius: 5px;" alt="Photo du fidèle">
+    </div>
+{% else %}
+    <div style="width: 100px; height: 120px; border: 2px solid #ccc; border-radius: 5px; text-align: center; line-height: 120px; background-color: #f5f5f5;">
+        Pas de photo
+    </div>
+{% endif %}
+                                    {% else %} {% endif %}</p>
+         
+            {% if recommandation.destination %}
+                <p><h3>Chers frères et sœurs de la communauté {{ recommandation.destination }}</h3>,</p>
+            {% else %}
+             <h3>  Chers frères et sœurs en Christ.</h3>
+            {% endif %}
+            
+           <h3> Que la grâce et la paix de notre Seigneur Jésus vous soient multipliées.
+            
+            Nous, <strong>{{ eglise.communaute.libelle }}</strong>,
+            
+           Temple <strong>{{ eglise.denomination }}</strong>
+            
+          avons le grand plaisir de recommander à votre communion fraternelle<
+           
+                <strong>
+                {% if fidele.sexe == 'Homme' %}
+                    le frère {{ fidele.nomfidele }}
+                {% else %}
+                    la sœur {{ fidele.nomfidele }}
+                {% endif %}
+                </strong>
+                       
+            qui est en pleine communion avec nous et qui doit séjourner dans votre cité
+            
+            pour causes de: <strong>{{ recommandation.objet }}</strong>
+            
+            Pour servir et valoir ce que de droit, nous vous donnons ces autres informations concernant
+            
+            
+                <strong>
+                {% if fidele.sexe == 'Homme' %}
+                    le frère {{ fidele.nomfidele }}
+                {% else %}
+                    la sœur {{ fidele.nomfidele }}
+                {% endif %} :
+                </strong>
+            
+            <ul style="margin-left: 30px; margin-top: 10px;">
+                {% if fidele.stutbapteme == 'Oui' %}
+                    <li>Date baptême: {{ fidele.datebapteme ? fidele.datebapteme|date('d-m-Y') : '' }}</li>
+                    <li>Baptême effectué par: {{ fidele.pasteurbapteme }}</li>
+                    <li>Lieu du baptême: {{ fidele.lieubapteme }}</li>
+                {% else %}
+                    <li>Baptême: non baptisé(e)</li>
+                {% endif %}
+                <li>Situation matrimoniale: {{ fidele.statutmatri }}</li>
+                <li>Responsabilité à l'église: {{ fidele.fonction.libelle ?? 'Membre' }}</li>
+                <li>Stabilité: {{ recommandation.stabilite ?: 'Bon' }}</li>
+                <li>Fidélité: {{ recommandation.fidelite ?: 'Exemplaire' }}</li>
+                <li>Soumission: {{ recommandation.soummission ?: 'Exemplaire' }}</li>
+            </ul>
+            </h3>
+            <p><h3>Nous vous prions de bien vouloir l'accueillir d'une manière digne des Saints.</h3></p>
+        </div>
+        
+        <!-- Signature -->
+        <div class="signature">
+            <p>Fait à {{ eglise.commune }}, le {{ recommandation.dateop|date('d-m-Y') }}</p>
+            <p>Pour l'église locale de <strong>{{ eglise.denomination }} - {{ eglise.quartier|capitalize }}</strong></p>
+            <p>Le Pasteur principal</p>
+            <p><strong>{{ recommandation.pasteur }}</strong></p>
+        </div>
+    </div>
+    
+    <footer>
+        Siège social: {{ eglise.quartier }} | Boîte Postale: {{ eglise.adresse }} | Code: {{ eglise.code|upper }} | 
+        Pasteur principal: {{ recommandation.pasteur }} | Contact: {{ eglise.contact1 }} | Email: {{ eglise.administrateur }}
+    </footer>
+</body>
+</html>

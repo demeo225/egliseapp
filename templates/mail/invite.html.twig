@@ -1,0 +1,10 @@
+{# empty Twig template #}
+{{ 'invitation.email.message'|trans({
+        '%user%': user,
+        '%email%': user.email,
+        '%password%': password,
+        '%confirmation_url%': confirmation_url,
+        '%host%': app.request.schemeAndHttpHost,
+        '%website_name%': website_name
+    }, 'back_messages')|raw|nl2br
+}}

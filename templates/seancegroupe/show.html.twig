@@ -1,0 +1,132 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Seance groupe{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title"> Details activités du {{ seancegroupe.datesuper ? seancegroupe.datesuper|date('d-m-Y') : '' }} </h3>
+        </div>
+        <div class="card body">
+
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Date </th>
+                        <td>{{ seancegroupe.datesuper ? seancegroupe.datesuper|date('d-m-Y') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Lieu</th>
+                        <td>{{ seancegroupe.lieu }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Theme</th>
+                        <td>{{ seancegroupe.theme }}</td>
+                    </tr>
+                    <tr>
+                        <th>Homme</th>
+                        <td>{{ seancegroupe.nbrepresent }}</td>
+                    </tr>
+                    <tr>
+                        <th>Femmes</th>
+                        <td>{{ seancegroupe.femme }}</td>
+                    </tr>
+                    <tr>
+                        <th>Enfants</th>
+                        <td>{{ seancegroupe.enfant }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Total présents</th>
+                        <td>
+                            {% set nbrepresent =seancegroupe.nbrepresent %}
+                            {% set femme =seancegroupe.femme %}
+                            {% set enfant =seancegroupe.enfant %}
+                            {% set total = enfant +nbrepresent + femme %}
+
+                            {{ total }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Objet</th>
+                        <td>{{ seancegroupe.objet }}</td>
+                    </tr>
+                    <tr>
+                        <th>Versets</th>
+                        <td>{{ seancegroupe.versets }}</td>
+                    </tr>
+                    <tr>
+                        <th>Resume</th>
+                        <td>{{ seancegroupe.resume|raw }}</td>
+                    </tr>
+                    <tr>
+                        <th>Offrande</th>
+                        <td>{{ seancegroupe.offrande }}</td>
+                    </tr>
+                    <tr>
+                        <th>Heure debut</th>
+                        <td>{{ seancegroupe.heuredebut ? seancegroupe.heuredebut|date('H:i:s')}}</td>
+                    </tr>
+                    <tr>
+                        <th>Heure fin</th>
+                        <td>{{ seancegroupe.heurefin ? seancegroupe.heurefin|date('H:i:s') }}</td>
+                    </tr>
+                          <tr>
+                        <th>Durée</th>
+                        <td>
+                            {% set difference = date(seancegroupe.heuredebut).diff(seancegroupe.heurefin) %}
+                            {{ difference.format('%H:%I:%S') }}
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Intervenant</th>
+                        <td> {% if seancegroupe.fidele is not null  %}  {{ seancegroupe.fidele.nomfidele }} {% else %}{{ seancegroupe.typeofficiant }} {% endif %}</td>
+                    </tr>
+
+                    <tr>
+                    <th>Type activité</th>
+                    <td>
+            
+
+                {{ seancegroupe.typeactivite }}
+
+                    </td>
+                </tr>
+                    <tr>
+                    <th>Fiche rapport</th>
+                    <td>
+                        {% if seancegroupe.photo is not empty %} <a href="{{ asset('uploads/photos/' ~ seancegroupe.photo) }}" target="_blank">
+                        Afficher rapport</a> {% else %} Fiche rapport indisponible {% endif %}
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-md-3"><a href="{{ path('seancegroupe_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+                {% if is_granted('ROLE_RESPONSABLE_GROUPE') %}
+
+
+
+                    <div class="col-md-3">   <a href="{{ path('seancegroupe_edit', {'id': seancegroupe.id}) }}" class="btn btn-primary">Modifier</a></div>
+
+                    <div class="col-md-3">
+
+                        <form method="post" action="{{ path('seancegroupe_delete', {'id': seancegroupe.id}) }}" onsubmit="return confirm('êtes-vous sûr de vouloir supprimer?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ seancegroupe.id) }}">
+                            <button class="btn">
+                                <span style="font-size: 1em; color: red;">
+                                    <i class="fas fa-trash-alt" title="Supprimer"></i>
+                                </span>
+                            </button>
+                        </form> 
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

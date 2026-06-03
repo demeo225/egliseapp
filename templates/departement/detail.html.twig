@@ -1,0 +1,60 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des membres{% endblock %}
+
+{% block body %}
+
+
+
+    <section class="content">
+        <h3><b>LISTE DES SOUS-GROUPES DE: <b>{{ nompdepart|upper}}</b>  </b></h3>
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    {#    <a href='{{ path('departement') }}'>
+                            <button class="btn btn-success">Retour à la liste</button>
+                        </a>
+                      <a href='{{ path('departement_printgroupe',{'id':id}) }}'>
+                          <a href='departement/printmembre/on?id={{ id }}'  target='_blank'>
+
+                    <button class="btn btn-primary">Imprimer les groupes</button>
+                    </a>  #}
+                      <hr style="visibility: hidden" />
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                        <th>Nom du groupe</th>
+                        <th>Responsable premier</th>
+                        <th>responsable second</th>
+             
+                        </thead>
+                        </tr>
+                        <tbody>
+
+                            {% for groupe in groupe %}
+                                <tr>
+
+                                    <td>{{ groupe.nom|upper}}</td>
+                                    <td>{{ groupe.responsable1|upper}}</td>
+                                    <td>{{ groupe.responsable2|upper}}</td>
+
+                                </tr>
+
+                        
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+
+{% endblock %}

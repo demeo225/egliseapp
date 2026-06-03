@@ -1,0 +1,97 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste de presence {% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Liste de présence au culte</h3>
+        </div>
+     <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <div class="container-fluid">
+         
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+
+                    <a href='{{ path('cultecodim_presence') }}'>
+                        <button class="btn btn-primary">Nouveau</button>
+                    </a>
+                    <a href='{{ path('cultecodim') }}'>
+                        <button class="btn btn-success">Liste des cultes </button>
+                    </a>
+
+                    <hr style="visibility: hidden" />
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                        <th>Culte</th>
+                        <th>Enfant</th>
+                        <th>Photo</th>
+                        <th>Retirer</th>
+                        </thead>
+                        </tr>
+                        <tbody>
+                         
+                                {% for presenceculte in presencecultes %}
+
+                                
+                                    <tr>
+                                        <td> {% if presenceculte.culte is not empty %} {{ presenceculte.culte.dateculte ? presenceculte.culte.dateculte|date('d-m-Y') : '' }} 
+                                        {% else %} {% endif %}</td>
+                                    <td>{{ presenceculte.enfant.nom|upper}}</td>
+
+
+                                    <td>    
+                                        <img src="{{ asset('uploads/photos/'~presenceculte.enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> 
+
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{{ path('presenceculte_delete', {'id': presenceculte.id}) }}" onsubmit="return confirm('etes vous-sûr de vouloir supprimer?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ presenceculte.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: red;">
+                                                    <i class="fas fa-trash-alt" title="Retirer"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                      
+                                    {% else %}
+                                      
+                                            <tr>
+                                                <td colspan="5">aucune donnée trouvée</td>
+                                            </tr>
+                                    
+                      
+
+                                            {% endfor %}
+                                                
+                                                
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                        
+
+
+                            {% endblock %}

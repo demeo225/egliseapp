@@ -1,0 +1,18 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}New Typeculte
+{% endblock %}
+
+{% block body %}
+	<div class="card card-primary">
+		<div class="card-header">
+			<h3 class="card-title">Enregistrement categorie culte</h3>
+		</div>
+		<div class="card card-body">
+
+			{{ include('typeculte/_form.html.twig') }}
+
+		</div>
+	{% endblock %}
+
+

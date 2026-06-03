@@ -1,0 +1,192 @@
+{% extends "home/index.html.twig" %}
+{% block title %}Recherches multiples enfant{% endblock %}
+{% block body %}
+
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h4 class="card-title">Recherche multiple sur enfant</h4>
+        </div>
+        <div class="card card-body">
+            {{ form_start(form_recherche) }}
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.nationalite, {'label':'Pays '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.ethnie, {'label':' Ethnie '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.cellule, {'label':' Cellule '}) }}
+
+                </div>
+
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.quartier, {'label':' Quartier '}) }}
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.famille, {'label':' Famille/Tribu '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.peremembre, {'label':'Père'}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.merembre, {'label':'Mère'}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.maladie, {'label':'Maladie eventuelle :','attr':{'class':'select2'}}) }}
+                </div>
+            </div>
+
+            <div class="row">
+
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.groupesang, {'label':' Groupe Sanguin '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.situation, {'label':'Handicapé ?'}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.handicap, {'label':' Handicape '}) }}
+                </div>
+
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.vieparent, {'label':'Situation de vie des parents '}) }}
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.niveauetude, {'label':' Niveau d\'etude '}) }}
+                </div>
+
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.situationparent, {'label':'Parents en vie '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.sexe, {'label':' Sexe '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.lieuvivre, {'label':'Lieu d\'habitation'}) }}
+                </div>
+
+
+            </div>
+
+
+            <div class="calendar-time-">
+                <div class="card-header">
+                    <h3 class="card-title">Enfants nés entre</h3>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Fin'}) }}
+                    </div>
+                </div>
+            </div> 
+
+
+
+
+            {{ form_end(form_recherche) }}
+
+        </div>
+
+    </div>
+    <div class="rows">
+        {% if app.request.method == 'POST' and enfants |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+
+            {% if enfants |length >0 %}
+                <div class="card-header">
+                    <h4 class="card-title">Resultats de la recherche</h4>
+                </div>
+
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Enfant</th>
+                            <th>Teléphone</th>
+                            <th>Situation de vie</th>
+                            <th>Handicap</th>
+                            <th>Situation des parents</th>
+
+                            <th>Age</th>
+                            <th>Photo</th>
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enfant in enfants %}
+                            <tr>
+                                <td>{{ enfant.code|upper}}</td>
+                                <td>{{ enfant.nom|upper}}</td>
+                                <td>{{ enfant.contact}}</td>
+                                <td>  {{ enfant.lieuvivre}}</td>
+                                <td>{{ enfant.handicap}}</td>
+                                <td>{{ enfant.vieparent}}</td>
+
+                                <td>
+                                    {% set naissance = enfant.datenaiss|date('Y') %}
+                                    {% set today = "now"|date('Y') %}
+                                    {% set difference = today - naissance %}
+
+                                    {{ difference }}
+                                </td>
+
+
+
+                                <td>
+                                    {% if enfant.photoFile is not empty %}
+                                   
+                                        <img src="{{ asset('uploads/photos/'~enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare" />                                               
+                                    {% else %} {% endif %}
+                                 
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+
+
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            $('select').formSelect();
+        });
+    </script>
+{% endblock %}

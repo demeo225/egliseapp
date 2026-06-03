@@ -1,0 +1,39 @@
+
+         <div class="card card-primary">
+
+           <div class="card-header">
+            <h3 class="card-title">Details actions sociale</h3>
+        </div>
+
+    <table class="table">
+        <tbody>
+   
+            <tr>
+                <th>Date</th>
+                <td>{{ activitesociale.datesociale ? activitesociale.datesociale|date('d-m-Y') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Objet</th>
+                <td>{{ activitesociale.objet }}</td>
+            </tr>
+            <tr>
+                <th>Don en espèce</th>
+                <td>{{ activitesociale.montant }}</td>
+            </tr>
+                <tr>
+                <th>Don en nature</th>
+                <td>{{ activitesociale.nature }}</td>
+            </tr>
+            <tr>
+                <th>Beneficiaire</th>
+                <td>{{ activitesociale.beneficiaire }}</td>
+            </tr>
+            <tr>
+                <th>Detail</th>
+                <td>{{ activitesociale.detail|raw }}</td>
+            </tr>
+
+
+        </tbody>
+    </table>
+

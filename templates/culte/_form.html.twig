@@ -1,0 +1,88 @@
+ 
+        <div class="card card-body">
+
+            {{ form_start(form) }}
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <div class="row">
+               <div class="col-md-3">
+                    {{ form_row(form.dateculte, {'label':'Date :'}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.typeculte, {'label':'Categorie Culte:'}) }}
+                </div>
+             
+
+                <div class="col-md-3">
+                    {{ form_row(form.dirigeant, {'label':'Dirigeant :'}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.messager, {'label':'Messager local :'}) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    {{ form_row(form.orateur, {'label':'Orateur Invité :'}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.theme, {'label':'Thème :'}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.reference, {'label':'Passages bibliques :'}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.nmbrehomme, {'label':'Total hommes :'}) }}
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form.nobrefemme, {'label':'Total femmes '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.nbrefant, {'label':'Total enfants '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.invite, {'label':'Total invités '}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.ame, {'label':'Total nouvelles âmes '}) }}
+                </div>
+            </div>
+
+
+
+            <div class="row ">
+               <div class="col-md-3">
+                    {{ form_row(form.categorieculte, {'label':'Type Culte:'}) }}
+                </div>
+             
+               <div class="col-md-3">
+                    {{ form_row(form.photo, {'label':'Fiche du culte:'}) }}
+                </div>
+                <div class="col-md-6">
+                    {{ form_row(form.message, {'label':'Notes '}) }}
+                </div>
+            </div>
+            <div class="row"> 
+                <div class="col-md-1.5">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save'}}) }}</div>
+
+                <div class="col-md-2">{{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                <div class="col-md-2"><a href="{{ path('culte') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>

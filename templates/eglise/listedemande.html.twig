@@ -1,0 +1,78 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Eglises en attente de validation{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+        <a href='{{ path('eglise_new') }}'>
+            <button class="btn btn-primary">Nouvel enregistrement</button>
+        </a>
+        <a href='{{ path('communaute_new') }}'>
+            <button class="btn btn-primary">Communauté</button>
+        </a>
+              <a href='{{ path('eglise_supp') }}'>
+            <button class="btn btn-danger">Comptes fermés</button>
+        </a>
+
+              <a href='{{ path('eglise') }}'>
+            <button class="btn btn-danger">Liste eglise</button>
+        </a>
+
+            <hr style="visibility: hidden" />
+        <table  id="example1" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Communaute</th>
+                    <th>Temple</th>
+                    <th>Contact</th>
+                    <th>Administrateur</th>
+                    <th>Quartier</th>
+                    <th>Inscription</th>
+                    <th>Logo</th>
+                    <th>actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for eglise in eglises %}
+                    <tr>
+                        <td>{{ eglise.code|upper }}</td>
+
+                        <td> {{ eglise.congregation }} </td>
+                        <td>{{ eglise.denomination }}</td>
+                        <td>{{ eglise.contact1 }}</td>
+                        <td>{{ eglise.administrateur }}</td>
+                        <td>{{ eglise.quartier }}</td>
+
+                        <td>{{ eglise.createAt ? eglise.createAt|date('d-m-Y H:i:s') : '' }}</td>
+                        <td>
+                            <img src="{{ asset('uploads/photos/'~eglise.logo )}}"  class="img-size-50 mr-3 img-suqare"/> 
+                        </td>                                              
+                        <td>
+                                   <a href="{{ path('eglise_validation', {'id': eglise.id}) }}">
+                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                <i class="fas fa-edit" title="Valider"></i>
+                                            </span>
+                                        </a>
+
+                            
+                             <form method="post" action="{{ path('eglise_delete', {'id': eglise.id}) }}" onsubmit="return confirm('etes vous sur de rejeter cette demande');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ eglise.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: red;">
+                                                    <i class="fas fa-trash-alt" title="Rejeter"></i>
+                                            </span>
+                                            </button>
+                                        </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="22">Aucune donnée trouvée</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

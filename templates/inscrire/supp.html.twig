@@ -1,0 +1,49 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Suppression inscrire
+{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-danger">
+        <div class="card-header">
+            <h3 class="card-title">Comfiermez le retrait de {{ inscrire.enfant.nom }} de la classe {{ inscrire.classecodim.nom }} 
+                <img src="{{ asset('uploads/photos/'~inscrire.enfant.photoFile )}}"  class="img-size-50 mr-3 img-square"/></h3>
+        </div>
+        <div class="card-body">
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="row mb-4">
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.datefin, "Date")}}
+                        {{ form_errors(form.datefin)  }}
+                        <div>
+                            {{ form_widget(form.datefin) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.raisondelete, "Raisons du retrait") }}
+                        {{ form_errors(form.raisondelete)  }}
+                        <div>
+                            {{ form_widget(form.raisondelete) }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+{% endblock %}  

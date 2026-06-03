@@ -1,0 +1,67 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des fiancés{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des fiançailles</h3>
+            </div>
+<div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+ </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('fiancaille_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('mariage_index') }}'>
+                    <button class="btn btn-success">Liset des Mariages</button>
+                </a>
+                <a href="{{ path('couple_index') }}"><button class="btn btn-success">Liste des couples</button>
+                </a>
+
+
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Fiancée</th>
+                            <th>Fiancé</th>
+                            <th>Pasteur officient</th>
+
+                            <th>actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fiancaille in fiancailles %}
+                            <tr>
+                                <td>{{ fiancaille.datefiancaille ? fiancaille.datefiancaille|date('d-m-Y') : '' }}</td>
+                                <td>{% if fiancaille.fianceemembre is not empty %} {{ fiancaille.fianceemembre.nomfidele}} {% else %}{{ fiancaille.fiancee}}{% endif %}</td>
+                                <td>{% if fiancaille.fiancemembre is not empty %} {{ fiancaille.fiancemembre.nomfidele}} {% else %}{{ fiancaille.fiance}}{% endif %}</td>
+                                <td>{{ fiancaille.pasteurfiancaille|upper }}</td>
+
+                                <td>
+                                    <a href="{{ path('fiancaille_show', {'id': fiancaille.id}) }}"> <i class="fas fa-list"></i></a>
+                                    <a href="{{ path('fiancaille_edit', {'id': fiancaille.id}) }}"> <i class="fas fa-edit"></i></a>
+                                </td>
+                            </tr>
+                     
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

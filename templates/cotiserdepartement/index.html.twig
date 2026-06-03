@@ -1,0 +1,85 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des cotisations {% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Paiements des cotisations</h3>
+        </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+
+            <a href='{{ path('cotiserdepartement_new') }}'>
+                <button class="btn btn-primary">Nouveau</button>
+            </a>
+
+            <a href='{{ path('cotisationdepartement_index') }}'>
+                <button class="btn btn-success">Liste cotisations </button>
+            </a>
+
+            <a href='{{ path('cotiserdepartement_detaildepartement') }}'>
+                <button class="btn btn-danger">Details </button>
+            </a>
+   <a href={{ path('app_depensedepartement_index') }}>
+                    <button class="btn btn-primary">Depenses</button>
+
+                </a>
+            <hr style="visibility: hidden" />
+
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Departement</th>
+                        <th>Cotisation</th>
+                        <th>Membre</th>
+                        <th>Contact</th>
+                        <th>Montant </th>
+                        <th>Montant payé</th>
+                        <th>Reste</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cotiserdepartement in cotiserdepartements %}
+                        {% if is_granted("cotiserdepartement_edit", cotiserdepartement) %}
+                            <tr>
+                                <td> {% if cotiserdepartement.departement is not null  %} {{ cotiserdepartement.departement.nom|upper }}{% else %} {% endif %}</td>
+                                <td> {% if cotiserdepartement.cotisationdepartement is not null  %} {{ cotiserdepartement.cotisationdepartement.objet|upper }}{% else %} {% endif %}</td>
+                                <td>{{ cotiserdepartement.fidele.nomfidele|upper }}</td>
+                                <td> {% if cotiserdepartement.fidele.contactwhatssap is not empty %} {{ cotiserdepartement.fidele.contactwhatssap}} {% else %} {{ cotiserdepartement.fidele.contact1}} {% endif %}</td>
+                                <td>{{ cotiserdepartement.cotisationdepartement.montant }}</td>
+                                <td>{{ cotiserdepartement.montantpayer }}</td>
+                                <td>{% if  cotiserdepartement.reste ==0 %} <b>Soldé</b> 
+                                {% elseif cotiserdepartement.reste >0 %} {{ cotiserdepartement.reste }} {% elseif cotiserdepartement.reste < 0 %} 
+                                    <b> Soldé </b> {% endif %}</td>
+                             {#   <td>
+                                    {% if cotiserdepartement.reste <= 0 %} {% else %}
+                                        <a href="{{ path('cotiserdepartement_edit', {'id': cotiserdepartement.id}) }}">  <span style="font-size: 1em; color: Dodgerblue;">
+                                                <i class="fas fa-edit"></i>
+                                            </span></a>
+                                        {% endif %}
+                                </td> #}
+                            </tr>
+                        {% endif %}
+                 
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+{% endblock %}

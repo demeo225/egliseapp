@@ -1,0 +1,68 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Recherche par groupe{% endblock %}
+
+{% block body %}
+    <div class='row'>
+        <form action="{{ path('groupe_bilan') }}" method="POST">
+
+            <div class="row mb-4">
+
+                <div class="col-md-4">
+                    <select name="selGroupe">
+                        <option value="">-- Sélectionner -- </option>
+                        {% for commune in commune %}
+                            <option value="{{ commune.id }}">{{ commune.nom }} </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                    <br />
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+                <div class="col-md-4">
+
+                    {#  <a href='{{ path('groupe_printmembredep') }}'>
+                      <a href='quartier/printmembre/on?id={{ id }}'  target='_blank'>#}
+
+                    <button class="btn btn-primary">Imprimer</button>
+                    </a>
+                </div>
+            </div>    
+        </form>    
+    </div> 
+
+    <table  id="example1" class="table table-bordered table-striped">
+        <thead> 
+            <tr class="btn-success">
+                <th>Code</th>
+                <th>Fidèle</th>
+                <th>Numéro</th>
+                <th>Sexe</th>
+                <th>Quartier</th>
+                <th>Photo</th>
+
+
+
+            </tr></thead>
+        <tbody>
+            {% for liste in listefidele %}     
+            <div class="col-md-12">
+                <tr>
+                    <td>{{ liste.fidele.code|upper }}</td>  
+                    <td>{{ liste.fidele.nomfidele }}</td>  
+                    <td>{{ liste.fidele.contact1 }}</td>  
+                    <td>{{ liste.fidele.sexe }}</td>  
+                    <td>{{ liste.fidele.quartier.libelle }}</td>  
+                    <td><img src="{{ asset('uploads/photos/'~liste.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" />  </td>                                             
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5">aucune donnée trouvée</td>
+                </tr>
+
+            </div>
+        {% endfor %} 
+    </tbody>
+</table>
+{% endblock %}

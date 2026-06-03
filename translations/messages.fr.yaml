@@ -1,0 +1,33 @@
+alert:
+    info: Alerte info
+    success: Alerte succès
+    warning: Alerte avertissement
+    danger: Alerte danger
+btn:
+    close: Fermer
+
+JANUARY: Janvier 
+FEBRUARY: Février
+MARCH: Mars 
+APRIL: Avril
+MAY: Mai 
+JUNE: Juin
+JULY: Juillet
+AUGUST: Août
+SEPTEMBER: Septembre
+OCTOBER: Octobre
+NOVEMBER: Novembre
+DECEMBER: Décembre
+YEAR: Année
+MONTH: Mois
+DAY: Jour
+WEEK: Semaine
+THIS-MONTH: Ce mois ci
+THIS-WEEK: Cette semaine
+MONDAY: Lundi
+TUESDAY: Mardi
+WEDNESDAY: Mercredi
+THURSDAY: Jeudi
+FRIDAY: Vendredi
+SATURDAY: Samedi
+SUNDAY: Dimanche

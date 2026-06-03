@@ -1,0 +1,67 @@
+{# empty Twig template #}
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification membre{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification du membre</h3>
+        </div>
+        <div class="card card-body">
+            {% for message in app.flashes('success') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    {{ form_row(form.departement, {'label':'Departement:'}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.groupe, {'label':'Groupe :'}) }}
+                </div>
+            </div>
+
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    {{ form_row(form.fidele, {'label':'Fidèle:'}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.rolegroupe, {'label':'Role :'}) }}
+                </div>
+            </div>
+
+
+
+            <div class="row"> 
+                <div class="btn btn-default">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+                <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+
+                <div class="btn btn-default"><a href="{{ path('groupefidele') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div>
+
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+
+            {{ form_end(form) }}
+        </div>
+
+    </div>
+
+
+
+
+{% endblock %}

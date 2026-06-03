@@ -1,0 +1,82 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Paiements cotisations{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste de paiement des cotisations</h3>
+            </div>
+ <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('fidelecotiser_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('cotisation') }}'>
+                    <button class="btn btn-success">Liste des cotisations</button>
+                </a>
+                <a href='{{ path('fidelecotiser_detailcotisation') }}'>
+                    <button class="btn btn-danger">Details paiement</button>
+                </a>
+
+                <hr style="visibility: hidden" />  
+
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Fidèle</th>
+                            <th>Contact</th>
+                            <th>Objet</th>
+                            <th>Montant F CFA</th>
+                            <th>Mont payé F CFA</th>
+                            <th>Reste F CFA </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fidelecotiser in fidelecotisers %}
+                            <tr>
+                                <td>{{ fidelecotiser.fidele.nomfidele }}</td>
+                                <td> {% if fidelecotiser.fidele.contactwhatssap is not empty %} {{ fidelecotiser.fidele.contactwhatssap}} {% else %} {{ fidelecotiser.fidele.contact1}} {% endif %}</td>
+                                <td>{{ fidelecotiser.cotisation.objet }}</td>
+                                <td>{{ fidelecotiser.cotisation.montant|number_format(0, '.', ' ') }}</td>
+                                <td>{{ fidelecotiser.montpaye|number_format(0, '.', ' ') }}</td>
+                                <td>
+
+                                    {% set montant = fidelecotiser.cotisation.montant %}
+                                    {% set paye = fidelecotiser.montpaye %}
+                                    {% set diff = montant - paye  %}
+                                   {% if diff < 0  %}
+                                       AA
+                                       {% else %}
+                                        <b>{{ diff|number_format(0, '.', ' ') }}</b>
+                                       {% endif %}
+
+
+                                </td>
+
+
+                            </tr>
+                      
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

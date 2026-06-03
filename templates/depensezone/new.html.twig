@@ -1,0 +1,14 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}New Depensezone{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title"> {{ zone.nom|upper }} : Enregistrement de depenses </h3>
+        </div>
+
+        {{ include('depensezone/_form.html.twig') }}
+
+    </div>
+{% endblock %}

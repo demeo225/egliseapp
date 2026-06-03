@@ -1,0 +1,13 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}New classecodim{% endblock %}
+
+{% block body %}
+      <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion Classes Ecodim</h3>
+        </div>
+
+    {{ include('classecodim/_form.html.twig') }}
+      </div>
+{% endblock %}

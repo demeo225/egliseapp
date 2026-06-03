@@ -1,0 +1,75 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}{{ projet.libelle}}
+{% endblock %}
+
+{% block body %}
+
+    <h3>
+        <u>
+            <strong>Details Projet</strong>
+        </u>
+    </h3>
+
+    <table class="table">
+
+
+        <tbody>
+
+
+
+            <tr class="btn-success">
+                <td>Projet</td>
+                <td>Devis</td>
+                <td>Montant depensé</td>
+                <td>Description</td>
+                <td>Debut</td>
+
+            </tr>
+            <tr>
+                <td>{{ projet.libelle|upper}}</td>
+                <td>{{ projet.devis}}</td>
+                <td>{{ projet.montantdepense}}</td>
+                <td>{{ projet.description}}</td>
+
+                <td>{{ projet.debutprojet|date('d-m-Y')}}</td>
+            </tr>
+
+
+            <tr class="btn-success">
+                <td>Fin</td>
+                <td>Maître d'ouvrage</td>
+                <td>Chef projet</td>
+                <td>Créé le</td>
+                <td>créé par</td>
+
+            </tr>
+
+            <tr>
+
+
+                <td>{{ projet.finprojet|date('d-m-Y')}}</td>
+                <td>{{ projet.ouvrage}}</td>
+                <td>{{ projet.chefprojet}}</td>
+                <td>{{ projet.createAt|date('d-m-Y à H:m:s')}}</td>
+                <td>{{ projet.createdBy.nomuser|upper}}</td>
+
+            </tr>
+            <tr>
+                <td>
+                    <a href='{{ path('projet_index') }}'>
+                        <button class="btn btn-primary">Afficher la liste</button>
+                    </a>
+                    <a href="{{ path('projet_edit', {'id': projet.id}) }}">
+                        <span style="font-size: 2em; color: Dodgerblue;">
+
+                            <i class="fas fa-edit"></i>
+
+                        </span>
+                    </a>
+                </td>
+
+
+            </tr>
+        </tbody>
+    </tbody></form></table>{% endblock %}

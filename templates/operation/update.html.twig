@@ -1,0 +1,100 @@
+
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion des dépenses{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Enregistrement depense</h3>
+        </div>
+        <div class="card card-body">
+
+            {{ form_start(form) }}
+
+            {% for message in app.flashes('operation') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+
+
+
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Modification depense effectuée le: {{ operation.dateop|date('d-m-Y')}}, motant: {{ operation.montant|number_format(0, '.', ' ')}}</h3>
+    </div>
+    <div class="card card-body">
+
+        {{ form_start(form) }}
+
+
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.typeof, {'label':'Choix action '}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.ajout, {'label':'Montant '}) }}
+            </div>
+
+        </div>
+
+        <div class="row mb-4">
+
+            <div class="col-md-3">
+                {{ form_row(form.dateop, {'libelle':'Date '}) }}
+
+            </div>
+
+
+
+            <div class="col-md-3">
+                {{ form_row(form.objet, {'libelle':'Objet '}) }}
+
+            </div>
+
+
+
+            <div class="col-md-3">
+                {{ form_row(form.beneficiaire, {'libelle':'Bénéficiaire '}) }}
+
+            </div>
+
+
+
+        </div>
+
+        <div class="row mb-4">
+
+
+            <div class="col-md-3">
+                {{ form_row(form.numrecu, {'libelle':'N° reçu '}) }}
+
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.description, {'libelle':'Details '}) }}
+
+            </div>
+
+        </div>
+        <div class="row mb-4">
+
+            <div class="col-md-3">
+                {{ form_row(form.photo, {'label':'Image du reçu :'}) }}
+            </div>
+
+        </div>
+
+        <div class="row"> 
+            <div class="col-md-1">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+        </div> 
+
+        {{ form_end(form) }}
+    </div>
+
+</div>
+
+{% endblock %}

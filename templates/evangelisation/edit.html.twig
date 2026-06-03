@@ -1,0 +1,49 @@
+
+  <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">MModification evangelisation</h3>
+        </div>
+
+    <div class="card card-body">
+        {{ form_start(form, {'attr': {'action': path('app_evangelisation_edit', {'id':evangelisation.id})}}) }}
+
+        <div class="row">
+            <div class="col-md-3">
+                {{ form_row(form.dateop, {'label':'Date '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.lieu, {'label':'Lieu  '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.responsable1, {'label':'Responsable '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.responsable2, {'label':'Responsable 2nd '}) }}
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                {{ form_row(form.personnes1, {'label':'Personnes contactées '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.personnes2, {'label':'Nombre de RDV '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.personnes3, {'label':'Personnes ayant accepté Jesus '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.personnes4, {'label':'Personnes invitées '}) }}
+            </div>
+        </div>
+        <div class="row">
+            {{ form_row(form.observation, {'label':'Observation '}) }}
+        </div>
+        <div class="row"> 
+            <div class="col-md-1">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+            <div class="col-md-2.5" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+        </div> 
+        {{ form_end(form) }}
+
+    </div>
+</div>

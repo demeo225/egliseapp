@@ -1,0 +1,100 @@
+{# /app/templates/registration/register.html.twig #}
+{% extends "home/index.html.twig" %}
+
+{% block title %}Administration{% endblock %}
+
+{% block body %}
+
+    {# If there are any errors on the form, display them #}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h4 class="card-title">Gestion utilisateurs</h4>
+        </div>
+        {# Render the Form #}
+        <div class="card card-body">
+            {{ form_start(form)}}
+
+
+            <div class="row mb-4">
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.email, "Email") }}
+                        {{ form_errors(form.email) }}
+                        <div>
+                            {{ form_widget(form.email) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.roles, "Role") }}
+                        {{ form_errors(form.roles) }}
+                        <div>
+                            {{ form_widget(form.roles) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.nomuser, "Nom") }}
+                        {{ form_errors(form.nomuser) }}
+                        <div>
+                            {{ form_widget(form.nomuser) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.prenom, "Prénoms") }}
+                        {{ form_errors(form.prenom) }}
+                        <div>
+                            {{ form_widget(form.prenom) }}
+                        </div>
+                    </div>
+                </div> 
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.eglise, "Eglise") }}
+                        {{ form_errors(form.eglise) }}
+                        <div>
+                            {{ form_widget(form.eglise) }}
+                        </div>
+                    </div>
+                </div> 
+
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.photo, "photo") }}
+                        {{ form_errors(form.photo) }}
+                        <div>
+                            {{ form_widget(form.photo) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_errors(form.plainPassword) }}
+                        <div>
+                            {{ form_widget(form.plainPassword) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row"> 
+                <div class="btn btn-default">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div>
+
+                <div class="btn btn-default"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+            </div> 
+            <div class="col-4">
+                <div class="form-group">
+                    {{ form_rest(form) }}
+                </div>
+                {{ form_end(form) }}    </div>
+        </div>
+    </div>
+
+{% endblock %}{# empty Twig template #}

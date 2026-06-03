@@ -1,0 +1,327 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des cellules{% endblock %}
+
+{% block body %}
+<div class="card card-body">
+    {{ form_start(form_recherche, {'action': path('app_bilan_cellule'), 'method': 'POST'}) }}
+        <div class="card card-success">
+            <div class="card-header">
+                <h3 class="card-title">Critères de recherche</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_row(form_recherche.cellule, {'label': 'Cellule'}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label': 'Date début'}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin, {'label': 'Date fin'}) }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form_row(form_recherche.rechercher) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{ form_end(form_recherche) }}
+</div>
+
+{# Section récapitulatif - identique à département #}
+{% if bilanComplet is defined and bilanComplet is not null and not bilanComplet.isEmpty %}
+<div class="row mt-3">
+    <div class="col-md-12">
+        <div class="card card-dark">
+            <div class="card-header">
+                <h3 class="card-title">Récapitulatif financier - {{ bilanComplet.entiteNom }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h3>{{ bilanComplet.bilanCotisations ? bilanComplet.bilanCotisations.totalMontantPayes|number_format(0, ',', ' ') }} FCFA</h3>
+                                <p>Total cotisations perçues</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="small-box bg-danger">
+                            <div class="inner">
+                                <h3>{{ bilanComplet.totalMontantDepenses|number_format(0, ',', ' ') }} FCFA</h3>
+                                <p>Total dépenses</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="small-box bg-info">
+                            <div class="inner">
+                                <h3>{{ soldeDisponible|number_format(0, ',', ' ') }} FCFA</h3>
+                                <p>Solde disponible</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Section activités #}
+{% if bilanComplet.hasActivites %}
+<div class="card card-primary mt-3">
+    <div class="card-header"><h3 class="card-title">Activités</h3></div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr><th>Date</th><th>Lieu</th><th>Offrande</th><th>Total participants</th></tr>
+                </thead>
+                <tbody>
+                    {% for seance in bilanComplet.activites %}
+                    <tr>
+                        <td>{{ seance.datesuper|date('d/m/Y') }}</td>
+                        <td>{{ seance.lieu|default('-') }}</td>
+                        <td class="text-right">{{ seance.offrande|number_format(0, ',', ' ') }} FCFA</td>
+                        <td class="text-right">{{ seance.nbrepresent|default(0) + seance.femme|default(0) + seance.enfant|default(0) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# Section présences #}
+{% if bilanComplet.hasPresences %}
+<div class="card card-warning mt-3">
+    <div class="card-header"><h3 class="card-title">Présences</h3></div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-3"><div class="info-box bg-warning"><div class="info-box-content"><span class="info-box-text">Total présences</span><span class="info-box-number">{{ bilanComplet.bilanPresences.totalPresences|number_format }}</span></div></div></div>
+            <div class="col-md-3"><div class="info-box bg-info"><div class="info-box-content"><span class="info-box-text">Fidèles distincts</span><span class="info-box-number">{{ bilanComplet.bilanPresences.fidelesDistincts|number_format }}</span></div></div></div>
+            <div class="col-md-3"><div class="info-box bg-success"><div class="info-box-content"><span class="info-box-text">Moyenne/fidèle</span><span class="info-box-number">{{ bilanComplet.bilanPresences.moyennePresencesParFidele|number_format(1) }}</span></div></div></div>
+            <div class="col-md-3"><div class="info-box bg-primary"><div class="info-box-content"><span class="info-box-text">Séances concernées</span><span class="info-box-number">{{ bilanComplet.bilanPresences.seancesAvecPresences|number_format }}</span></div></div></div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead><tr><th>Fidèle</th><th>Nombre présences</th><th>Dernière présence</th></tr></thead>
+                <tbody>
+                    {% for fideleId, data in bilanComplet.bilanPresences.presencesGroupees %}
+                    <tr>
+                        <td>{{ data.fidele_nom }} {{ data.fidele_prenom }}</td>
+                        <td class="text-center">{{ data.total_presences }}</td>
+                        <td>{{ data.derniere_presence ? data.derniere_presence|date('d/m/Y') : '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# Section cotisations #}
+{% if bilanComplet.hasCotisations %}
+<div class="card card-success mt-3">
+    <div class="card-header"><h3 class="card-title">Cotisations</h3></div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead><tr>
+                <th>Date</th>
+                <th>Objet</th>
+                <th>Montant par personne</th>
+             
+                </tr></thead>
+                <tbody>
+                    {% for cotisation in bilanComplet.cotisations %}
+                    {% set montantPaye = cotisation.montantPayeCalcule ?? 0 %}
+                    <tr>
+                        <td>{{ cotisation.createAt ? cotisation.createAt|date('d/m/Y') : '-' }}</td>
+                        <td>{{ cotisation.objet|default('-') }}</td>
+                        <td class="text-right">{{ cotisation.montant|number_format(0, ',', ' ') }} FCFA</td>
+               
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="bg-light">
+                        <th colspan="2" class="text-right">TOTAL PAYE :</th>
+                        <th class="text-right">{{ bilanComplet.bilanCotisations.totalMontantPayes|number_format(0, ',', ' ') }} FCFA</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div> 
+{% endif %}
+
+
+{# ==================== SECTION PAIEMENTS ==================== #}
+{% if bilanComplet.hasPaiements and bilanComplet.bilanPaiements is not null %}
+<div class="card card-info mt-3">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-money-bill-wave"></i> Détails des paiements
+        </h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="alert alert-info">
+                    <strong>Total payé:</strong>
+                    {{ bilanComplet.bilanPaiements.totalMontantPaye|number_format(0, ',', ' ') }} FCFA
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert alert-secondary">
+                    <strong>Nombre de paiements:</strong>
+                    {{ bilanComplet.bilanPaiements.nombrePaiements }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert alert-success">
+                    <strong>Moyenne par paiement:</strong>
+                    {{ bilanComplet.bilanPaiements.moyennePaiement|number_format(0, ',', ' ') }} FCFA
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Fidèle</th>
+                        <th>Montant payé</th>
+                        <th>Reste</th>
+                        <th>Date</th>
+                        <th>Cotisation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for paiement in bilanComplet.paiements %}
+                    <tr>
+                        <td>{{ paiement.fidele ? paiement.fidele.nomfidele ~ ' ' ~ paiement.fidele.contact1 : '-' }}</td>
+                        <td class="text-end text-success">{{ paiement.montantpayer|number_format(0, ',', ' ') }} FCFA</td>
+                        <td class="text-end">{{ paiement.reste|number_format(0, ',', ' ') }} FCFA</td>
+                        <td>{{ paiement.datecotiser ? paiement.datecotiser|date('d/m/Y') : '-' }}</td>
+                        <td>{{ paiement.cotisationcellule ? paiement.cotisationcellule.objet : '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Aucun paiement trouvé</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="bg-light">
+                        <th class="text-right">TOTAL :</th>
+                        <th class="text-end">{{ bilanComplet.bilanPaiements.totalMontantPaye|number_format(0, ',', ' ') }} FCFA</th>
+                        <th colspan="3"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# ==================== SECTION DÉPENSES ==================== #}
+{% if bilanComplet.hasDepenses and bilanComplet.bilanDepenses is not null %}
+<div class="card card-danger mt-3">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-shopping-cart"></i> Dépenses des cellules
+        </h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="info-box bg-danger">
+                    <span class="info-box-icon"><i class="fas fa-receipt"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Nombre de dépenses</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanDepenses.totalDepenses }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-box bg-warning">
+                    <span class="info-box-icon"><i class="fas fa-money-bill-wave"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total des dépenses</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanDepenses.totalMontantDepenses|number_format(0, ',', ' ') }} FCFA</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-box bg-info">
+                    <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Moyenne par dépense</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanDepenses.moyenneParDepense|number_format(0, ',', ' ') }} FCFA</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Cellule</th>
+                        <th>Objet</th>
+                        <th class="text-right">Montant</th>
+                        <th>Détail</th>
+                      
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for depense in bilanComplet.depenses %}
+                        {% set typeLabel = depense.typeoff == true ? 'Dépense principale' : 'Dépense secondaire' %}
+                        {% set typeClass = depense.typeoff == true ? 'danger' : 'warning' %}
+                        <tr>
+                            <td>{{ depense.datedepense ? depense.datedepense|date('d/m/Y') : '-' }}</td>
+                            <td>{{ depense.cellule ? depense.cellule.nom : '-' }}</td>
+                            <td>{{ depense.objet|default('-') }}</td>
+                            <td class="text-danger text-end font-weight-bold">{{ depense.montant|number_format(0, ',', ' ') }} FCFA</td>
+                            <td>{{ depense.detail|default('-') }}</td>
+                            
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center">Aucune dépense trouvée</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="bg-light">
+                        <th colspan="3" class="text-right">TOTAL :</th>
+                        <th class="text-danger text-end">{{ bilanComplet.bilanDepenses.totalMontantDepenses|number_format(0, ',', ' ') }} FCFA</th>
+                        <th colspan="2"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% elseif bilanComplet is defined and bilanComplet is not null and bilanComplet.isEmpty %}
+<div class="alert alert-info mt-3">Aucune donnée trouvée.</div>
+{% endif %}
+{% endblock %}

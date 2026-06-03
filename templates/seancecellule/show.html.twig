@@ -1,0 +1,135 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Seance cellule{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title"> Details activités du {{ seancecellule.datesuper ? seancecellule.datesuper|date('d-m-Y') : '' }} </h3>
+        </div>
+
+        <table class="table">
+            <tbody>
+
+                <tr>
+                    <th>Date</th>
+                    <td>{{ seancecellule.datesuper ? seancecellule.datesuper|date('d-m-Y') : '' }}</td>
+                </tr>
+                <tr>
+                    <th>Lieu</th>
+                    <td>{{ seancecellule.lieu }}</td>
+                </tr>
+                <tr>
+                    <th>Theme</th>
+                    <td>{{ seancecellule.theme }}</td>
+                </tr>
+                  <tr>
+                    <th>Messager</th>
+                    <td>{{ seancecellule.fidele }}</td>
+                </tr>
+                <tr>
+                    <th>Homme</th>
+                    <td>{{ seancecellule.nbrepresent }}</td>
+                </tr>
+                <tr>
+                    <th>Femmes</th>
+                    <td>{{ seancecellule.femme }}</td>
+                </tr>
+                <tr>
+                    <th>Enfants</th>
+                    <td>{{ seancecellule.enfant }}</td>
+                </tr>
+
+                <tr>
+                    <th>Total présents</th>
+                    <td>
+                        {% set nbrepresent =seancecellule.nbrepresent %}
+                        {% set femme =seancecellule.femme %}
+                        {% set enfant =seancecellule.enfant %}
+                        {% set total = enfant +nbrepresent + femme %}
+
+                        {{ total }}
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <th>Details</th>
+                    <td>{{ seancecellule.objet }}</td>
+                </tr>
+                <tr>
+                    <th>Versets</th>
+                    <td>{{ seancecellule.versets }}</td>
+                </tr>
+                <tr>
+                    <th>Resume</th>
+                    <td>{{ seancecellule.resume|raw }}</td>
+                </tr>
+                <tr>
+                    <th>Offrande</th>
+                    <td>{{ seancecellule.offrande }}</td>
+                </tr>
+                <tr>
+                    <th>Heure debut</th>
+                    <td>{{ seancecellule.heuredebut|date('H:i:s') }}</td>
+                </tr>
+                <tr>
+                    <th>Heure fin</th>
+                    <td>{{ seancecellule.heurefin |date('H:i:s')}}</td>
+                </tr>
+
+                <tr>
+                    <th>Durée</th>
+                    <td>
+                        {% set difference = date(seancecellule.heuredebut).diff(seancecellule.heurefin) %}
+                        {{ difference.format('%H:%I:%S') }}
+
+
+
+                    </td>
+                </tr>
+                
+                    <tr>
+                    <th>Type activité</th>
+                    <td>
+            
+
+                {{ seancecellule.typeactivite }}
+
+                    </td>
+                </tr>
+                    <tr>
+                    <th>Fiche rapport</th>
+                    <td>
+                        {% if seancecellule.photo is not empty %} <a href="{{ asset('uploads/photos/' ~ seancecellule.photo) }}" target="_blank">
+                        Afficher rapport</a> {% else %} Fiche rapport indisponible {% endif %}
+
+                    </td>
+                </tr>
+
+                <tr>
+
+                    <td><a href="{{ path('seancecellule_edit', {'id': seancecellule.id}) }}" class="btn btn-primary">Modifier</a> </td>
+
+                    <td><a href="{{ path('seancecellule_index') }}" class="btn btn-success">Afficher la liste</a> </td>
+
+                    <td>
+
+                        <form method="post" action="{{ path('seancecellule_delete', {'id': seancecellule.id}) }}" onsubmit="return confirm('êtes-vous sûr de vouloir supprimer?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ seancecellule.id) }}">
+                            <button class="btn">
+                                <span style="font-size: 1em; color: red;">
+                                    <i class="fas fa-trash-alt" title="Supprimer"></i>
+                                </span>
+                            </button>
+                        </form> 
+                    </td>
+
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

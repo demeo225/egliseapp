@@ -1,0 +1,60 @@
+
+{% block body %}
+
+
+
+    <div class="full-page"><br><br>
+        <!-- /.card-header -->
+        <center>
+            <h3><u><b>LISTE DES  :{{ nomdepartement|upper }} </b></u></h3>
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Fidèle</th>
+                        <th>Contact 1</th>
+                        <th>Contact 2</th>
+                        <th>Statut baptème</th>
+                     
+
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                     {% for fidele in fidele %}
+
+                                <tr>
+
+                                    <td>{{ fidele.code|upper}}</td>
+                                    <td>{{ fidele.nomfidele|upper}}</td>
+                                    <td>{{ fidele.contact1}}</td>
+                                    <td>{{ fidele.contactwhatssap}}</td>
+                                         <td> {% set stutbapteme= fidele.stutbapteme %}
+                                        {% if stutbapteme == 1 %}
+                                        Baptisé(e)
+                                        {% else %}
+                                            Non baptisé()
+                                        {% endif %}
+                                      
+                                    
+                                    </td>
+                                    
+
+                                </tr>
+
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </center>
+        </div>
+
+        {% endblock %}

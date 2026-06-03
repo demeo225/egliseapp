@@ -1,0 +1,62 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste de presence {% endblock %}
+
+{% block body %}
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste des programmes</h3>
+            </div>
+            {% for message in app.flashes('success') %}
+       <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('app_presencecellule_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Celule</th>
+                            <th>Séance</th>
+                            <th>Date</th>
+                            <th>Code</th>
+                            <th>Fidele</th>
+                            <th>actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for presencecellule in presencecellules %}
+                            <tr>
+                                <td>{{ presencecellule.cellule.nom|upper }}</td>
+                                <td>{{ presencecellule.seancecellule.objet|upper }}</td>
+                                <td>{{ presencecellule.seancecellule.datesuper ? presencecellule.seancecellule.datesuper|date('d-m-Y') : '' }}</td>
+                                <td>{{ presencecellule.fidele.nomfidele|upper }}</td>
+                                <td>{{ presencecellule.fidele.code }}</td>
+
+                                <td>
+                                    <a href="{{ path('app_presencecellule_show', {'id': presencecellule.id}) }}">show</a>
+                                    <a href="{{ path('app_presencecellule_edit', {'id': presencecellule.id}) }}">edit</a>
+                                </td>
+                            </tr>
+                       
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

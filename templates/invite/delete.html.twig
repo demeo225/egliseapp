@@ -1,0 +1,54 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Suppression Invités{% endblock %}
+
+{% block body %}
+        <div>
+                <div class="card card-primary">
+
+        <div class="card-header">
+            <h4 class="card-title">Suppression des invités</h4>
+        </div>
+
+        {{ form_start(form) }}
+        {% for message in app.flashes('success') %}
+            <div class="primary">
+                {{ message }}
+            </div>
+        {% endfor %}
+        <div class="my-custom-class-for-errors">
+            {{ form_errors(form) }}
+
+        </div>
+        <div class="row">
+
+            <div class="col-md-4">
+                {{ form_row(form.nom, {'label':'Nom & pr&noms'}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.sexe, {'label':'Sexe '}) }}
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.profession, {'label':' Titre ou fonction '}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.contact, {'label':'Contact '}) }}
+            </div>
+
+
+
+        </div>
+
+
+         <div class="row form-group"> 
+            <div class="btn btn-default">{{ form_row(form.save, {'label':'Confirmer Supression ','attr':{'value':'save'}}) }}</div>
+
+
+            <div class="btn btn-default"><a href="{{ path('invite') }}" class="btn btn-success">Afficher la liste</a> </div>
+        </div> 
+        {{ form_end(form) }}
+        </div></div>
+{% endblock %}

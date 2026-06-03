@@ -1,0 +1,78 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}cotisation zone{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Paiement des cotisations des zones</h3>
+            </div>
+     <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('app_cotiserzone_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('app_cotisationzone_index') }}'>
+                    <button class="btn btn-success">Liste des cotisations </button>
+                </a>
+
+                <a href={{ path('app_cotiserzone_index') }}>
+                    <button class="btn btn-success">Liste paiements de cotisation</button>
+                </a>
+          
+                <a href={{ path('app_cotiserzone_detailzone') }}>
+                    <button class="btn btn-danger">Detail cotisation</button>
+                </a>
+   <a href={{ path('app_depensezone_index') }}>
+                    <button class="btn btn-primary">Depenses</button>
+
+                </a>
+
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Zone</th>
+                            <th>Objet</th>
+                            <th>Membre</th>
+                            <th>Contact</th>
+                            <th>Montant </th>
+                            <th>Montant payé</th>
+                            <th>Reste</th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cotiserzone in cotiserzones %}
+                             {% if is_granted("cotiserzone_edit", cotiserzone) %}
+                            <tr>
+                                <td> {% if cotiserzone.zone is not null  %} {{ cotiserzone.zone.nom|upper }}{% else %} {% endif %}</td>
+                                <td> {% if cotiserzone.cotisationzone is not null  %} {{ cotiserzone.cotisationzone.objet|upper }}{% else %} {% endif %}</td>
+                                <td>{% if cotiserzone.fidele is not null  %}{{ cotiserzone.fidele.nomfidele|upper }}{% else %} {% endif %}</td>
+                                <td>{% if cotiserzone.fidele is not null  %}{{ cotiserzone.fidele.contact1 }}{% else %} {% endif %}</td>
+                                <td>{{ cotiserzone.cotisationzone.montant|number_format(0, '.', ' ') }}</td>
+                                <td>{{ cotiserzone.montantpayer|number_format(0, '.', ' ') }}</td>
+                                <td>  {% if  cotiserzone.reste ==0 %} <b>Soldé</b> 
+                                    {% elseif cotiserzone.reste >0 %} {{ cotiserzone.reste|number_format(0, '.', ' ') }} {% elseif cotiserzone.reste <= 0 %} 
+                                            <i class="btn btn-success"> Soldé </i> {% endif %}</td>
+                                     
+                                    </tr>
+                             {% endif %}
+                                  
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% endblock %}

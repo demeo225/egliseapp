@@ -1,0 +1,46 @@
+
+{% block body %}
+
+
+
+    <div class="full-page"><br><br>
+        <!-- /.card-header -->
+        <center>
+            <h3><b>LSTE DES QUARTIERS DE <u>{{ nomcommune|upper }} </u></b></h3>
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Quartier</th>
+                      
+                     
+
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                     {% for quartier in quartier %}
+
+                                <tr>
+
+                                    <td>{{ quartier.libelle|upper}}</td>
+                        
+                                    
+
+                                </tr>
+
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </center>
+        </div>
+
+        {% endblock %}

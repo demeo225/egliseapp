@@ -1,0 +1,327 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion fidèles{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-danger">
+        <div class="card-header">
+            <h3 class="card-title">Suppression de {{ fidele.nomfidele }} <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-square"/></h3>
+        </div>
+        <div class="card-body">
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="row mb-4">
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.typefidele, "Catégorie de fidèle")}}
+                        {{ form_errors(form.typefidele)  }}
+                        <div>
+                            {{ form_widget(form.typefidele) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.sexe, "Sexe")}}
+                        {{ form_errors(form.sexe)  }}
+                        <div>
+                            {{ form_widget(form.sexe) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.nomfidele, "Nom & Prénoms") }}
+                        {{ form_errors(form.nomfidele)  }}
+                        <div>
+                            {{ form_widget(form.nomfidele) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.contact1, "Contact") }}
+                        {{ form_errors(form.contact1)  }}
+                        <div>
+                            {{ form_widget(form.contact1) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.comptefacebook, "Compte Facebook") }}
+                        {{ form_errors(form.comptefacebook)  }}
+                        <div>
+                            {{ form_widget(form.comptefacebook) }}
+                        </div>
+                    </div> 
+                </div> 
+
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.email, "Email") }}
+                        {{ form_errors(form.email)  }}
+                        <div>
+                            {{ form_widget(form.email) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.contactwhatssap, "N° Whatssap") }}
+                        {{ form_errors(form.contactwhatssap)  }}
+                        <div>
+                            {{ form_widget(form.contactwhatssap) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.profession, "Profession") }}
+                        {{ form_errors(form.profession)  }}
+                        <div>
+                            {{ form_widget(form.profession) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row mb-4">
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.datenaiss, "Date de naissance") }}
+                        {{ form_errors(form.datenaiss)  }}
+                        <div>
+                            {{ form_widget(form.datenaiss) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.typepiece, "Type pièce") }}
+                        {{ form_errors(form.typepiece)  }}
+                        <div>
+                            {{ form_widget(form.typepiece) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+
+                    <div class="form-group">
+                        {{ form_label(form.numpiece, "N° Pièce") }}
+                        {{ form_errors(form.numpiece)  }}
+                        <div>
+                            {{ form_widget(form.numpiece) }}
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.statutmatri, "Statut matrimonial") }}
+                        {{ form_errors(form.statutmatri)  }}
+                        <div>
+                            {{ form_widget(form.statutmatri) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row mb-4">
+
+                <div class="form-group">
+                    {{ form_label(form.nbrenfant, "Nombre enfant") }}
+                    {{ form_errors(form.nbrenfant)  }}
+                    <div>
+                        {{ form_widget(form.nbrenfant) }}
+                    </div>
+                </div> 
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.domaineactivite, "Domaine d'activités") }}
+                        {{ form_errors(form.domaineactivite)  }}
+                        <div>
+                            {{ form_widget(form.domaineactivite) }}
+                        </div>
+                    </div>
+                </div>
+           
+         
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.groupesang, "Groupe sanguin") }}
+                        {{ form_errors(form.groupesang)  }}
+                        <div>
+                            {{ form_widget(form.groupesang) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.dateconversion, "Date de conversion") }}
+                        {{ form_errors(form.dateconversion)  }}
+                        <div>
+                            {{ form_widget(form.dateconversion) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.stutbapteme, "Baptisé(e)?") }}
+                        {{ form_errors(form.stutbapteme) }}
+                        <div>
+                            {{ form_widget(form.stutbapteme)  }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.datebapteme, "Date de baptème") }}
+                        {{ form_errors(form.datebapteme)  }}
+                        <div>
+                            {{ form_widget(form.datebapteme)   }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.lieubapteme, "Lieu du baptème") }}
+                        {{ form_errors(form.lieubapteme) }}
+                        <div>
+                            {{ form_widget(form.lieubapteme)  }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.pasteurbapteme, "Pasteur officient") }}
+                        {{ form_errors(form.pasteurbapteme) }}
+                        <div>
+                            {{ form_widget(form.pasteurbapteme)  }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.anciennecommunaute, "Ancienne communauté") }}
+                        {{ form_errors(form.anciennecommunaute) }}
+                        <div>
+                            {{ form_widget(form.anciennecommunaute)  }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.fonctioneglise, "Fonction à l'eglise") }}
+                        {{ form_errors(form.fonctioneglise) }}
+                        <div>
+                            {{ form_widget(form.fonctioneglise)  }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.zone, "Zone") }}
+                        {{ form_errors(form.zone) }}
+                        <div>
+                            {{ form_widget(form.zone)  }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.cellule, "Cellule") }}
+                        {{ form_errors(form.cellule) }}
+                        <div>
+                            {{ form_widget(form.cellule)  }}
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.ethnie, "Ethnie") }}
+                        {{ form_errors(form.ethnie) }}
+                        <div>
+                            {{ form_widget(form.ethnie)  }}
+                        </div>
+                    </div>
+                </div>
+                        
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.famille, "Famille") }}
+                        {{ form_errors(form.famille) }}
+                        <div>
+                            {{ form_widget(form.famille)  }}
+                        </div>
+                    </div>
+                </div>
+                 
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.nationalite, "Nationalité") }}
+                        {{ form_errors(form.nationalite) }}
+                        <div>
+                            {{ form_widget(form.nationalite)  }}
+                        </div>
+                    </div>
+                </div>
+                              <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.quartier, "Quartier") }}
+                        {{ form_errors(form.quartier) }}
+                        <div>
+                            {{ form_widget(form.quartier)  }}
+                        </div>
+                    </div>
+                </div>
+                        
+                 
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.code, "Code") }}
+                        {{ form_errors(form.code) }}
+                        <div>
+                            {{ form_widget(form.code)  }}
+                        </div>
+                    </div>
+                </div>
+                        
+                        
+            </div>
+                <div class="btn btn-danger">{{ form_row(form.save, {'label':'Confirmer suppression ','attr':{'value':'save'}}) }}</div>
+
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+{% endblock %}

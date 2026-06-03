@@ -1,0 +1,14 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}New Depensegroupe{% endblock %}
+
+{% block body %}
+         <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">{{ groupe.nom|upper }} : Enregistrement de depenses </h3>
+        </div>
+
+    {{ include('depensegroupe/_form.html.twig') }}
+
+         </div>
+{% endblock %}

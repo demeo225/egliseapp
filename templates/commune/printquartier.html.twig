@@ -1,0 +1,154 @@
+{% block title %}
+    {% block stylesheets %}
+
+        {# { encore_entry_link_tags('app') } #}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+ 
+     <style>
+
+            #footer {
+                text-align:center;
+                font-style: italic;
+                clear:both;
+                width: 100%;
+                position: absolute;
+                bottom: 0;
+                padding-top: 50px;
+                height: 20px;
+            }
+
+
+            .centrage {
+                text-align: center;
+                position: sticky;
+                top: 40px;
+                margin-left: 70px;
+            }
+
+            .communaute {
+                position: absolute;
+                top: 10px;
+                left: auto;
+                clear: both;
+                border-radius: 4px;
+                padding: 5px;
+                font-size:smaller ;
+                z-index: 5;
+                text-align: left;
+                justify-content: space-between;
+                height: 10px;
+                width: 300px;
+
+            }
+
+            .agrement {
+                font-size:smaller ;
+               z-index: -1;
+            }
+
+            .eglise {
+                position: absolute;
+                top: 10px;
+                right:  5px;
+                clear: both;
+                border-radius: 4px;
+                padding: 5px;
+                font-size:smaller ;
+            }
+
+            .global  {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                justify-content: space-between;
+
+            }
+            .verset{
+                text-align: center;
+                border: 3px solid;
+                font-size:smaller ;
+
+            }
+        </style>
+
+{% endblock %}
+
+
+{% endblock %}
+
+{% block body %}
+
+        <div class="global">
+            <div class="communaute">
+
+                {{ eglise.sigle }} <b>-</b> {{ eglise.communaute.libelle }}
+                <hr />
+                <div class="agrement"> Agrement: {{ eglise.communaute.agrement }} </div>
+
+            </div>
+            <div class="centrage">
+                <img src="{{ base64(absolute_url(asset('uploads/photos/'~eglise.logo ))) }}"  style="img {
+                         border: 1px solid #ddd;
+                         border-radius: 4px;
+                         padding: 5px;
+                         width: 100px;
+                     }"  alt="logo">  
+            </div>
+            <div  class="eglise">
+                {{ eglise.denomination }} <strong>-</strong> {{ eglise.quartier }}
+                <hr />
+                {{ eglise.contact1 }} /
+                {{ eglise.adresse }}
+            </div>
+            <div class="verset">Siège social: {{ eglise.communaute.siege }} / {{ eglise.communaute.adresse }} / Email: {{ eglise.communaute.email }} / {{ eglise.communaute.verset }} :<b> {{ eglise.communaute.texte }}</b> </div>
+        </div>
+
+
+        <hr style="visibility: hidden" />
+
+<hr style="visibility: hidden" />
+
+    <div class="full-page"><br><br>
+        <!-- /.card-header -->
+        <center>
+            <h3><b>LSTE DES QUARTIERS DE :<u>{{ nomcommune|upper }} </u></b></h3>
+            <hr style="visibility: hidden" />
+
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Quartier</th>
+
+
+
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quartier in quartier %}
+
+                        <tr>
+
+                            <td>{{ quartier.libelle|upper}}</td>
+
+
+
+                        </tr>
+
+                    {% else %}
+                        <tr>
+                            <td colspan="5">aucune donnée trouvée</td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        </center>
+    </div>
+
+{% endblock %}
+

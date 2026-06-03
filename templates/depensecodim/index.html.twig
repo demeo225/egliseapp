@@ -1,0 +1,87 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Depense ecodim {% endblock %}
+
+{% block body %}
+    <div class="card-body">
+
+
+
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Depenses des Cellules</h3>
+            </div>
+<div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+            {% if is_granted('ROLE_RESPONSABLE_ECODIM') %}
+                <div class="card-body">
+                    <a href='{{ path('app_depensecodim_new') }}'>
+                        <button class="btn btn-primary">Nouveau</button>
+                    </a>
+
+                    <a href="{{ path('app_depensecodim_index') }}" class="btn btn-success">Cultes</a>
+                    <a href="{{ path('app_bilan_cultecodim') }}" class="btn btn-danger">Bilan cultes</a>
+                    <a href="{{ path('app_bilan_depensecodim') }}" class="btn btn-danger">Bilan depenses</a>
+
+                {% endif %} 
+
+
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+
+                            <th>Date</th>
+                            <th>Objet</th>
+                            <th>Montant</th>
+                            <th>Detail</th>
+
+                            <th>Modifier</th>
+                            <th>Supprimer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for depensecodim in depensecodims %}
+                            <tr>
+                                <td>{{ date_format(depensecodim.datedepense)}}</td>
+                                <td>{{ depensecodim.objet }}</td>
+                                <td>{{ depensecodim.montant|format_number }}</td>
+                                <td>{{ depensecodim.detail }}</td>
+
+                                <td>
+                                    <a href="{{ path('app_depensecodim_edit', {'id': depensecodim.id}) }}">     <a href="{{ path('app_depensecodim_edit', {'id': depensecodim.id}) }}">  
+                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                <i class="fas fa-edit" title="Modifier"></i>
+                                            </span>
+                                        </a></a>
+
+
+                                </td>
+
+                                <td>
+                                    <form method="post" action="{{ path('app_depensecodim_delete', {'id': depensecodim.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ depensecodim.id) }}">
+
+                                        <button class="btn">
+                                            <span style="font-size: 1em; color: red;">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                    
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            {% endblock %}

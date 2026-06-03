@@ -1,0 +1,77 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification mariage{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h2 class="card-title">Gestion mariage</h2>
+        </div>
+        <div class="card card-body">
+
+
+            {{ form_start(form) }}
+            <div class="my-custom-class-for-errors">
+                {{ form_errors(form) }}
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.datemariage, {'label':' Date '})}}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.regime, {'label':' Regime '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.temoinepoux, {'label':' Témoin du marié '}) }}
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.pasteurmariage, {'label':' Pasteur officiant ', 'class': 'foo'}) }}
+                </div>
+
+
+                <div class="col-md-4">
+                    {{ form_row(form.temoinepouse, {'label':' Témoin de la mariée '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.especedon, {'label':' Don Espèce '}) }}
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    {{ form_row(form.naturedon, {'label':' Dons en nature '}) }}
+
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.lieumariage, {'label':' Lieu du mariage'}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.parrain, {'label':' Parrain '})}}
+                </div>
+            </div>
+            <div class="row">
+
+
+                <div class="col-md-4">
+                    {{ form_row(form.photo, {'label':'Photo '}) }}
+                </div>
+            </div>
+
+            <div class="row"> 
+                <div class="btn btn-default">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+
+                <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+                <div class="btn btn-default"><a href="{{ path('mariage_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+            {{ form_end(form) }}
+
+        </div>
+    </div>
+{% endblock %}

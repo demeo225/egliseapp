@@ -1,0 +1,13 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Edit Presencecellule{% endblock %}
+
+{% block body %}
+    <h1>Edit Presencecellule</h1>
+
+    {{ include('presencecellule/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_presencecellule_index') }}">back to list</a>
+
+    {{ include('presencecellule/_delete_form.html.twig') }}
+{% endblock %}

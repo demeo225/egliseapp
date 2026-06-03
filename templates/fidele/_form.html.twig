@@ -1,0 +1,633 @@
+
+
+
+
+
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        bodyf {
+            font-family: "Montserrat";
+        }
+        section {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: aliceblue;
+        }
+        .containerf {
+            max-width: 400px;
+            width: 90%;
+            padding: 20px;
+            box-shadow: 0px 0px 20px #00000020;
+            border-radius: 8px;
+            background-color: white;
+        }
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+        .form-group {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .form-group input {
+            width: 100%;
+            border: 1.5px solid rgba(128, 128, 128, 0.418);
+            padding: 5px;
+            font-size: 18px;
+            margin-top: 5px;
+            border-radius: 4px;
+        }
+        button.next-btn,
+        button.previous-btn,
+        button.submit-btn {
+            float: right;
+            margin-top: 20px;
+            padding: 10px 30px;
+            border: none;
+            outline: none;
+            background-color: rgb(180, 220, 255);
+            font-family: "Montserrat";
+            font-size: 18px;
+            cursor: pointer; /* text-align: right; */
+        }
+        button.previous-btn {
+            float: left;
+        }
+        button.submit-btn {
+            background-color: aquamarine;
+        }
+    </style>
+
+
+
+
+    <div class="card card-primary">
+      
+        <div class="card card-body">
+
+
+
+
+
+
+            {{ form_start(form) }}
+            <div class="card card-primary card-tabs">
+
+                <div class="card-body">
+
+<div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+                    <div class="step step-1 active">
+                        <div class="row mb-4">
+
+                            <div class="col-md-3">
+                                {{ form_row(form.typefidele, {'label':'Type fidèle :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.sexe, {'label':'Sexe :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.nomfidele, {'label':'Nom & prenoms * :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.contact1, {'label':'Contact :','attr':{'class':'form-control'}}) }}
+                            </div>
+
+
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                {{ form_row(form.comptefacebook, {'label':'Compte Facebook :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.email, {'label':'E-mil :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.contactwhatssap, {'label':'Whatsapp :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.profession, {'label':'Profession :','attr':{'class':'form-control'}}) }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                {{ form_row(form.datenaiss, {'label':'Date de naissance * :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.typepiece, {'label':'Type pièce :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.numpiece, {'label':'N° pièce :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.statutmatri, {'label':'Statut matrimonial :','attr':{'class':'form-control'}}) }}
+                            </div>
+
+                        </div>
+
+                        <div class="row mb-4"  id="bloc-mariage">
+
+                            <div class="col-md-3">
+                                {{ form_row(form.datemariage, {'label':'Date mariage :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.lieumariage, {'label':'Lieu du mariage :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.pasteurmariage, {'label':'Pasteur officiant :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.nommariage, {'label':'Conjoint(e) :','attr':{'class':'form-control'}}) }}
+                            </div>
+
+                        </div>
+
+                        <button type="button" class="next-btn">Suivant</button>
+                    </div>
+
+                    <div class="step step-2">
+
+
+                        <div class="row">
+
+
+                            <div class="col-md-3">
+                                {{ form_row(form.nbrenfant, {'label':'Nombre d\'enfants  ','attr':{'class':'form-control'}}) }}
+                            </div>   
+
+                            <div class="col-md-3">
+                                {{ form_row(form.domaineactivite, {'label':'Domaine d\'actitivé  '}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.permis, {'label':'Categorie permis  ','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.emploi, {'label':'Emploi  '}) }}
+                            </div>
+
+
+
+
+                        </div>
+
+                        <div class="row">
+
+
+                            <div class="col-md-3">
+                                {{ form_row(form.vieseul, {'label':'Habitation :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.langue, {'label':'Langues étrangères  :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.choiculte, {'label':'Choix du culte :'}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.cultefamille, {'label':'Priez-vous en famille ? :','attr':{'class':'select2'}}) }}
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                {{ form_row(form.situation, {'label':'Etat physique :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.handicap, {'label':'Preciser handicap :','attr':{'class':'select2'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.etatvieparent, {'label':'Etat de vie parents :','attr':{'class':'select2'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.etatparent, {'label':' Préciser si anormale :'}) }}
+                            </div>
+
+
+
+
+                        </div>
+
+
+
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                {{ form_row(form.priere, {'label':'Prière quotidienne ? :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.lecture, {'label':'Vie de méditation :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.temoignage, {'label':'Temoignez-vous de Jésus ? :','attr':{'class':'select2'}}) }}
+                            </div>
+
+
+                            <div class="col-md-3">
+                                {{ form_row(form.maladie, {'label':'Maladie eventuelle :','attr':{'class':'select2'}}) }}
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                {{ form_row(form.bibleformation, {'label':'Formation théologique ? :','attr':{'class':'form-control'}}) }}
+                            </div>
+
+
+
+                            <div class="col-md-3">
+                                {{ form_row(form.photo, {'label':'* Photo :','attr':{'class':'form-control'}}) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_row(form.groupesang, {'label':'Groupe sanguin  ','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.datearriver, {'label':'Date d\'arrivée * '}) }}
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div id="camera" style="height:auto;width:auto; text-align:left;"  class="col-md-3"></div>
+
+                            <div class="col-md-3">
+                                <input type="button" value="Capture photo" id="btPic" onclick="takeSnapShot()" class="btn btn-primary"  /> 
+                            </div>
+                        </div>
+
+
+
+                        <button type="button" class="previous-btn">Précedant</button>
+                        <button type="button" class="next-btn">Suivant</button>
+                    </div> 
+
+                    <div class="step step-3">
+
+                        <div class="row mb-4">
+
+                            <div class="col-md-3">
+                                {{ form_row(form.famille, {'label':'Tribu / Famille :'}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.dateconversion, {'label':'Anné de conversion * :','attr':{'class':'form-control'}}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.fonction, {'label':'Fonction à l\eglise :'}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(form.stutbapteme, {'label':'Baptisé(e) ? :','attr':{'class':'form-control'}}) }}
+                            </div>
+
+
+                            <div class="Click"  onclick="maFonction()">
+
+
+                                <div class="row mb-4"  id="bloc-bapteme">
+
+
+                                    <div class="col-md-3">
+                                        {{ form_row(form.lieubapteme, {'label':'Lieu baptème :','attr':{'class':'form-control'}}) }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ form_row(form.pasteurbapteme, {'label':'Pasteur officiant :','attr':{'class':'form-control'}}) }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ form_row(form.anciennecommunaute, {'label':'Ancienne communauté :','attr':{'class':'form-control'}}) }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ form_row(form.datebapteme, {'label':'Date baptème :','attr':{'class':'form-control'}}) }}
+                                    </div>
+
+
+                                </div>
+
+                                <div class="row mb-4">
+
+                                    <div class="col-md-3">
+                                        {{ form_row(form.commune, {'label':'Commune *:'}) }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ form_row(form.quartier, {'label':'Quartier *:'}) }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ form_row(form.zone, {'label':'Zone :'}) }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ form_row(form.cellule, {'label':'Cellule:'}) }}
+                                    </div>
+
+
+
+                                </div>
+
+
+
+                                <div class="row mb-4">
+
+
+                                    <div class="col-md-3">
+                                        {{ form_row(form.nationalite, {'label':'Nationalité:'}) }}
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        {{ form_row(form.ethnie, {'label':'Ethnie:'}) }}
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        {{ form_row(form.urgence, {'label':'Numero d\'urgence *:','attr':{'class':'form-control', 'placeholder':'Numero à contacter en cas d\'urgence'}}) }}
+                                    </div>
+
+                                        <div class="col-md-3">
+                                        {{ form_row(form.etude, {'label':'Niveau d\'étude ou diplome *:'}) }}
+                                    </div>
+                                </div>
+
+
+
+                                <div class="row"> 
+                                    <div class="col-md-2">  <button type="button" class="previous-btn">Précedant</button></div>
+
+                                    <div class="col-md-3">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div>
+
+                                    <div class="col-md-4"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                                    <div class="col-md-3"><a href="{{ path('fidele') }}" class="btn btn-success">Afficher la liste</a> </div>
+                                </div> 
+                            </div>
+                        </div> 
+
+                     
+                        {{ form_end(form) }}
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+            <script>
+                var $commune = $('#fidele_commune');
+                // When commune gets selected ...
+
+                $commune.change(function () {
+
+
+                    // ... retrieve the corresponding form.
+                    var $form = $(this).closest('form');
+                    // Simulate form data, but only include the selected commune value.
+                    var data = {};
+                    data[$commune.attr('name')] = $commune.val();
+                    // Submit data via AJAX to the form's action path.
+
+                    $.ajax({
+
+                        url: $form.attr('action'),
+                        type: $form.attr('method'),
+                        data: data,
+                        complete: function (html) {
+
+                            // Replace current quartier field ...
+                            $('#fidele_quartier').replaceWith(
+                                    // ... with the returned one from the AJAX response.
+                                    $(html.responseText).find('#fidele_quartier')
+                                    );
+
+                            // Position field now displays the appropriate quartiers.
+                        }
+                    });
+                });
+            </script>
+
+
+            <script>
+                var $zone = $('#fidele_zone');
+                // When zone gets selected ...
+
+                $zone.change(function () {
+
+
+                    // ... retrieve the corresponding form.
+                    var $form = $(this).closest('form');
+                    // Simulate form data, but only include the selected zone value.
+                    var data = {};
+                    data[$zone.attr('name')] = $zone.val();
+                    // Submit data via AJAX to the form's action path.
+
+                    $.ajax({
+
+                        url: $form.attr('action'),
+                        type: $form.attr('method'),
+                        data: data,
+                        complete: function (html) {
+
+                            // Replace current cellule field ...
+                            $('#fidele_cellule').replaceWith(
+                                    // ... with the returned one from the AJAX response.
+                                    $(html.responseText).find('#fidele_cellule')
+                                    );
+
+                            // Position field now displays the appropriate cellules.
+                        }
+                    });
+                });
+            </script>
+
+            <script>
+
+                const steps = Array.from(document.querySelectorAll("form .step"));
+                const nextBtn = document.querySelectorAll("form .next-btn");
+                const prevBtn = document.querySelectorAll("form .previous-btn");
+                const form = document.querySelector("form");
+                nextBtn.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        changeStep("next");
+                    });
+                });
+                prevBtn.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        changeStep("prev");
+                    });
+                });
+                form.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const inputs = [];
+                    form.querySelectorAll("input").forEach((input) => {
+                        const {name, value} = input;
+                        inputs.push({name, value});
+                    });
+                    console.log(inputs);
+                    form.reset();
+                });
+                function changeStep(btn) {
+                    let index = 0;
+                    const active = document.querySelector(".active");
+                    index = steps.indexOf(active);
+                    steps[index].classList.remove("active");
+                    if (btn === "next") {
+                        index++;
+                    } else if (btn === "prev") {
+                        index--;
+                    }
+                    steps[index].classList.add("active");
+                }
+            </script>
+
+
+
+
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.25/webcam.js"></script>
+
+
+            <script>
+                // CAMERA SETTINGS.
+                Webcam.set({
+                    width: 220,
+                    height: 190,
+                    image_format: 'jpeg',
+                    jpeg_quality: 100
+                });
+                Webcam.attach('#camera');
+
+                // TAKE A SNAPSHOT.
+                takeSnapShot = function () {
+                    Webcam.snap(function (data_uri) {
+                        downloadImage('arun', data_uri);
+                    });
+                }
+
+                // DOWNLOAD THE IMAGE.
+                downloadImage = function (name, datauri) {
+                    var a = document.createElement('a');
+                    a.setAttribute('download', name + '.png');
+                    a.setAttribute('href', datauri);
+                    a.click();
+                }
+            </script>
+
+            <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+    const statut = document.getElementById("fidele_statutmatri");
+    const blocMariage = document.getElementById("bloc-mariage");
+
+    function toggleMariage() {
+        if (statut.value === "Marié(e)") {
+            blocMariage.style.display = "flex"; // ou "block"
+        } else {
+            blocMariage.style.display = "none";
+        }
+    }
+
+    // Vérifie au chargement
+    toggleMariage();
+
+    // Vérifie à chaque changement
+    statut.addEventListener("change", toggleMariage);
+});
+            </script>
+
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+
+                const statut = document.getElementById("fidele_stutbapteme");
+                const blocMariage = document.getElementById("bloc-bapteme");
+
+                function toggleMariage() {
+                if (statut.value === "Oui") {
+                blocMariage.style.display = "flex"; // ou "block"
+                } else {
+                blocMariage.style.display = "none";
+                }
+                }
+
+                // Vérifie au chargement
+                toggleMariage();
+
+                // Vérifie à chaque changement
+                statut.addEventListener("change", toggleMariage);
+                });
+                
+          </script> 
+   
+   
+    <script>
+    
+document.getElementById('fidele_commune').addEventListener('change', function() {
+    const communesId = this.value;
+
+    if (communesId === '') return;
+
+    fetch(`/fidele/quartiers/${communesId}`)
+        .then(response => response.json())
+        .then(data => {
+            const quartierSelect = document.getElementById('fidele_quartier');
+            quartierSelect.innerHTML = '<option value="">-- Choisissez un quartier --</option>';
+
+            data.forEach(quartier => {
+                const option = document.createElement('option');
+                option.value = quartier.id;
+                option.textContent = quartier.libelle;
+                quartierSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Erreur lors du chargement des quartiers:', error));
+});
+</script>
+
+
+
+ <script>
+    
+document.getElementById('fidele_zone').addEventListener('change', function() {
+    const zonesId = this.value;
+
+    if (zonesId === '') return;
+
+    fetch(`/fidele/cellules/${zonesId}`)
+        .then(response => response.json())
+        .then(data => {
+            const celluleSelect = document.getElementById('fidele_cellule');
+            celluleSelect.innerHTML = '<option value="">-- Choisissez un cellule --</option>';
+
+            data.forEach(cellule => {
+                const option = document.createElement('option');
+                option.value = cellule.id;
+                option.textContent = cellule.nom;
+                celluleSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Erreur lors du chargement des cellules:', error));
+});
+</script>

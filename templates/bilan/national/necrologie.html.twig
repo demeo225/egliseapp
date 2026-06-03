@@ -1,0 +1,100 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des decess {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_decesn') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+    </div>
+</form>    
+</div> 
+
+<div class="rows">
+    {% if app.request.method == 'POST' and decess |length==0 %}
+        Aucune donnée trouvée
+
+    {% else %}
+
+        {% if decess |length >0 %}
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Resultats de la recherche</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Region</th>
+                                <th>Region pastorale</th>
+                                <th>Eglise</th>
+                                <th>Date</th>
+                                <th>Code fidèle</th>
+                                <th>Fidèle</th>
+                                <th>Lieu</th>
+                                <th>Cause du décès</th>
+                                <th>Image</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for deces in decess %}
+
+                                <tr>
+                                    <td> {% if deces.eglise.region is not empty %} {{ deces.eglise.region }}{% else %} Non rensigné {% endif %}</td>
+                                    <td> {% if deces.eglise.regionpastorale is not empty %} {{ deces.eglise.regionpastorale }}{% else %} Non renseignée {% endif %}</td>
+                                    <td> {% if deces.eglise is not empty %} {{ deces.eglise }}{% else %} {% endif %}</td>
+                                    <td>{{ deces.datedeces ? date_format(deces.datedeces) }}</td>
+                                    <td>{{ deces.fidele.code|upper}}</td>
+                                    <td>{{ deces.fidele.nomfidele }}</td>
+                                    <td>{{ deces.lieudeces }}</td>
+                                    <td>{{ deces.raisondeces }}</td>
+                                    <td>
+                                       {% if deces.fidele.photoFile is not empty  %}
+                                           <img src="{{ asset('uploads/photos/'~deces.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" title="Photo" /> 
+                                       {% else %} Photo indisponible {% endif %}
+                                    </td>
+
+                                </tr>
+
+
+                            {% endfor %}
+
+
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}
+

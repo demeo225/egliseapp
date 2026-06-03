@@ -1,0 +1,66 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Cotiserparcellule{% endblock %}
+
+{% block body %}
+    <h1>Cotiserparcellule</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ cotiserparcellule.id }}</td>
+            </tr>
+            <tr>
+                <th>Montantpayer</th>
+                <td>{{ cotiserparcellule.montantpayer }}</td>
+            </tr>
+            <tr>
+                <th>Reste</th>
+                <td>{{ cotiserparcellule.reste }}</td>
+            </tr>
+            <tr>
+                <th>CreateAt</th>
+                <td>{{ cotiserparcellule.createAt ? cotiserparcellule.createAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdateAt</th>
+                <td>{{ cotiserparcellule.updateAt ? cotiserparcellule.updateAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Etat</th>
+                <td>{{ cotiserparcellule.etat ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Datecotiser</th>
+                <td>{{ cotiserparcellule.datecotiser ? cotiserparcellule.datecotiser|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ cotiserparcellule.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ cotiserparcellule.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ cotiserparcellule.deletedAt ? cotiserparcellule.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ cotiserparcellule.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ cotiserparcellule.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_cotiserparcellule_index') }}">back to list</a>
+
+    <a href="{{ path('app_cotiserparcellule_edit', {'id': cotiserparcellule.id}) }}">edit</a>
+
+    {{ include('cotiserparcellule/_delete_form.html.twig') }}
+{% endblock %}

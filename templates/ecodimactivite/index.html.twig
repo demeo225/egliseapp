@@ -1,0 +1,110 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Activités Ecodim{% endblock %}
+
+{% block body %}
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste des activités ECODIM</h3>
+            </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('ecodimactivite_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+
+                <a href='{{ path('enfantactivite_index') }}'>
+                    <button class="btn btn-success">Liste paiements participation</button>
+                </a>
+                <a href='{{ path('enfantactivite_listeparticipant') }}'>
+                    <button class="btn btn-success">Liste de présence</button>
+                </a>
+                <a href='{{ path('enfantactivite_new') }}'>
+                    <button class="btn btn-danger">Payer participation</button>
+                </a> 
+
+                <hr style="visibility: hidden" />  
+
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Activité</th>
+                            <th>Lieu</th>
+                            <th>Montant</th>
+                            <th>Date</th>
+                            <th>Responsable </th>
+                            <th>2nd responsable</th>
+                            <th>Etat</th>
+                            <th>actions</th>
+                            <th>Suppression</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ecodimactivite in ecodimactivite %}
+                            <tr>
+                                <td>{{ ecodimactivite.nomactivite }}</td>
+                                <td>{{ ecodimactivite.lieu }}</td>
+                                <td>{{ ecodimactivite.participation }}</td>
+                                <td>{{ ecodimactivite.dateactivite ? ecodimactivite.dateactivite|date('d-m-Y') : '' }}</td>
+                                <td>{{ ecodimactivite.responsable1|upper }}</td>
+                                <td>{{ ecodimactivite.responsable2|upper}}</td>
+                                <td> 
+                                    {% if date('now') < date(ecodimactivite.dateactivite) %}
+                                        <b>En cours</b>
+
+                                    {% else %}
+
+                                        <i class="btn btn-success">  Achévée</i>
+                                    {% endif %}
+
+
+                                </td>
+
+
+                                <td>
+                                    <a href="{{ path('ecodimactivite_show', {'id': ecodimactivite.id}) }}">   <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-list" title="Voir details"></i>
+                                        </span></a>
+                                    <a href="{{ path('ecodimactivite_edit', {'id': ecodimactivite.id}) }}"> <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit" title="Modifier"></i>
+                                        </span></a>
+                                </td>
+
+                                <td>
+                                    {% if ecodimactivite.enfantactivites is empty %}
+                                        <form method="post" action="{{ path('ecodimactivite_delete', {'id': ecodimactivite.id}) }}" onsubmit="return confirm('êtes-vous sûr de vouloir supprimer?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ecodimactivite.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: red;">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+                                    {% else %}
+
+                                    {% endif %}
+                                </td>
+
+                            </tr>
+                       
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

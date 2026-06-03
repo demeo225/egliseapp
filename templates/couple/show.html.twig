@@ -1,0 +1,55 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Couple{% endblock %}
+
+{% block body %}
+    <h1>Couple</h1>
+
+    <table class="table">
+        <tbody>
+          
+            <tr>
+                <th>Code</th>
+                <td>{{ couple.code }}</td>
+            </tr>
+            <tr>
+                <th>Datefiancaille</th>
+                <td>{{ couple.datefiancaille ? couple.datefiancaille|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Datemariage</th>
+                <td>{{ couple.datemariage ? couple.datemariage|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Mariage</th>
+                <td>{{ couple.mariage ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ couple.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ couple.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ couple.deletedAt ? couple.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ couple.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ couple.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('couple_index') }}">back to list</a>
+
+    <a href="{{ path('couple_edit', {'id': couple.id}) }}">edit</a>
+
+    {{ include('couple/_delete_form.html.twig') }}
+{% endblock %}

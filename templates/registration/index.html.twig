@@ -1,0 +1,127 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Administration
+{% endblock %}
+
+{% block body %}
+
+
+
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+          
+                    {% if is_granted('ROLE_ADMIN') %}
+                    <a href='{{ path('register') }}'>
+                        <button class="btn btn-primary">Création Utilisateurs</button>
+                    </a>
+                        
+                    {% endif %}
+                    
+                         {% if is_granted('ROLE_ADMIN') %}
+                    <a href='{{ path('registration_archive') }}'>
+                        <button class="btn btn-danger">Utilisateurs supprimés</button>
+                    </a>
+                        
+                    {% endif %}
+                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+                        <a href='{{ path('eglise_new') }}'>
+                            <button class="btn btn-primary">Création Eglise</button>
+                        </a>
+                    {% endif %}
+                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+                        <a href='{{ path('communaute_new') }}'>
+                            <button class="btn btn-primary">Création Communaute</button>
+                        </a>
+                    {% endif %}
+
+                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+                        <a href="{{ path('admin') }}">
+                            <button class="btn btn-danger">  Compte Administrateur</button>
+
+
+
+                        </a>
+                    {% endif %}
+                    <hr style="visibility: hidden" />  
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénoms</th>
+                                <th>Photo</th>
+                                <th>Etat</th>
+                                <th>Action</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in user %}
+                                <tr>
+                                    <td>{{ user.nomuser}}</td>
+                                    <td>{{ user.prenom}}</td>
+
+
+
+
+                                    <td>
+                                        <a href="{{ path('registration_update', {'id':user.id}) }}">
+                                            <img src="{{ asset('uploads/photos/'~user.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/>  
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if user.deletedAt is null %} <label class="btn bg-olive active"> Actif</label> {% else %} <label class="btn btn-danger"> Inactif</label>  {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+                                
+                                            <form method="post" action="{{ path('registration_delete', {'id': user.id}) }}" onsubmit="return confirm('Voulez-vous fermer ce compte?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+
+                                                <button class="btn">
+                                                    <span style="font-size: 1em; color: red;">
+                                                        <i class="fas fa-trash-alt" title="Fermer"></i>
+                                                    </span>
+                                                </button>
+                                            </form>
+
+                                     
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnee trouve</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Visite index{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Liste des visiteurs</h3>
+        </div>
+         <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+          
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+               
+                    <a href='{{ path('app_visite2_new') }}'>
+                        <button class="btn btn-primary">Nouveau</button>
+                    </a>
+
+                    <hr style="visibility: hidden" />
+
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>Lieu</th>
+                                <th>Date</th>
+                                <th>Heure</th>
+                                <th>Verset</th>
+                                <th>Responsable</th>
+                                <th>Actions</th>
+                                <th>Supprimer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for visite2 in visite2s %}
+                                <tr>
+                                    <td>{{ visite2.lieu }}</td>
+                                    <td>{{ date_format(visite2.datevisite) }} </td>
+                                    <td> {{ visite2.heure|date('H:i:s')}}</td>
+                                    <td>{{ visite2.verset }}</td>
+                                    <td>{{ visite2.responsable }}</td>
+
+                                    <td>
+
+
+
+                                        <button type="button" id="btn-fideles-modal" data-target="{{ path('app_visite2_show', {'id': visite2.id}) }}"> 
+                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                <i class="fas fa-users" title="Voir details"></i>
+                                            </span>
+                                        </button>
+
+                                        <a href="{{ path('app_visite2_edit', {'id': visite2.id}) }}"><i class="fas fa-edit" title="Modifier"></i></a>
+                                    </td>
+                                    <td>
+                                        <div class="col-md-3">
+
+                                            <form method="post" action="{{ path('app_visite2_delete', {'id': visite2.id}) }}" onsubmit="return confirm('êtes-vous sûr de vouloir supprimer?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ visite2.id) }}">
+                                                <button class="btn">
+                                                    <span style="font-size: 1em; color: red;">
+                                                        <i class="fas fa-trash-alt" title="Supprimer"></i>
+                                                    </span>
+                                                </button>
+                                            </form> 
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal des fidèles -->
+    <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+            $(document).on('click', 'button#btn-fideles-modal', function () {
+                // créer le modal qui porte l'id fidelesModal
+                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                    keyboard: false
+                });
+
+                // recupere le div class="modal-body" du div id="fidelesModal"
+                let container = $('#fidelesModal .modal-body');
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('data-target'),
+                    async: true,
+                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                        container.empty();
+                    },
+                    success: function (html) {
+                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                        modal.show(); // on affiche la fenêtre modal
+                        //console.log(html);
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+{% endblock %}

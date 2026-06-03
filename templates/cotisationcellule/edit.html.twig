@@ -1,0 +1,12 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification cellule{% endblock %}
+
+{% block body %}
+<div class="card card-primary">
+       <div class="card-header">
+			<h3 class="card-title">Modification cotisation : {{ cellule.nom }}</h3>
+		</div>
+ {{ include('cotisationcellule/_form.html.twig') }}
+</div>
+{% endblock %}

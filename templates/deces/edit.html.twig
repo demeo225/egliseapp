@@ -1,0 +1,66 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion des decès{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification décès</h3>
+        </div>
+        <div class="card card-body">
+
+
+            {{ form_start(form) }}
+            {% for message in app.flashes('success') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <div class="my-custom-class-for-errors">
+                {{ form_errors(form) }}
+
+            </div>
+
+
+   
+                <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.fidele,  {'label':'Fidèle:'}) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_row(form.datedeces, {'label':' Date du décès '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.lieudeces, {'label':'Lieu du décès '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.raisondeces, {'label':'Cause du décès '}) }}
+                </div>
+                </div>
+
+                
+            <div class="row"> 
+                <div class="btn btn-default">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+
+                <div class="btn btn-default"><a href="{{ path('deces_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+                
+            </div>
+
+
+
+
+
+
+            {{ form_end(form) }}
+        </div>
+
+
+    
+
+
+{% endblock %}

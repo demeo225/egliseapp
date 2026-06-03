@@ -1,0 +1,38 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotiserdepartement{% endblock %}
+
+{% block body %}
+    <h1>Cotiserdepartement</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ cotiserdepartement.id }}</td>
+            </tr>
+            <tr>
+                <th>Montantpayer</th>
+                <td>{{ cotiserdepartement.montantpayer }}</td>
+            </tr>
+            <tr>
+                <th>Reste</th>
+                <td>{{ cotiserdepartement.reste }}</td>
+            </tr>
+            <tr>
+                <th>CreateAt</th>
+                <td>{{ cotiserdepartement.createAt ? cotiserdepartement.createAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdateAt</th>
+                <td>{{ cotiserdepartement.updateAt ? cotiserdepartement.updateAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('cotiserdepartement_index') }}">back to list</a>
+
+    <a href="{{ path('cotiserdepartement_edit', {'id': cotiserdepartement.id}) }}">edit</a>
+
+    {{ include('cotiserdepartement/_delete_form.html.twig') }}
+{% endblock %}

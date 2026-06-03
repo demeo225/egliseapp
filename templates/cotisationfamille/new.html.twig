@@ -1,0 +1,18 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotisation famille{% endblock %}
+
+{% block body %}
+
+
+   
+<div class="card card-primary">
+       <div class="card-header">
+			<h3 class="card-title">Gestion cotisation : {{ famille.nom }}</h3>
+		</div>
+ {{ include('cotisationfamille/_form.html.twig') }}
+</div>
+
+
+{% endblock %}
+

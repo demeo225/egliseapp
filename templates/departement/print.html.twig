@@ -1,0 +1,48 @@
+
+{% block body %}
+
+
+
+    <div class="intro-header" style="background-image: url('/images/logo.jpg');"><br><br>
+        <!-- /.card-header -->
+        <center>
+            <h2><u><b>LISTE DES DEPARTEMENTS</b></u></h2>
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Département</th>
+                        <th>Description</th>
+                        <th>Premier responsable</th>
+                        <th>Second responsable</th>
+
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for departement in departement %}
+                        <tr>
+                            <td>{{ departement.nom}}</td>
+                            <td>{{ departement.description}}</td>
+                            <td>{{ departement.responsable1}}</td>
+                            <td>{{ departement.responsable2}}</td>
+
+                            <td>
+
+
+
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5">aucune donnee trouve</td>
+                        </tr>                                    {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </center>
+        </div>
+
+        {% endblock %}

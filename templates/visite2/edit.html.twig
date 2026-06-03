@@ -1,0 +1,14 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Edit Visite2{% endblock %}
+
+{% block body %}
+       <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion des visites</h3>
+        </div>
+
+    {{ include('visite2/_form.html.twig', {'button_label': 'Update'}) }}
+
+       </div>
+{% endblock %}

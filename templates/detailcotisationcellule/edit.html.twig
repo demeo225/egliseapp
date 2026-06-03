@@ -1,0 +1,70 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification paiment{% endblock %}
+
+{% block body %}
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification paiement</h3>
+        </div>
+        <div class="card card-body">
+
+            {{ form_start(form) }}
+                  <div class="row mb-4">
+
+
+                <div class="col-md-3">
+                    {{ form_row(form.datedetail, {'libelle':'Date ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.typeoff, {'libelle':'Action  '}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.montantpayer, {'libelle':'Montant  v ersé ', 'attr':{'class':'form-control'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.reste, {'libelle':'Reste  ', 'attr':{'class':'readonly'}}) }}
+                </div>
+
+
+            </div>
+
+
+
+
+            <div class="row mb-4">
+
+      <div class="col-md-3">
+                    {{ form_row(form.ajout, {'libelle':'Nouveau montant ', 'attr':{'class':'readonly'}}) }}
+                </div>
+                
+                <div class="col-md-3" style="display: none">
+                    {{ form_row(form.fidele, {'libelle':'Fidèle ', 'attr':{'class':'readonly'}}) }}
+                </div>
+
+                <div class="col-md-3" style="display: none">
+                    {{ form_row(form.cotisercellule, {'libelle':'Total versé ', 'attr':{'class':'readonly'}}) }}
+                </div>
+
+
+            </div>
+
+
+
+            <div class="row"> 
+                <div class="col-md-1">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div></p>
+
+
+            </div> 
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+{% endblock %}

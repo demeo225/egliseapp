@@ -1,0 +1,37 @@
+<div class="card card-body">
+
+    {{ form_start(form) }}
+
+    <div class="my-custom-class-for-errors">
+        {{ form_errors(form) }}
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.datenomination, {'label':'Date '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.decret, {'label':'Decret '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.fidele, {'label':'Choix du fidèle '}) }}
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {{ form_row(form.deteil, {'label':'Note de nomination'}) }}
+        </div>
+    </div>
+
+
+    <div class="row"> 
+        <div class="col-md-1">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save'}}) }}</div></p>
+
+        <div class="col-md-2.5">{{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+        <div class="col-md-2"><a href="{{ path('app_nommination_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+    </div> 
+    {{ form_end(form) }}
+</div>

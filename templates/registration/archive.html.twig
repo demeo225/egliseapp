@@ -1,0 +1,132 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Administration
+{% endblock %}
+
+{% block body %}
+
+
+
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    {% for message in app.flashes('usercreate') %}
+                        <div class="primary">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+                    {% for message in app.flashes('updateuser') %}
+                        <div class="primary">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+
+
+                    {% for message in app.flashes('activeuser') %}
+                        <div class="primary">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    <a href='{{ path('register') }}'>
+                        <button class="btn btn-primary">Création Utilisateurs</button>
+                    </a>
+                    <a href="{{path('registration_index')}}"> 
+                        <button class="btn btn-primary"> Utilisateurs</button>
+                    </a>
+                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+                        <a href='{{ path('eglise_new') }}'>
+                            <button class="btn btn-primary">Création Eglise</button>
+                        </a>
+                    {% endif %}
+                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+                        <a href='{{ path('communaute_new') }}'>
+                            <button class="btn btn-primary">Création Communaute</button>
+                        </a>
+                    {% endif %}
+
+                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+                        <a href="{{ path('admin') }}">
+                            <button class="btn btn-danger">  Compte Administrateur</button>
+
+
+
+                        </a>
+                    {% endif %}
+                    <hr style="visibility: hidden" />  
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénoms</th>
+                                <th>Photo</th>
+                                <th>Etat</th>
+                                <th>Action</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in user %}
+                                <tr>
+                                    <td>{{ user.nomuser}}</td>
+                                    <td>{{ user.prenom}}</td>
+
+
+
+
+                                    <td>
+                                        <a href="{{ path('registration_update', {'id':user.id}) }}">
+                                            <img src="{{ asset('uploads/photos/'~user.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/>  
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if user.deletedAt is null %} <label class="btn bg-olive active"> Actif</label> {% else %} <label class="btn btn-danger"> Inactif</label>  {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+
+
+
+
+                                        <form method="post" action="{{ path('registration_active', {'id': user.id}) }}" onsubmit="return confirm('Voulez-vous active ce compte?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('active' ~ user.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: blue;">
+                                                    <i class="fas fa-edit" title="Activer"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnee trouve</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+{% endblock %}

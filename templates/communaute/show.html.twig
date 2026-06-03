@@ -1,0 +1,50 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Communaute{% endblock %}
+
+{% block body %}
+    <h1>Communaute</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ communaute.id }}</td>
+            </tr>
+            <tr>
+                <th>Libelle</th>
+                <td>{{ communaute.libelle }}</td>
+            </tr>
+            <tr>
+                <th>Agrement</th>
+                <td>{{ communaute.agrement }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ communaute.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ communaute.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ communaute.deletedAt ? communaute.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ communaute.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ communaute.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('communaute_index') }}">back to list</a>
+
+    <a href="{{ path('communaute_edit', {'id': communaute.id}) }}">edit</a>
+
+    {{ include('communaute/_delete_form.html.twig') }}
+{% endblock %}

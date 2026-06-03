@@ -1,0 +1,66 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Officiants invités{% endblock %}
+
+{% block body %}
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste des programmes</h3>
+            </div>
+            {% for message in app.flashes('success') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('officiant_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Intervenants</th>
+                            <th>Contact</th>
+                            <th>Titre</th>
+                            <th>Actions</th>
+                            <th>Supprimer</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for officiant in officiants %}
+                            <tr>
+                                <td>{{ officiant.nomofficiant |upper }}</td>
+                                <td>{{ officiant.contact }}</td>
+                                <td>{{ officiant.titre }}</td>
+
+                                <td>
+                                    <a href="{{ path('officiant_show', {'id': officiant.id}) }}">Detail</a>
+                                    <a href="{{ path('officiant_edit', {'id': officiant.id}) }}">Modifier</a>
+                                </td>
+                                <td>
+                                    <form method="post" action="{{ path('zone_delete', {'id': zone.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ zone.id) }}">
+                                        <button class="btn">
+                                            <span style="font-size: 1em; color: red;">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                     
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

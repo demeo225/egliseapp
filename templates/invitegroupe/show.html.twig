@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Invitegroupe{% endblock %}
+
+{% block body %}
+    <h1>Invitegroupe</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>CreateAt</th>
+                <td>{{ invitegroupe.createAt ? invitegroupe.createAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdateAt</th>
+                <td>{{ invitegroupe.updateAt ? invitegroupe.updateAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ invitegroupe.nom }}</td>
+            </tr>
+            <tr>
+                <th>Contact</th>
+                <td>{{ invitegroupe.contact }}</td>
+            </tr>
+            <tr>
+                <th>Habitation</th>
+                <td>{{ invitegroupe.habitation }}</td>
+            </tr>
+            <tr>
+                <th>Sexe</th>
+                <td>{{ invitegroupe.sexe }}</td>
+            </tr>
+            <tr>
+                <th>Fonction</th>
+                <td>{{ invitegroupe.fonction }}</td>
+            </tr>
+            <tr>
+                <th>Id</th>
+                <td>{{ invitegroupe.id }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ invitegroupe.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ invitegroupe.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ invitegroupe.deletedAt ? invitegroupe.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ invitegroupe.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ invitegroupe.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_invitegroupe_index') }}">back to list</a>
+
+    <a href="{{ path('app_invitegroupe_edit', {'id': invitegroupe.id}) }}">edit</a>
+
+    {{ include('invitegroupe/_delete_form.html.twig') }}
+{% endblock %}

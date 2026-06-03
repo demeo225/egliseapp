@@ -1,0 +1,45 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification {% endblock %}
+
+{% block body %}
+
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title">Modification</h3>
+        </div>
+        <div class="card-body">
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    {{ form_row(form.classecodim, {'label':' * Classe :'}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.enfant, {'label':' *Enfant :'}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.dateinscrire, {'label':' * Date :','attr':{'class':'form-control'}}) }}
+                </div>
+
+            </div>
+
+
+            <div class="row"> 
+                <div class="col-md-2">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+                <div class="col-md-2"><a href="{{ path('inscrire') }}" class="btn btn-success">Afficher la liste</a> </div>
+                <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+            </div> 
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+{% endblock %}

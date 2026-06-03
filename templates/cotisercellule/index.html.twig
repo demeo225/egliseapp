@@ -1,0 +1,96 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des cotisations {% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Paiements des cotisations cellules</h3>
+            </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('cotisercellule_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href={{ path('seancecellule_presence') }}>
+                    <button class="btn btn-primary">Présence & absence</button>
+                </a>
+
+          
+                <a href={{ path('cotisationcellule_index') }}>
+                    <button class="btn btn-success">Cotisation</button>
+                </a>
+
+                <a href={{ path('seancecellule_listeparticipant') }}>
+                    <button class="btn btn-success">Liste de présence</button>
+
+                </a>
+                <a href={{ path('cotisercellule_detailcellule') }}>
+                    <button class="btn btn-danger">Detail cotisation</button>
+                </a>
+         <a href={{ path('app_depensecellule_index') }}>
+                        <button class="btn btn-primary">Depense</button>
+
+                    </a>
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Cellule</th>
+                            <th>Objet</th>
+                            <th>Membre</th>
+                            <th>Contact</th>
+                            <th>Montant </th>
+                            <th>Montant payé</th>
+                            <th>Reste</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cotisercellule in cotisercellules %}
+                             {% if is_granted("cotisercellule_edit", cotisercellule) %}
+                            <tr>
+                                <td> {% if cotisercellule.cellule is not null  %} {{ cotisercellule.cellule.nom|upper }}{% else %} {% endif %}</td>
+                                <td> {% if cotisercellule.cotisationcellule is not null  %} {{ cotisercellule.cotisationcellule.objet|upper }}{% else %} {% endif %}</td>
+                                <td>{% if cotisercellule.fidele is not null  %}{{ cotisercellule.fidele.nomfidele|upper }}{% else %} {% endif %}</td>
+                                <td>{% if cotisercellule.fidele is not null  %}{{ cotisercellule.fidele.contact1 }}{% else %} {% endif %}</td>
+                                <td>{{ cotisercellule.cotisationcellule.montant|number_format(0, '.', ' ') }}</td>
+                                <td>{{ cotisercellule.montantpayer|number_format(0, '.', ' ') }}</td>
+                                <td>  {% if  cotisercellule.reste ==0 %} <b>Soldé</b> 
+                                    {% elseif cotisercellule.reste >0 %} {{ cotisercellule.reste|number_format(0, '.', ' ') }} {% elseif cotisercellule.reste < 0 %} 
+                                            <i class="btn btn-success"> Soldé </i> {% endif %}
+                                        
+                                        </td>
+                                      {#  <td>
+                                            {% if cotisercellule.reste <= 0 %} {% else %}
+                                            <a href="{{ path('cotisercellule_edit', {'id': cotisercellule.id}) }}">  
+                                                <span style="font-size: 1em; color: Dodgerblue;">
+                                                    <i class="fas fa-edit"></i>
+                                                </span></a>{% endif %}
+                                        </td> #}
+                                    </tr>
+                            {% endif %}
+                                   
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        {% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Nouvelle carte sociale{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion des cartes du social</h3>
+        </div>
+
+        {{ include('cartesocial/_form.html.twig') }}
+
+    </div>
+{% endblock %}

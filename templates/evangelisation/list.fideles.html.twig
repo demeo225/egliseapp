@@ -1,0 +1,43 @@
+
+
+
+<div class="card card-primary">
+
+    <div class="card-header">
+        <h3 class="card-title">Liste des personnes contactées  </h3>
+    </div>
+
+    <!-- /.card-header -->
+    <div class="card-body">
+        <table id="dt-basic-checkbox" class="table" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>Fidèles</th>
+                    <th>Numéros</th>
+                    <th>Habitation</th>
+                    <th>Sexe</th>
+                    <th>Rendez-vous</th>
+                    <th>Converti</th>
+                    <th>Inviation confirmée au culte</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for ame in ames %}
+                    <tr>
+                        <td> {{ ame.nom }} </td>
+                        <td>{{ ame.contact }} </td>
+                        <td>{{ ame.habitation }} </td>
+                        <td>{{ ame.sexe }} </td>
+                        <td>{{ ame.rdv }} </td>
+                        <td>{{ ame.converti }} </td>
+                        <td>{{ ame.invitation }} </td>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">aucune donnée trouvée</td>
+                    </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>

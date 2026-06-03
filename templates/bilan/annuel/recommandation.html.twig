@@ -1,0 +1,99 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des recommandations {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_recommandation') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.fidele, {'label':'Fidele'}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+
+
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and recommandations |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+
+            {% if recommandations |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Resultats de la recherche</h3>
+                    </div>
+
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                            <th>Fidèle</th>
+                            <th>Contact</th>
+                            <th>Date</th>
+                            <th>Reférence</th>
+
+                            <th>Lettre</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for recommandation in recommandations %}
+
+                                    <tr>
+
+                                <td>{{ recommandation.fidele.nomfidele|upper}}</td>
+                                <td>{{ recommandation.fidele.contact1 }}</td>
+                                <td>{{ recommandation.dateop|date('d-m-Y') }}</td>
+
+                                <td>{{ recommandation.reference }}</td>
+                                <td>
+                                    <a href="{{ path('recommandation_print', {'id': recommandation.id}) }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fa fa-print"></i>
+                                        </span>
+                                    </a>
+                                </td>
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+
+        {% endblock %}

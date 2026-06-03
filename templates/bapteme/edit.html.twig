@@ -1,0 +1,49 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification baptème{% endblock %}
+
+{% block body %}
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification bapteme</h3>
+        </div>
+        <div class="card card-body">
+
+
+            {{ form_start(form) }}
+            <div class="my-custom-class-for-errors">
+                {{ form_errors(form) }}
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.promotion, {'label':'Promotion '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.datebapteme, {'label':'Date '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.lieubapteme, {'label':' Lieu '}) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.pasteurofficient, {'label':'Pasteur officient '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.fidele, {'label':'Choix des candidats '}) }}
+                </div>
+
+            </div>
+
+
+            <div class="row"> 
+                <p><div class="btn btn-default">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div></p>
+
+                <div class="btn btn-default"><a href="{{ path('bapteme_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+                <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+            </div> 
+            {{ form_end(form) }}
+        </div></div>
+    {% endblock %}

@@ -1,0 +1,40 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}SMS{% endblock %}
+
+{% block body %}
+
+     <div class="card-body">
+                <a href='{{ path('sms_new') }}'>
+                    <button class="btn btn-primary">Envoie SMS</button>
+                </a>
+    <table  id="example1" class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Destinataire</th>
+                <th>Message</th>
+                <th>Expediteur</th>
+                <th>Date & heure d'envoi</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for sms in sms %}
+            <tr>
+                <td>{{ sms.destinataire }}</td>
+                <td>{{ sms.message }}</td>
+                <td>{{ sms.expediteur }}</td>
+                <td>{{ sms.createAt|date('d-m-y à H:im') }}</td>
+                <td>
+                    <a href="{{ path('sms_show', {'id': sms.id}) }}">show</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">Aucun message envoyé</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

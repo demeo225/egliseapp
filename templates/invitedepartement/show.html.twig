@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Invitedepartement{% endblock %}
+
+{% block body %}
+    <h1>Invitedepartement</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>CreateAt</th>
+                <td>{{ invitedepartement.createAt ? invitedepartement.createAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdateAt</th>
+                <td>{{ invitedepartement.updateAt ? invitedepartement.updateAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ invitedepartement.nom }}</td>
+            </tr>
+            <tr>
+                <th>Contact</th>
+                <td>{{ invitedepartement.contact }}</td>
+            </tr>
+            <tr>
+                <th>Habitation</th>
+                <td>{{ invitedepartement.habitation }}</td>
+            </tr>
+            <tr>
+                <th>Sexe</th>
+                <td>{{ invitedepartement.sexe }}</td>
+            </tr>
+            <tr>
+                <th>Fonction</th>
+                <td>{{ invitedepartement.fonction }}</td>
+            </tr>
+            <tr>
+                <th>Id</th>
+                <td>{{ invitedepartement.id }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ invitedepartement.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ invitedepartement.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ invitedepartement.deletedAt ? invitedepartement.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ invitedepartement.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ invitedepartement.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_invitedepartement_index') }}">back to list</a>
+
+    <a href="{{ path('app_invitedepartement_edit', {'id': invitedepartement.id}) }}">edit</a>
+
+    {{ include('invitedepartement/_delete_form.html.twig') }}
+{% endblock %}

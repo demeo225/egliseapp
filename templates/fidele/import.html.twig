@@ -1,0 +1,46 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Importation liste presence{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Importation liste Fidèles</h3>
+        </div>
+        <div class="card card-body">
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+   
+
+
+
+            <div class="row">
+            
+                  <div class="col-md-3">
+                    {{ form_row(form.file, {'label':'Fichier:'}) }}
+                </div>
+            
+
+           
+            </div>
+   
+
+
+            <div class="row"> 
+                <div class="col-md-2">{{ form_row(form.save, {'label':'Importer ','attr':{'value':'save'}}) }}</div>
+                <div class="col-md-1"><a href="{{ path('culte_listepresence') }}" class="btn btn-success">Retour</a> </div>
+
+         
+            </div> 
+     
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+
+{% endblock %}

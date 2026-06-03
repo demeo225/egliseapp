@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Livremembre{% endblock %}
+
+{% block body %}
+    <h1>Livremembre</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ livremembre.id }}</td>
+            </tr>
+            <tr>
+                <th>Numero</th>
+                <td>{{ livremembre.numero }}</td>
+            </tr>
+            <tr>
+                <th>Datelivret</th>
+                <td>{{ livremembre.datelivret ? livremembre.datelivret|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Etat</th>
+                <td>{{ livremembre.etat ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ livremembre.createdAt ? livremembre.createdAt|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedAt</th>
+                <td>{{ livremembre.updatedAt ? livremembre.updatedAt|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ livremembre.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ livremembre.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ livremembre.deletedAt ? livremembre.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ livremembre.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ livremembre.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_livremembre_index') }}">back to list</a>
+
+    <a href="{{ path('app_livremembre_edit', {'id': livremembre.id}) }}">edit</a>
+
+    {{ include('livremembre/_delete_form.html.twig') }}
+{% endblock %}

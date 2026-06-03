@@ -1,0 +1,55 @@
+
+<div class="card card-primary">
+
+    <div class="card card-body">
+        {{ form_start(form) }}
+ <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <div class="row">
+            <div class="col-md-3">
+                {{ form_row(form.dateop, {'label':'Date '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.lieu, {'label':'Lieu  '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.responsable1, {'label':'Responsable '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.responsable2, {'label':'Responsable 2nd '}) }}
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                {{ form_row(form.personnes1, {'label':'Personnes contactées '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.personnes2, {'label':'Nombre de RDV '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.personnes3, {'label':'Personnes ayant accepté Jesus '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.personnes4, {'label':'Personnes invitées '}) }}
+            </div>
+        </div>
+        <div class="row">
+            {{ form_row(form.observation, {'label':'Observation '}) }}
+        </div>
+        <div class="row"> 
+            <div class="col-md-1">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save'}}) }}</div>
+            <div class="col-md-2.5"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+            <div class="col-md-3"><a href="{{ path('app_evangelisation_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+        </div> 
+        {{ form_end(form) }}
+
+    </div>
+</div>

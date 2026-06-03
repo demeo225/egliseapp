@@ -1,0 +1,48 @@
+
+{% block body %}
+
+
+
+    <div class="intro-header" style="background-image: url('/images/logo.jpg');"><br><br>
+        <!-- /.card-header -->
+        <center>
+            <h2><u><b> COTISATIONS EXCEPTIONNELLES</b></u></h2>
+            <table id="example1" class="table table-bordered table-striped position-absolute">
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Objet</th>
+                        <th>Montant reçu</th>
+                        <th colspan="2">Béneficiaire</th>
+
+
+
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cotisationexceptionnelle in cotisationexceptionnelle %}
+                        <tr>
+                            <td>{{ cotisationexceptionnelle.datecotise|date('d-m-Y')}}</td>
+                            <td>{{ cotisationexceptionnelle.objet}}</td>
+                            <td>{{ cotisationexceptionnelle.montant}}</td>
+                            <td colspan="2">{{ cotisationexceptionnelle.beneficiaire}}</td>
+
+
+
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5">aucune donnée trouvée</td>
+                        </tr>                                    {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </center>
+        </div>
+
+        {% endblock %}

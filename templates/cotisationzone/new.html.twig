@@ -1,0 +1,12 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Nouvelle Cotisation de zone{% endblock %}
+
+{% block body %}
+     <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion cotisation : {{ zone.nom }}</h3>
+        </div>
+    {{ include('cotisationzone/_form.html.twig') }}
+     </div>
+{% endblock %}

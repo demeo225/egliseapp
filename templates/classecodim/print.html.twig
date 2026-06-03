@@ -1,0 +1,46 @@
+
+{% block body %}
+
+
+   
+    <div class="intro-header" style="background-image: url('/images/logo.jpg');"><br><br>
+                        <!-- /.card-header -->
+                        <center>
+                      <h2><u><b>Classes ECODIM</b></u></h2>
+                            <table id="example1" class="table table-bordered table-striped">
+
+                                <thead>
+                                    <tr>
+                                        <th>Classe</th>
+                                        <th>Description</th>
+                                        <th>Premier responsable</th>
+                                        <th>Second responsable</th>
+                                 
+                                      
+
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for classecodim in classecodim %}
+                                        <tr>
+                                            <td>{{ classecodim.nom}}</td>
+                                            <td>{{ classecodim.description}}</td>
+                                            <td>{{ classecodim.responsable1}}</td>
+                                            <td>{{ classecodim.responsable2}}</td>
+                                           
+                                           <td>
+                                         
+                                            
+                                
+                                        </tr>
+                                   
+                                     
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+            
+                        </center>
+</div>
+
+{% endblock %}

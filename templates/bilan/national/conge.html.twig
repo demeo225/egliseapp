@@ -1,0 +1,116 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des conges {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_congen') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+
+
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and conges |length==0 %}
+            Aucun congé
+
+        {% else %}
+
+            {% if conges |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan congés</h3>
+                    </div>
+                    <div class="center">
+                        {% for conge in conges %}
+                            {% set conge = (conges|length)  %}
+
+                            {% if loop.last  %}
+                                Total:  <b> {{ conge }} </b> <br /> 
+
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Region</th>
+                                    <th>Region pastorale</th>
+                                    <th>Eglise</th>
+                                    <th>Fidèle</th>
+                                    <th>Contact</th>
+                                    <th>Photo</th>
+                                    <th>Date debut</th>
+                                    <th>Date fin</th>
+                                    <th>Cause</th>
+                                    <th>Etat</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for conge in conges %}
+
+                                    <tr>
+                                        <td> {% if conge.eglise.region is not empty %} {{ conge.eglise.region }}{% else %} Non rensigné {% endif %}</td>
+                                        <td> {% if conge.eglise.regionpastorale is not empty %} {{ conge.eglise.regionpastorale }}{% else %} Non renseignée {% endif %}</td>
+                                        <td> {% if conge.eglise is not empty %} {{ conge.eglise }}{% else %} {% endif %}</td>
+                                        <td> {% if conge.fidele is not empty %} {{ conge.fidele.nomfidele|upper }} {% else %} {% endif %}</td>
+                                        <td> {% if conge.fidele is not empty %} {{ conge.fidele.contact1 }} {% else %} {% endif %}</td>
+                                        <td> 
+
+                                            {% if conge.fidele.photoFile is not empty %}<img src="{{ asset('uploads/photos/'~conge.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" title="Voir details" style="max-width: 100%;  max-height: 100%"/>{% else %} {% endif %}</td>
+
+                                        <td>{{ conge.dateconge ?  date_format(conge.dateconge) }}</td>
+                                        <td>{{ conge.datefin ?  date_format(conge.datefin) }}</td>
+                                        <td>{{ conge.cause }}</td>
+                                        <td>
+
+
+                                            {% if conge.datefin is empty or conge.datefin|date('Y-m-d') > "now"|date('Y-m-d')  %}<b style="color: red"> En cours </b> {% else %} Achevé {% endif %} </td>
+
+
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            {% endif %}
+        {% endif %}
+    </div>
+
+{% endblock %}
+

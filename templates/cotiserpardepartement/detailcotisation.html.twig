@@ -1,0 +1,75 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Detail des cotisations{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Details paiment</h3>
+            </div>
+
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('app_cotiserpardepartement_new') }}'>
+                    <button class="btn btn-primary">Paie de cotisation</button>
+                </a>
+                <a href='{{ path('app_cotisationpardepartement_index') }}'>
+                    <button class="btn btn-success">Liste des cotisations</button>
+                </a>
+                <a href='{{ path('app_cotiserpardepartement_index') }}'>
+                    <button class="btn btn-success">Liste paiements</button>
+                </a>
+
+                <hr style="visibility: hidden" />  
+
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Departement</th>
+                            <th>Objet</th>
+                            <th>Montant à payer</th>
+                            <th>Mont payé</th>
+                            <th>Reste </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detail in details %}
+                            <tr>
+                                <td>{{ detail.datedetail ? date_format(detail.datedetail) }}</td>
+                                <td>{{ detail.departement.nom }}</td>
+                                <td>{{ detail.cotisationpardepartement.objet }}</td>
+                                <td>{{ detail.cotisationpardepartement.montant }}</td>
+                                <td>{{ detail.montantpayer }}</td>
+                                <td>
+
+                                    {% if  detail.reste > 0 %}
+                                        <b>{{ detail.reste }}</b>
+
+
+                                    {% else %}
+                                        <i class="btn btn-success">    Soldée</i> 
+                                    {% endif %}
+
+
+                                </td>
+
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="13">Aucuné donnée trouvée</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

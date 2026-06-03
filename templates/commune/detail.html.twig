@@ -1,0 +1,40 @@
+<div class="card card-primary">
+
+    <div class="card-header">
+        <h3 class="card-title">Liste des quartiers  </h3>
+    </div>
+
+    <!-- /.card-header -->
+    <div class="card-body">
+
+        <table id="example1" class="table table-bordered table-striped">
+
+
+                        <thead>
+                        <th>Nom du quartier</th>
+                     
+                        </thead>
+                        </tr>
+                        <tbody>
+                            {% for quartier in quartiers %}
+
+                                <tr>
+
+                                    <td>{{ quartier.libelle|upper}}</td>
+                                    
+                                </tr>
+
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+
+    

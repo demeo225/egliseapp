@@ -1,0 +1,96 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Dime globale{% endblock %}
+
+{% block body %}
+    <h1>Detail de la dîme</h1>
+  <div class="card-body">
+    <table class="table">
+        <tbody>
+
+            <tr>
+                <th>Montant</th>
+                <td>{{ dimeglobale.montant }}</td>
+            </tr>
+            <tr>
+                <th>Date dime</th>
+                <td>{{ dimeglobale.datedime ? dimeglobale.datedime|date('d-m-Y') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Enregistrée le</th>
+                <td>{{ dimeglobale.createAt ? dimeglobale.createAt|date('d-m-Y H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Date modification</th>
+                <td>{{ dimeglobale.updateAt ? dimeglobale.updateAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+
+            <tr>
+                <th>Billets de Dix mille</th>
+                <td>{{ dimeglobale.dixmille }}</td>
+            </tr>
+            <tr>
+                <th>Billets de Cinq mille</th>
+                <td>{{ dimeglobale.cinqmille }}</td>
+            </tr>
+            <tr>
+                <th>Billets de Deux mille</th>
+                <td>{{ dimeglobale.deuxmille }}</td>
+            </tr>
+            <tr>
+                <th>Billets de Mille F</th>
+                <td>{{ dimeglobale.mille }}</td>
+            </tr>
+            <tr>
+                <th> Billets de Cinq centt</th>
+                <td>{{ dimeglobale.centbillet }}</td>
+            </tr>
+            <tr>
+                <th>Pièce de 100 F</th>
+                <td>{{ dimeglobale.centpiece }}</td>
+            </tr>
+            <tr>
+                <th>Pièce de 200</th>
+                <td>{{ dimeglobale.deuxcent }}</td>
+            </tr>
+            <tr>
+                <th>Pièce de 100 </th>
+                <td>{{ dimeglobale.cent }}</td>
+            </tr>
+            <tr>
+                <th>Pièce de 50 </th>
+                <td>{{ dimeglobale.cinquante }}</td>
+            </tr>
+            <tr>
+                <th>Pièce de 25f</th>
+                <td>{{ dimeglobale.vingtcinq }}</td>
+            </tr>
+            <tr>
+                <th>Pièce de 10f</th>
+                <td>{{ dimeglobale.dix }}</td>
+            </tr>
+            <tr>
+                <th>Pièce de 5</th>
+                <td>{{ dimeglobale.cinq }}</td>
+            </tr>
+
+            <tr>
+
+        </tbody>
+    </table>
+
+
+
+
+
+    <div class="row"> 
+        {% if is_granted('ROLE_ADMIN') %}
+            <div class="btn btn-default">  <a href="{{ path('dimeglobale_edit', {'id': dimeglobale.id}) }}">Modifier</a></div>
+
+            <div class="btn btn-default"> {{ include('dimeglobale/_delete_form.html.twig') }}</div>
+        {% endif %}
+        <div class="btn btn-default"><a href="{{ path('dimeglobale_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+    </div> 
+  </div>
+        
+{% endblock %}

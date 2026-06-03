@@ -1,0 +1,103 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Eglise{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+    {% for message in app.flashes('message') %}
+            <div class="primary">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        <a href='{{ path('eglise_new') }}'>
+            <button class="btn btn-primary">Nouvel enregistrement</button>
+        </a>
+        <a href='{{ path('communaute_index') }}'>
+            <button class="btn btn-primary">Communauté</button>
+        </a>
+        <a href='{{ path('eglise_listedemande') }}'>
+            <button class="btn btn-primary">En attente de validation</button>
+        </a>
+               <a href='{{ path('app_region_index') }}'>
+            <button class="btn btn-primary">Region</button>
+        </a>
+        <a href='{{ path('app_paiement_index') }}'>
+            <button class="btn btn-danger">Facturation</button>
+        </a>
+
+        <hr style="visibility: hidden" />
+        <table  id="example1" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Communaute</th>
+                    <th>Temple</th>
+                    <th>Contact1</th>
+                    <th>Admin</th>
+                    <th>Quartier</th>
+                    <th>Inscription</th>
+                    <th>Logo</th>
+                    <th>Modifier</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for eglise in eglises %}
+                    <tr>
+                        <td>{{ eglise.code|upper }}</td>
+
+                        <td> {% if eglise.communaute is not empty %} {{ eglise.communaute.libelle }} {% else %}{% endif %}</td>
+                        <td>{{ eglise.denomination }}</td>
+                        <td>{{ eglise.contact1 }}</td>
+                        <td>{{ eglise.administrateur }}</td>
+                        <td>{{ eglise.quartier }}</td>
+
+                        <td>{{ eglise.createAt ? eglise.createAt|date('d-m-Y H:i:s') : '' }}</td>
+                        <td>
+                            <img src="{{ asset('uploads/photos/'~eglise.logo )}}"  class="img-size-50 mr-3 img-suqare"/> 
+                        </td>                                              
+                        <td>
+
+                            <a href="{{ path('eglise_edit', {'id': eglise.id}) }}"> <i class="fas fa-edit"></i></a>
+
+                        </td>
+                        
+                        <td>
+                                           {% if eglise.deleted2At is null %}
+                                            <form method="post" action="{{ path('eglise_delete', {'id': eglise.id}) }}" onsubmit="return confirm('Voulez-vous fermer ce compte?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ eglise.id) }}">
+
+                                                <button class="btn">
+                                                    <span style="font-size: 1em; color: red;">
+                                                        <i class="fas fa-trash-alt" title="Fermer"></i>
+                                                    </span>
+                                                </button>
+                                            </form>
+
+                                        {% else %}
+
+
+
+
+                                            <form method="post" action="{{ path('eglise_active', {'id': eglise.id}) }}" onsubmit="return confirm('Voulez-vous active ce compte?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('active' ~ eglise.id) }}">
+
+                                                <button class="btn">
+                                                    <span style="font-size: 1em; color: blue;">
+                                                        <i class="fas fa-edit" title="Activer"></i>
+                                                    </span>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="22">Aucune donnée trouvée</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

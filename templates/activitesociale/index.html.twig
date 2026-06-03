@@ -1,0 +1,148 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Liste des actions sociales{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Liste des actions sociales</h3>
+        </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+      
+        <div class="card-body">
+
+            <a href="{{ path('app_activitesociale_new') }}">
+                <button class="btn btn-primary">Nouveau</button>
+            </a>
+
+            <a href="{{ path('app_cotisersociale_index') }}">
+                <button class="btn btn-success">Paiements de cotisation</button>
+            </a>
+
+            <a href="{{ path('app_activitesociale_enfantsociaux') }}">
+                <button class="btn btn-success">Enfants cas sociaux</button>
+            </a>
+
+            <a href="{{ path('app_activitesociale_adultesociaux') }}">
+                <button class="btn btn-success">Adultes cas sociaux</button>
+            </a>
+
+
+            <hr style="visibility: hidden" />
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Don en espèce</th>
+                        <th>Dons en nature</th>
+                        <th>Beneficiaire</th>
+                        <th>Detail</th>
+                        <th>actions</th>
+                        <th>Supprimer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activitesociale in activitesociales %}
+                        <tr>
+
+                            <td>{{  date_format(activitesociale.datesociale) }}</td>
+                            <td>{{ activitesociale.montant }}</td>
+                            <td>{{ activitesociale.nature }}</td>
+                            <td>{{ activitesociale.beneficiaire }}</td>
+                            <td>{{ activitesociale.detail }}</td>
+
+                            <td>
+                                <button type="button" id="btn-fideles-modal" data-target="{{ path('app_activitesociale_show', {'id': activitesociale.id}) }}"> 
+                                    <span style="font-size: 1em; color: Dodgerblue;">
+                                        <i class="fas fa-list" title="Details"></i>
+                                    </span>
+                                </button>
+
+
+                                <a href="{{ path('app_activitesociale_edit', {'id': activitesociale.id}) }}">  <span style="font-size: 1em; color: Dodgerblue;">
+                                        <i class="fas fa-edit" title="Modifier"></i>
+                                    </span>
+                                </a>
+
+                            </td>
+                            <td>      <form method="post" action="{{ path('app_activitesociale_delete', {'id': activitesociale.id}) }}" onsubmit="return confirm('Voulez-vous supprimer cet enregistrement?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ activitesociale.id) }}">
+
+                                    <button class="btn">
+                                        <span style="font-size: 1em; color: red;">
+                                            <i class="fas fa-trash-alt" title="Supprimer"></i>
+                                        </span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                     
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal des  -->
+    <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+            $(document).on('click', 'button#btn-fideles-modal', function () {
+                // créer le modal qui porte l'id fidelesModal
+                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                    keyboard: false
+                });
+
+                // recupere le div class="modal-body" du div id="fidelesModal"
+                let container = $('#fidelesModal .modal-body');
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('data-target'),
+                    async: true,
+                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                        container.empty();
+                    },
+                    success: function (html) {
+                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                        modal.show(); // on affiche la fenêtre modal
+                        //console.log(html);
+                    }
+                });
+            });
+        });
+    </script>
+
+
+{% endblock %}

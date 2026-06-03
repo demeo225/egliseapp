@@ -1,0 +1,4 @@
+#printing:
+#    path: /quartier
+#    controller: App\Controller\QuartierController::printmembre
+#    id:{id}

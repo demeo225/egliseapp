@@ -1,0 +1,80 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des cotisations {% endblock %}
+
+{% block body %}
+
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Paiements  cotisations  familles</h3>
+            </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <div class="card-body">
+                <a href='{{ path('cotiserfamille_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('cotisationfamille_index') }}'>
+                    <button class="btn btn-success">Liste cotisations </button>
+                </a>
+                <a href={{ path('cotiserfamille_detailfamille') }}>
+                    <button class="btn btn-danger">Detail cotisation</button>
+                </a>
+                     <a href={{ path('app_depensefamille_index') }}>
+                    <button class="btn btn-primary">Depenses</button>
+
+                </a>
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tribu</th>
+                            <th>Membre</th>
+                            <th>Objet</th>
+                            <th>Montant </th>
+                            <th>Montant payé</th>
+                            <th>Reste</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cotiserfamille in cotiserfamilles %}
+                            {% if is_granted("cotiserfamille_edit", cotiserfamille) %}
+                                <tr>
+                                    <td> {% if cotiserfamille.famille is not null  %} {{ cotiserfamille.famille.nom|upper }}{% else %} {% endif %}</td>
+                                    <td>{{ cotiserfamille.fidele.nomfidele|upper }}</td>
+                                    <td>{{ cotiserfamille.cotisationfamille.objet }}</td>
+                                    <td>{{ cotiserfamille.cotisationfamille.montant|number_format(0, '.', ' ') }}</td>
+                                    <td>{{ cotiserfamille.montantpayer|number_format(0, '.', ' ') }}</td>
+                                    <td> {% if  cotiserfamille.reste ==0 %} <b>Soldé</b> 
+                                    {% elseif cotiserfamille.reste >0 %} {{ cotiserfamille.reste|number_format(0, '.', ' ') }} {% elseif cotiserfamille.reste < 0 %} 
+                                        <b> Soldé </b> {% endif %}
+
+                                    </td>
+                                   {# <td>
+                                        {% if cotiserfamille.reste <= 0 %} {% else %}
+                                            <a href="{{ path('cotiserfamille_edit', {'id': cotiserfamille.id}) }}">Modifier</a>
+                                        {% endif %}
+
+                                    </td> #}
+                                </tr>
+                            {% endif %}
+                      
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

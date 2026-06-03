@@ -1,0 +1,43 @@
+{% extends "home/index.html.twig" %}
+
+
+{% block title %}Presenceculteecodim{% endblock %}
+
+{% block body %}
+    <h1>Presenceculteecodim</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ presenceculteecodim.id }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ presenceculteecodim.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ presenceculteecodim.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ presenceculteecodim.deletedAt ? presenceculteecodim.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ presenceculteecodim.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ presenceculteecodim.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_presenceculteecodim_index') }}">back to list</a>
+
+    <a href="{{ path('app_presenceculteecodim_edit', {'id': presenceculteecodim.id}) }}">edit</a>
+
+    {{ include('presenceculteecodim/_delete_form.html.twig') }}
+{% endblock %}

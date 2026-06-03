@@ -1,0 +1,17 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Presentation d'enfant{% endblock %}
+
+{% block body %}
+   
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Nouvel enregistrement</h3>
+        </div>
+            {{ include('naissance/_form.html.twig') }}
+
+    </div>
+
+
+  
+{% endblock %}

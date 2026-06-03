@@ -1,0 +1,13 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Nouvelle carte{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion cartes de membres</h3>
+        </div>
+
+        {{ include('cartemembre/_form.html.twig') }}
+    </div>
+{% endblock %}

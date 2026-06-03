@@ -1,0 +1,68 @@
+
+
+
+        <div class="card card-primary">
+
+            <div class="card-header">
+                <h3 class="card-title">Fidèles ayant cotisé pour: {{ nomcotisation|upper }} </h3>
+            </div>
+            <h3><b> </b></h3>
+            <div class="container-fluid">
+                <div class="row">
+
+                    <!-- /.card-header -->
+                    <div class="card-body">
+
+                        <a href='{{ path('cotisation') }}'>
+                            <button class="btn btn-success">Liste des cotisations</button>
+                        </a>
+                        {% for fidelecotiser in fidelecotisers %}
+                            
+                            {% set sum = fidelecotiser.montpaye + sum ?? 0 %}
+                            {% if loop.last  %} Total cotisé :<b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}}</b>  {% endif %}
+                    
+                        {% endfor %}
+                        <hr style="visibility: hidden" />
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Objet</th>
+                                    <th>Fidèle</th>
+                                    <th>Contact</th>
+                                    <th>Montant </th>
+                                    <th>Montant payé</th>
+                                    <th>Reste</th>
+                                  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for fidelecotiser in fidelecotisers %}
+                                        <tr>
+                                            <td> {% if fidelecotiser.cotisation is not null  %} {{ fidelecotiser.cotisation.objet|upper }}{% else %} {% endif %}</td>
+                                            <td>{% if fidelecotiser.fidele is not null  %}{{ fidelecotiser.fidele.nomfidele|upper }}{% else %} {% endif %}</td>
+                                            <td>{% if fidelecotiser.fidele is not null  %}{{ fidelecotiser.fidele.contact1 }}{% else %} {% endif %}</td>
+                                            <td>{{ fidelecotiser.cotisation.montant|number_format(0, '.', ' ') }}</td>
+                                            <td>{{ fidelecotiser.montpaye|number_format(0, '.', ' ') }}</td>
+                                            <td>  {% if  fidelecotiser.restecotiser ==0 %} <b>Soldé</b> 
+                                            {% elseif fidelecotiser.restecotiser >0 %} {{ fidelecotiser.restecotiser|number_format(0, '.', ' ') }} {% elseif fidelecotiser.restecotiser < 0 %} 
+                                                <i class="btn btn-success"> Soldé </i> {% endif %}
+
+                                            </td>
+                                   
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4">Aucune donnée trouvée</td>
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+     

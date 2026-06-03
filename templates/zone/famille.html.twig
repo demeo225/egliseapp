@@ -1,0 +1,37 @@
+<div class="card card-primary">
+
+    <div class="card-header">
+        <h3 class="card-title">Liste des Tribus /Familles  </h3>
+    </div>
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Famille / tribu</th>
+                            <th>Premier responsable</th>
+                            <th>Second responsable</th>
+
+
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for famille in familles %}
+                            <tr>
+                                <td>{{ famille.nom|upper}}</td>
+                                <td>{{ famille.responsable1}}</td>
+                                <td>{{ famille.responsable2}}</td>
+
+
+
+                            </tr>
+                        {% else %}
+
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+       

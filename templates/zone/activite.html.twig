@@ -1,0 +1,66 @@
+{% extends 'home/index.html.twig' %}
+{% block title %}{{ eglise.denomination }} : Activités de: {{ nomzone|upper }} {% endblock %}
+
+{% block body %}
+
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    <a href='{{ path('zone') }}'>
+                        <button class="btn btn-success">Liste zones</button>
+                    </a>
+                    <div class="btn btn-primary">
+                        Activités de : {{ nomzone|upper }} </div>
+                    <hr style="visibility: hidden" />
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th>Activité</th>
+                                <th>Lieu</th>
+                                <th>Thème</th>
+                                <th>Intervenant</th>
+                                <th>Présents</th>
+                                <th>Date </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activitezone in activitezones %}
+                                <tr>
+
+                                    <td> {% if activitezone.zone is not null  %} {{ activitezone.zone.nom|upper }}{% else %} {% endif %}</td>
+                                    <td>{{ activitezone.objet }}</td>
+                                    <td>{{ activitezone.lieu }}</td>
+                                    <td>{{ activitezone.theme }}</td>
+
+                                    <td>
+                                        {% if activitezone.fidele is not null  %}  {{ activitezone.fidele.nomfidele }} {% else %}{{ activitezone.typeofficiant }} {% endif %}
+                                    </td>
+                                    <td>{{ activitezone.nbrepresent }}</td>
+                                    <td>{{ activitezone.datesuper ? activitezone.datesuper|date('d-m-Y') : '' }}</td>
+
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="16">Aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+{% endblock %}

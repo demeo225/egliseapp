@@ -1,0 +1,45 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Depensefamille{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Details depenses du {{ depensefamille.datedepense ? depensefamille.datedepense|date('d-m-Y') : '' }}</h3>
+        </div>
+
+        <table class="table">
+            <tbody>
+
+                <tr>
+                    <th>Date depense</th>
+                    <td>{{ depensefamille.datedepense ? depensefamille.datedepense|date('d-m-Y') : '' }}</td>
+                </tr>
+                <tr>
+                    <th>Objet</th>
+                    <td>{{ depensefamille.objet }}</td>
+                </tr>
+                <tr>
+                    <th>Montant</th>
+                    <td>{{ depensefamille.montant|number_format(0, '.', ' ')  }}</td>
+                </tr>
+
+                <tr>
+                    <th>Detail</th>
+                    <td>{{ depensefamille.detail }}</td>
+                </tr>
+
+
+            </tbody>
+        </table>
+        <div  class="col-md-2"><a href="{{ path('app_depensefamille_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+        <form method="post" action="{{ path('app_depensefamille_delete', {'id': depensefamille.id}) }}" onsubmit="return confirm('Voulez-vous supprimer?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ depensefamille.id) }}">
+            <button class="btn">
+                <span style="font-size: 1em; color: red;">
+                    <i class="fas fa-trash-alt" title="Supprimer"></i>
+                </span>
+            </button>
+        </form> 
+    </div>
+{% endblock %}

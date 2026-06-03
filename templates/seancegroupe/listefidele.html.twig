@@ -1,0 +1,48 @@
+
+
+
+<div class="card card-primary">
+
+    <div class="card-header">
+        <h3 class="card-title">Liste des invités  </h3>
+    </div>
+
+    <!-- /.card-header -->
+    <div class="card-body">
+
+        <table id="example1" class="table table-bordered table-striped">
+
+            <thead>
+                <tr>
+                    <th>Nom & prenoms</th>
+                    <th>Genre</th>
+                    <th>Teléphone</th>
+                    <th>Lieu de residence</th>
+                    <th>Fonction</th>
+
+
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for invitegroupe in invitegroupes %}
+                    <tr>
+                        <td>{{ invitegroupe.nom|upper}}</td>
+                        <td>{{ invitegroupe.sexe}}</td>
+                        <td>{{ invitegroupe.contact}}</td>
+                        <td>{{ invitegroupe.habitation}}</td>
+                        <td>{{ invitegroupe.fonction}}</td>
+
+                    </tr>
+                         
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+</div>
+

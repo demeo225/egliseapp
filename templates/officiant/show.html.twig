@@ -1,0 +1,31 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Officiant{% endblock %}
+
+{% block body %}
+    <h1>Officiant</h1>
+
+    <table class="table">
+        <tbody>
+         
+            <tr>
+                <th>Nomofficiant</th>
+                <td>{{ officiant.nomofficiant }}</td>
+            </tr>
+            <tr>
+                <th>Contact</th>
+                <td>{{ officiant.contact }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ officiant.titre }}</td>
+            </tr>
+ 
+        </tbody>
+    </table>
+  <div class="row"> 
+
+                <div class="btn btn-default"><a href="{{ path('officiant_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+  
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion recette{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification recette {{ recette.montant }}, date: {{ recette.daterecette|date('d-m-Y')}} </h3>
+        </div>
+        <div class="card card-body">
+
+
+            {{ form_start(form) }}
+            {% for message in app.flashes('success') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <div class="my-custom-class-for-errors">
+                {{ form_errors(form) }}
+
+            </div>
+
+            <div class="row">
+			  <div class="col-md-4">
+                    {{ form_row(form.daterecette, {'label':'Date '}) }}
+                </div>
+                  <div class="col-md-4">
+                    {{ form_row(form.objetrecette, {'label':'Objet recette'}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.typeoff, {'label':'Choix action '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.ajout, {'label':'Montant '}) }}
+                </div>
+             
+            </div>
+      
+
+
+
+
+
+            <div class="row"> 
+                <div class="col-md-1">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+                 <div class="col-md-3"><a href="{{ path('app_recette_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+                               <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+            </div> 
+
+            {{ form_end(form) }}
+        </div>
+
+
+    </div>
+
+
+{% endblock %}

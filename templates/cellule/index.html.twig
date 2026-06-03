@@ -1,0 +1,266 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste cellules{% endblock %}
+
+{% block body %}
+
+
+    <div class="card-body">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des cellules</h3>
+            </div>
+              <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+
+            <!-- /.card-header -->
+            <div class="card-body">
+                {% if is_granted('ROLE_SECRETAIRE') %}
+                    <button type="button" title="Enregistrement rapide" id="btn-fideles-modal" data-target="{{ path('cellule_add') }}" class="btn btn-primary"> 
+                        Nouveau
+                    </button>
+
+                    <a href='{{ path('cellule_add1') }}'>
+                        <button class="btn btn-primary" title="Enregistrement multiple">Nouveau ++</button>
+                    </a>
+                    <a href='{{ path('cellule_print') }}'>
+                        <button class="btn btn-primary">Impression avancée</button>
+                    </a>
+                {% endif %}
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Cellule</th>
+                            <th>Modifier</th>
+                            <th>Activités</th>
+                            <th>Cotisations</th>
+                            <th>Adultes</th>
+                            <th>Présence</th>
+
+                            {% if is_granted('ROLE_SECRETAIRE') %}
+                                <th>User</th>
+                                <th>Supprimer</th>
+                                {% endif %}
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cellule in cellule %}
+                            <tr>
+                                <td id="{{cellule.id}}" data-original="{{ cellule.nom|upper}}" class="td-cliquable">{{ cellule.nom|upper}}</td>
+
+
+                                <td>
+
+                                    <button type="button"  id="btn-fideles-modal" data-target="{{ path('cellule_update', {'id': cellule.id}) }}"> 
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit" title="Modifier"></i>
+                                        </span>
+                                    </button>
+
+
+                                </td>      
+                                <td>  
+                                    <a href="activite/se?id={{ cellule.id }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-biking" title="Voir les activités"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                <td> 
+                                    <a href="cotisation/se?id={{ cellule.id }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-coins" title="Voir les cotisations"></i>
+                                        </span>
+                                    </a>
+                                </td>
+
+
+                                {# <td>
+                                    <button type="button" id="btn-fideles-modal" data-target="{{ path('cellule_search_enfants', {'id':cellule.id}) }}"> 
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-users" title="Voir enfants"></i>
+                                        </span>
+                                    </button>
+                                </td> #}
+                                <td>
+
+                                    <button type="button" id="btn-fideles-modal" data-target="{{ path('cellule_search_fideles', {'id':cellule.id}) }}"> 
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-users" title="Voir fidèles"></i>
+                                        </span>
+                                    </button>
+
+
+
+                                    <a href="membre/se?id={{ cellule.id }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-print" title="Imprimer"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="presence/se?id={{ cellule.id }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-users" title="Liste de présence"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                {% if is_granted('ROLE_SECRETAIRE') %}
+                                    <td>
+                                        <a href="{{ path('cellule_usercellule', {'id': cellule.id}) }}">
+                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                <i class="fas fa-user-edit" title="Attribuer un utilisateur "></i>
+                                            </span>
+                                        </a>
+                                    </td>
+
+                                    </td>
+
+                                    <td>
+                                        <form method="post" action="{{ path('cellule_delete', {'id': cellule.id}) }}" onsubmit="return confirm('Voulez-vous supprimer?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ cellule.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: red;">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                       
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Modal des  -->
+    <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+            $(document).on('click', 'button#btn-fideles-modal', function () {
+                // créer le modal qui porte l'id fidelesModal
+                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                    keyboard: false
+                });
+
+                // recupere le div class="modal-body" du div id="fidelesModal"
+                let container = $('#fidelesModal .modal-body');
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('data-target'),
+                    async: true,
+                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                        container.empty();
+                    },
+                    success: function (html) {
+                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                        modal.show(); // on affiche la fenêtre modal
+                        //console.log(html);
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#example1').DataTable();
+
+            let send = function (id, original, cellule) {
+                if (original != cellule && cellule.length > 3) {
+                    $('td#' + id).text(cellule);
+                    $.ajax({
+                        type: 'POST',
+                        url: '/cellule/update/datatable/' + id,
+                        data: {
+                            'cellule': cellule
+                        },
+                        async: true,
+                        success: function (response) {
+                            if (response.update == false) {
+                                $('td#' + id).text(original);
+                            } else {
+                                // développer une alert ou un toast pour comfirmer que la modification 
+                                // est bien pris en compte
+                                var w = window.open('', '', 'width=200,height=100')
+                                w.document.write('Modification avec succès')
+                                w.focus()
+                                setTimeout(function () {
+                                    w.close();
+                                }, 5000);
+
+                            }
+                        }
+                    });
+                } else {
+                    $('td#' + id).text(original);
+                }
+            }
+
+            $(document).on('dblclick', '.td-cliquable', function () {
+                $(this).html('<input type="text" value="' + $(this).text() + '">');
+            });
+
+            $('.td-cliquable')
+                    .focusout(function () {
+                        send($(this).attr('id'), $(this).attr('data-original'), $('input[type="text"]', this).val()); // sortir du focus
+                    })
+                    .blur(function () {
+                        send($(this).attr('id'), $(this).attr('data-original'), $('input[type="text"]', this).val()); // tabulation
+                    })
+                    .keyup(function (event) {
+                        if (event.which === 13) { // touche entrée
+                            send($(this).attr('id'), $(this).attr('data-original'), $('input[type="text"]', this).val());
+                        }
+                    });
+            ;
+        });
+    </script>
+
+
+{% endblock %}

@@ -1,0 +1,86 @@
+
+    <!-- /.card-header -->
+    <div class="card-body">
+
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Details du  {{ culte.dateculte|date('d-m-Y')}}</h3>
+            </div>
+
+            <table class="table">
+
+                <tbody>
+                 <tr>
+                        <th>Categorie culte</th>
+                        <td>{{ culte.typeculte ? culte.typeculte.libelle }}</td>
+
+                    </tr>
+                    <tr>
+                        <th>Type culte</th>
+                        <td>{{ culte.categorieculte}}</td>
+
+                    </tr>
+                    <tr>
+                        <th>Dirigeant</th>
+                        <td>{{ culte.dirigeant|upper}}</td>
+                    </tr>
+                    <tr>
+                        <th>Orateur</th>
+                        <td>{% if culte.messager is not empty %} {{ culte.messager.nomfidele}} {% else %}{{ culte.orateur}}{% endif %}</td>
+
+                    </tr>
+                    <tr>
+                        <th>Thème</th>
+                        <td>{{ culte.theme}}</td>
+                    </tr>
+                    <tr>
+                        <th>Versets</th>
+                        <td>{{ culte.reference}}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Hommes</th>
+                        <td>{{ culte.nmbrehomme}}</td>
+                    </tr>
+                    <tr>
+                        <th>Femmes</th>
+                        <td>{{ culte.nobrefemme}}</td>
+                    </tr>
+                    <tr>
+                        <th>Enfants</th>
+                        <td>{{ culte.nbrefant}}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Total invités</th>
+                        <td>{{ culte.invite}}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Total nouvelles âmes</th>
+                        <td>{{ culte.ame}}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Total</th>
+                            {% set nmbrehomme =culte.nmbrehomme%}
+                            {% set nobrefemme = culte.nobrefemme %}
+                            {% set nbrefant = culte.nbrefant %}
+                            {% set nbreinvite = culte.invite %}
+                          
+                        <td>{{ nmbrehomme + nobrefemme + nbrefant + nbreinvite }}</td>
+                    </tr>
+                    <tr>
+                        <th>Notes</th>
+                        <td>{{ culte.message|raw}}</td>
+                    </tr>
+                </tbody>
+                </td>
+     
+            </table>
+
+        </div>
+    </div>
+
+

@@ -1,0 +1,422 @@
+{# templates/groupefidele/add.html.twig #}
+{% extends "home/index.html.twig" %}
+
+{% block title %}Insertion multiple dans groupe{% endblock %}
+
+{% block body %}
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Insertion multiple dans Groupes</h3>
+    </div>
+
+    <div class="card card-body">
+        {{ form_start(form) }}
+        
+        <div class="offset-1 col-md-10 mt-2 mb-2">
+            {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} my-alert" role="alert">
+                        <h5 class="m-0 flash-text">{{ message }}</h5>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> 
+            Les groupes (sous-directions) sont filtrés automatiquement selon le département choisi.
+        </div>
+
+        <div id="groupefideles-collection" 
+             data-prototype="{{ form_widget(form.groupefideles.vars.prototype)|e('html_attr') }}"
+             data-index="{{ form.groupefideles|length }}">
+            
+            {% for groupefideleField in form.groupefideles %}
+                <div class="groupefidele-item" data-index="{{ loop.index0 }}">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row align-items-end">
+                                <div class="col-md-3">
+                                    {{ form_row(groupefideleField.departement, {
+                                        'attr': {'class': 'form-control departement-select', 'data-index': loop.index0}
+                                    }) }}
+                                </div>
+                                <div class="col-md-3">
+                                    {{ form_row(groupefideleField.groupe, {
+                                        'attr': {'class': 'form-control groupe-select', 'data-index': loop.index0, 'disabled': true}
+                                    }) }}
+                                </div>
+                                <div class="col-md-3">
+                                    {{ form_row(groupefideleField.fidele, {
+                                        'attr': {'class': 'form-control fidele-select', 'data-index': loop.index0}
+                                    }) }}
+                                </div>
+                                <div class="col-md-2">
+                                    {{ form_row(groupefideleField.rolegroupe, {
+                                        'attr': {'class': 'form-control role-select', 'data-index': loop.index0}
+                                    }) }}
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-danger btn-sm remove-groupefidele w-100 mt-4">
+                                        <i class="fas fa-trash"></i> 
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-2">
+                <button type="button" class="btn btn-success" id="add-groupefidele">
+                    <i class="fas fa-plus"></i> Ajouter une ligne
+                </button>
+            </div>
+           <div class="col-md-2">
+                {{ form_widget(form.save) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_widget(form.saveAndAdd) }}
+            </div>
+            <div class="col-md-2"> 
+                <a href="{{ path('groupefidele') }}" class="btn btn-secondary">Afficher la liste</a>
+            </div>
+        </div>
+
+        {{ form_rest(form) }}
+        {{ form_end(form) }}
+    </div>
+</div>
+
+<script>
+// Stockage des groupes par département
+let groupesCache = {};
+
+// Fonction pour charger les groupes d'un département
+async function loadGroupes(departementId, groupeSelect, currentGroupeId = null) {
+    if (!departementId) {
+        // Désactiver et vider le select des groupes
+        groupeSelect.innerHTML = '<option value="">-- Choisir une sous-direction --</option>';
+        groupeSelect.disabled = true;
+        return;
+    }
+    
+    // Vérifier si les groupes sont déjà en cache
+    if (groupesCache[departementId]) {
+        updateGroupeSelect(groupeSelect, groupesCache[departementId], currentGroupeId);
+        return;
+    }
+    
+    // Afficher un indicateur de chargement
+    groupeSelect.innerHTML = '<option value="">Chargement...</option>';
+    groupeSelect.disabled = true;
+    
+    try {
+        const response = await fetch(`/groupefidele/get-groupes-by-departement/${departementId}`);
+        const groupes = await response.json();
+        
+        // Mettre en cache
+        groupesCache[departementId] = groupes;
+        
+        updateGroupeSelect(groupeSelect, groupes, currentGroupeId);
+    } catch (error) {
+        console.error('Erreur lors du chargement des groupes:', error);
+        groupeSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+        showNotification('Erreur lors du chargement des groupes', 'danger');
+    }
+}
+
+// Mettre à jour le select des groupes
+function updateGroupeSelect(groupeSelect, groupes, currentGroupeId = null) {
+    groupeSelect.innerHTML = '<option value="">-- Choisir une sous-direction --</option>';
+    
+    if (groupes.length === 0) {
+        groupeSelect.innerHTML = '<option value="">Aucune sous-direction disponible</option>';
+        groupeSelect.disabled = true;
+        return;
+    }
+    
+    groupes.forEach(groupe => {
+        const option = document.createElement('option');
+        option.value = groupe.id;
+        option.textContent = groupe.nom;
+        if (currentGroupeId && currentGroupeId == groupe.id) {
+            option.selected = true;
+        }
+        groupeSelect.appendChild(option);
+    });
+    
+    groupeSelect.disabled = false;
+}
+
+// Initialiser le filtrage pour un élément
+function initRowFiltering(item) {
+    const departementSelect = item.querySelector('.departement-select');
+    const groupeSelect = item.querySelector('.groupe-select');
+    
+    if (!departementSelect || !groupeSelect) return;
+    
+    // Sauvegarder la valeur actuelle du groupe si elle existe
+    const currentGroupeId = groupeSelect.value;
+    
+    // Charger les groupes initiaux si un département est déjà sélectionné
+    if (departementSelect.value) {
+        loadGroupes(departementSelect.value, groupeSelect, currentGroupeId);
+    } else {
+        groupeSelect.innerHTML = '<option value="">-- Choisir une direction d\'abord --</option>';
+        groupeSelect.disabled = true;
+    }
+    
+    // Ajouter l'événement change
+    departementSelect.removeEventListener('change', departementChangeHandler);
+    departementSelect.addEventListener('change', departementChangeHandler);
+    
+    function departementChangeHandler() {
+        const selectedDepartementId = this.value;
+        loadGroupes(selectedDepartementId, groupeSelect);
+    }
+}
+
+// Fonction pour ajouter une nouvelle ligne
+function addGroupefideleForm() {
+    const collectionHolder = document.getElementById('groupefideles-collection');
+    const prototype = collectionHolder.dataset.prototype;
+    let index = parseInt(collectionHolder.dataset.index);
+    
+    let newForm = prototype.replace(/__name__/g, index);
+    
+    const div = document.createElement('div');
+    div.className = 'groupefidele-item';
+    div.setAttribute('data-index', index);
+    
+    // Créer la structure
+    div.innerHTML = `
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row align-items-end">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-3"></div>
+                    <div class="col-md-3"></div>
+                    <div class="col-md-2"></div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger btn-sm remove-groupefidele w-100 mt-4">
+                            <i class="fas fa-trash"></i> 
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Insérer les champs
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = newForm;
+    const fields = tempDiv.querySelectorAll('.form-group');
+    const cols = div.querySelectorAll('.row > div');
+    
+    fields.forEach((field, idx) => {
+        if (cols[idx]) {
+            cols[idx].appendChild(field.cloneNode(true));
+        }
+    });
+    
+    collectionHolder.appendChild(div);
+    
+    // Mettre à jour les IDs et names
+    const newIndex = index;
+    div.querySelectorAll('[id]').forEach(el => {
+        if (el.id && el.id.includes('__name__')) {
+            el.id = el.id.replace(/__name__/g, newIndex);
+        }
+    });
+    div.querySelectorAll('[name]').forEach(el => {
+        if (el.name && el.name.includes('__name__')) {
+            el.name = el.name.replace(/__name__/g, newIndex);
+        }
+    });
+    div.querySelectorAll('label').forEach(label => {
+        if (label.htmlFor && label.htmlFor.includes('__name__')) {
+            label.htmlFor = label.htmlFor.replace(/__name__/g, newIndex);
+        }
+    });
+    
+    // Ajouter les classes nécessaires
+    const newDepartementSelect = div.querySelector('select');
+    if (newDepartementSelect) {
+        newDepartementSelect.classList.add('departement-select');
+        newDepartementSelect.setAttribute('data-index', newIndex);
+    }
+    
+    const newGroupeSelect = div.querySelectorAll('select')[1];
+    if (newGroupeSelect) {
+        newGroupeSelect.classList.add('groupe-select');
+        newGroupeSelect.setAttribute('data-index', newIndex);
+        newGroupeSelect.disabled = true;
+    }
+    
+    // Initialiser le filtrage pour la nouvelle ligne
+    initRowFiltering(div);
+    
+    // Mettre à jour l'index
+    collectionHolder.dataset.index = newIndex + 1;
+    
+    showNotification('Nouvelle ligne ajoutée', 'success');
+}
+
+// Notification
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show`;
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    const collectionHolder = document.getElementById('groupefideles-collection');
+    const addButton = document.getElementById('add-groupefidele');
+    
+    if (!collectionHolder || !addButton) return;
+    
+    // Initialiser toutes les lignes existantes
+    const existingItems = document.querySelectorAll('.groupefidele-item');
+    existingItems.forEach(item => {
+        initRowFiltering(item);
+    });
+    
+    // Ajouter l'écouteur pour le bouton d'ajout
+    addButton.addEventListener('click', addGroupefideleForm);
+    
+    // Gestion de la suppression
+    collectionHolder.addEventListener('click', function(e) {
+        const button = e.target.closest('.remove-groupefidele');
+        if (button) {
+            if (confirm('Voulez-vous vraiment supprimer cette ligne ?')) {
+                const item = button.closest('.groupefidele-item');
+                if (item) {
+                    item.remove();
+                    showNotification('Ligne supprimée', 'info');
+                }
+            }
+        }
+    });
+    
+    // Validation avant soumission
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const items = document.querySelectorAll('.groupefidele-item');
+            let hasError = false;
+            
+            items.forEach((item, idx) => {
+                const departement = item.querySelector('.departement-select').value;
+                const groupe = item.querySelector('.groupe-select').value;
+                const fidele = item.querySelector('.fidele-select').value;
+                const role = item.querySelector('.role-select').value;
+                
+                if (!departement || !groupe || !fidele || !role) {
+                    hasError = true;
+                    if (!departement) item.querySelector('.departement-select').classList.add('is-invalid');
+                    if (!groupe) item.querySelector('.groupe-select').classList.add('is-invalid');
+                    if (!fidele) item.querySelector('.fidele-select').classList.add('is-invalid');
+                    if (!role) item.querySelector('.role-select').classList.add('is-invalid');
+                } else {
+                    item.querySelectorAll('select').forEach(select => {
+                        select.classList.remove('is-invalid');
+                    });
+                }
+            });
+            
+            if (hasError) {
+                e.preventDefault();
+                showNotification('Veuillez remplir tous les champs de chaque ligne', 'danger');
+            }
+        });
+    }
+    
+    // Ajouter une ligne si vide
+    if (collectionHolder.children.length === 0) {
+        addGroupefideleForm();
+    }
+});
+
+// Disparition des messages flash
+setTimeout(function() {
+    document.querySelectorAll('.my-alert').forEach(alert => {
+        alert.style.transition = 'opacity 0.5s ease';
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 500);
+    });
+}, 5000);
+</script>
+
+<style>
+.groupefidele-item .card {
+    border-left: 4px solid #007bff;
+    transition: all 0.3s ease;
+}
+
+.groupefidele-item .card:hover {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+select:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.invalid-feedback {
+    display: block;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.my-alert {
+    animation: slideIn 0.5s ease;
+    cursor: pointer;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.mt-4 {
+    margin-top: 1.5rem !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .groupefidele-item .row > div {
+        margin-bottom: 10px;
+    }
+}
+</style>
+{% endblock %}

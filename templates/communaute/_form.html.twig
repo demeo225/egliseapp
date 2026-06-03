@@ -1,0 +1,54 @@
+ <div class="card card-primary">
+        <div class="card-header">
+            <h4 class="card-title">Gestion de communaute</h4>
+        </div>
+              <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        <div class="card card-body">
+            {{ form_start(form) }}
+            <div class="my-custom-class-for-errors">
+                {{ form_errors(form) }}
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.libelle, {'label':' Communaute '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.agrement, {'label':'Agrement '}) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_row(form.verset, {'label':'Verset de base '}) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    {{ form_row(form.siege, {'label':'Siège social'}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.email, {'label':'Email'}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.adresse, {'label':'Adresse postale'}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.texte, {'label':'Texte de base'}) }}
+                </div>
+            </div>
+            <div class="row "> 
+                <p><div class="btn btn-default">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div></p>
+                <div class="btn btn-default"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                <div class="btn btn-default"><a href="{{ path('communaute_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+
+            </div> 
+            {{ form_end(form) }}
+        </div>
+    </div>

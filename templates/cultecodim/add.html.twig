@@ -1,0 +1,84 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Culte Enregistrement {% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Enregistrrement de culte codim</h3>
+        </div>
+        <div class="card card-body">
+
+            {{ form_start(form) }}
+            <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form.moniteur1, {'label':' Moniteur :','attr':{'class':'form-control'}}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.moniteur2, {'label':' Moniteur 2nd :','attr':{'class':'form-control'}}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.nbrefille, {'label':'Nombre de filles :','attr':{'class':'form-control'}}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.nbregarcon, {'label':' Nombre de garçons :','attr':{'class':'form-control'}}) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    {{ form_row(form.offrande, {'label':' Offrande :','attr':{'class':'form-control'}}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.dateculte, {'label':'* Date :','attr':{'class':'form-control'}}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.versets, {'label':' Versets du jour :','attr':{'class':'form-control'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.versetretenir, {'label':' Verset à retenir :','attr':{'class':'form-control'}}) }}
+                </div>
+
+            </div>
+            <div class="row">
+
+                <div class="col-md-3">
+                    {{ form_row(form.classecodim, {'label':' *Choix de la classe :'}) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    {{ form_row(form.note, {'label':' Notes :'}) }}
+                </div>
+
+
+            </div>
+            <div class="row"> 
+                <div class="col-md-2">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div>
+
+                <div class="col-md-3"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                <div class="col-md-3"><a href="{{ path('cultecodim') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+
+{% endblock %}

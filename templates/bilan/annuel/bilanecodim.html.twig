@@ -1,0 +1,174 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des cultes des enfants {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_cultecodim') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.classecodim, {'label':'Classe'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+    </div>
+</form>    
+</div> 
+
+<div class="rows">
+    {% if app.request.method == 'POST' and cultecodims |length==0 %}
+        Aucune donnée trouvée
+
+    {% else %}
+
+        {% if cultecodims |length >0 %}
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Resultats de la recherche</h3>
+                </div>
+
+                <div  class="card-body">
+                    {% for cultecodim in cultecodims %}
+                        {% set seance = cultecodims|length %}
+                        {% set sum = cultecodim.offrande + sum ?? 0 %}
+                        {% set nmbrehomme =cultecodim.nbregarcon %}
+                        {% set nobrefemme = cultecodim.nbrefille %}
+                        {% set total = nobrefemme + nmbrehomme + total ?? 0 %}
+
+                        {% if loop.last  %}
+
+                            Moyenne : <b> {{ (total / seance ) |number_format}} </b> enfants par culte <br />
+                            Totale offrande :  <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} C CFA</b>  {% endif %}
+                            {% endfor %}
+                            </div>
+
+                            <hr style="visibility: hidden" /> 
+
+                            <div class="card-body">
+
+                                <table id="example1" class="table table-bordered table-striped">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Classe</th>
+                                            <th>Garçons</th>
+                                            <th>Filles</th>
+                                            <th>Total</th>
+                                            <th>Detail</th>
+
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        {% for cultecodim in cultecodims %}
+
+
+                                            <tr>
+                                                <td>{{ date_format(cultecodim.dateculte)}}</td>
+                                                <td>{{ cultecodim.classecodim.nom|upper}}</td>
+                                                <td>{{ cultecodim.nbregarcon}}</td>
+                                                <td>{{ cultecodim.nbrefille}}</td>
+                                                {% set nmbrehomme =cultecodim.nbregarcon %}
+                                                {% set nobrefemme = cultecodim.nbrefille %}
+                                                <td>{{ nmbrehomme + nobrefemme}}</td>
+
+
+
+                                                <td>
+
+                                                    <button type="button" id="btn-evangile-modal" class="btn btn-primary" data-target="{{ path('cultecodim_detail', {'id': cultecodim.id}) }}"> 
+                                                        <i class="fas fa-list" title="Details"></i>
+                                                    </button>
+
+
+                                                </td>
+
+
+                                            </tr>
+                                        {% else %}
+
+                                        {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {% endif %}
+                            {% endif %}
+                            </div>
+                            <div class="modal fade bd-example-modal-lg" id="evangileModal" tabindex="-1" aria-labelledby="evangileModalLabel" aria-hidden="true">
+
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            {% endblock %}
+
+                                {% block javascripts %}
+                                    {{ parent() }}
+
+
+                                    <script>
+                                        $(document).ready(function () {
+                                            // quand on clic sur le button voir les evangile pour ouvrir la fenêtre modal
+                                            $(document).on('click', 'button#btn-evangile-modal', function () {
+                                                // créer le modal qui porte l'id evangileModal
+                                                let modal = new bootstrap.Modal(document.getElementById('evangileModal'), {
+                                                    keyboard: false
+                                                });
+
+                                                // recupere le div class="modal-body" du div id="evangileModal"
+                                                let container = $('#evangileModal .modal-body');
+
+                                                $.ajax({
+                                                    type: 'POST',
+                                                    url: $(this).attr('data-target'),
+                                                    async: true,
+                                                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                                                        container.empty();
+                                                    },
+                                                    success: function (html) {
+                                                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                                                        modal.show(); // on affiche la fenêtre modal
+                                                        //console.log(html);
+                                                    }
+                                                });
+                                            });
+                                        });
+                                    </script>
+                                {% endblock %}

@@ -1,0 +1,2686 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>
+            {% block title %}
+                Ekklesia
+            {% endblock %}
+        </title>
+
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.7.2/main.js" integrity="sha256-Oyp/4tji6HLakABSiZQzkPYLWpztt76xolGkwJx49oE=" crossorigin="anonymous"></script>
+
+ 
+        {% block stylesheets %}
+
+            {# { encore_entry_link_tags('app') } #}
+
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+
+            <!-- Formulaire fidèle avec etape -->
+
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+
+            <!-- Formulaire fidèle avec etape -->
+
+            <!-- DataTables -->
+            <link rel="stylesheet" href="{{asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+            <link rel="stylesheet" href="{{asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css')}}">
+            <!-- Theme style -->
+            <link rel="stylesheet" href="{{asset('plugins/daterangepicker/daterangepicker.css')}}">
+            <!-- Google Font: Source Sans Pro -->
+            <link rel="stylesheet" href="{{asset('plugins/select2/css/select2.min.css')}}">
+            <link rel="stylesheet" href="{{asset('plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
+
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <!-- Font Awesome -->
+            <!-- Ionicons -->
+            <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/duotone.css" integrity="sha384-R3QzTxyukP03CMqKFe0ssp5wUvBPEyy9ZspCB+Y01fEjhMwcXixTyeot+S40+AjZ" crossorigin="anonymous"/>
+            <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/fontawesome.css" integrity="sha384-eHoocPgXsiuZh+Yy6+7DsKAerLXyJmu2Hadh4QYyt+8v86geixVYwFqUvMU8X90l" crossorigin="anonymous"/>
+            <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+            <!-- Tempusdominus Bbootstrap 4 -->
+            <link rel="stylesheet" href="{{asset('plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}">
+            <!-- iCheck -->
+            <link rel="stylesheet" href="{{asset('plugins/icheck-bootstrap/icheck-bootstrap.min.css')}}">
+            <!-- JQVMap -->
+            <link rel="stylesheet" href="{{asset('plugins/jqvmap/jqvmap.min.css')}}">
+            <!-- Theme style -->
+            <link rel="stylesheet" href="{{asset('dist/css/adminlte.min.css')}}">
+            <!-- overlayScrollbars -->
+            <link rel="stylesheet" href="{{asset('plugins/overlayScrollbars/css/OverlayScrollbars.min.css')}}">
+            <!-- Daterange picker -->
+            <link rel="stylesheet" href="{{asset('plugins/daterangepicker/daterangepicker.css')}}">
+            <!-- summernote -->
+            <link rel="stylesheet" href="{{asset('plugins/summernote/summernote-bs4.css')}}">
+            <!-- Google Font: Source Sans Pro -->
+            <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+            {# bootstrap #}
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+            {# custom #}
+            <link rel="stylesheet" href="{{ asset('assets/css/styles.css')}}">
+            <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css')}}">
+            <!-- Ionicons -->
+            <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+            <!-- SweetAlert2 -->
+            <link rel="stylesheet" href="{{asset('plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css')}}">
+            <!-- Toastr -->
+            <link rel="stylesheet" href="{{asset('plugins/toastr/toastr.min.css')}}">
+            <!-- fullCalendar -->
+            <link rel="stylesheet" href="{{asset('plugins/fullcalendar/main.min.css')}}">
+            <link rel="stylesheet" href="{{asset('plugins/fullcalendar-daygrid/main.min.css')}}">
+            <link rel="stylesheet" href="{{asset('plugins/fullcalendar-timegrid/main.min.css')}}">
+            <link rel="stylesheet" href="{{asset('plugins/fullcalendar-bootstrap/main.min.css')}}">
+
+            <!-- Theme style -->
+            <style>
+                #calendrier{
+                    width: 80%;
+                    margin: auto;
+                }
+                #watermark {
+                    position: fixed;
+                    bottom:   0px;
+                    left:     0px;
+                    /** The width and height may change 
+                        according to the dimensions of your letterhead
+                    **/
+                    width:    21.8cm;
+                    height:   28cm;
+
+                    /** Your watermark should be behind every content**/
+                    z-index:  -1000;
+                }
+            </style>
+        {% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico')}}" />
+
+    </head>
+
+    <body id="{% block body_id %}{% endblock %}">
+
+
+
+
+        <div class="hold-transition sidebar-mini layout-fixed">
+
+            <div class="wrapper">
+
+                <!-- Navbar -->
+                <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+                    <!-- Left navbar links -->
+
+                    <!-- Left navbar links -->
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                        </li>
+
+                    </ul>
+                    <!-- SEARCH FORM -->
+                    <form class="form-inline ml-3">
+                        <div class="input-group input-group-sm">
+
+                            <div class="container-fluid">
+                                {% block navbar %}
+                                    <nav id="main-nav" class="container navbar navbar-expand-lg navbar-light bg-light border rounded mb-3">
+                                        <ul class="navbar-nav">
+                                            <li class="nav-item {% if mainNavHome is defined %}active{% endif %}">
+                                                <a class="nav-link" href="{{path('home')}}">Accueil</a>
+                                            </li>
+                                            {% if is_granted('ROLE_USER') %}
+                                                <li class="nav-item {% if mainNavMember is defined %}active{% endif %}">
+                                                    <a class="nav-link" href="{{path('edit_pass')}}">Password</a>
+                                                </li>
+                                            {% endif %}
+                                            {% if is_granted('ROLE_ADMIN') %}
+                                                <li class="nav-item {% if mainNavAdmin is defined %}active{% endif %}">
+                                                    <a class="nav-link" href="{{path('registration_index')}}">Administartaion</a>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                        <ul class="navbar-nav ml-auto">
+                                            {% if is_granted('ROLE_USER') %}
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="{{path('app_logout')}}">Déconnexion</a>
+                                                </li>
+                                            {% else %}
+                                                <li class="nav-item {% if mainNavLogin is defined %}active{% endif %}">
+                                                    <a class="nav-link" href="">Connexion</a>
+                                                </li>
+
+                                            {% endif %}
+                                        </ul>
+                                    </nav>
+
+
+                                </div> 
+
+
+                            </div>
+                        </form>
+
+                        <!-- Right navbar links -->
+                        <ul class="navbar-nav ml-auto">
+                            <!-- Messages Dropdown Menu -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link" data-toggle="dropdown" href="#">
+                                    <i class="fas fa-users mr-2" title="Fidèles en attente de validation"></i>
+                                    <span class="badge badge-danger navbar-badge" >{{ (inscrit|length) }}</span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                    <a href="#" class="dropdown-item">
+                                        <!-- Message Start -->
+                                        {% for fidele in inscrit %}
+
+                                            <div class="media">
+                                                <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" />                                               
+                                                <div class="media-body">
+                                                    <h3 class="dropdown-item-title">
+
+                                                        {{ (fidele.nomfidele|upper) }}
+                                                    </h3>
+                                                    <p class="text-sm">Age: {{ (fidele.age) }} ans</p>
+                                                    <p class="text-sm text-muted">Inscription :{{ fidele.createAt|date(' d-m-Y à H:i:s ')}}</p>
+                                                    <span class="float-right text-sm text-danger">
+                                                        <a href="{{ path('fidele_validation', {'id': fidele.id}) }}">
+                                                            <i class="fas fa-edit" title="Valider"></i></a>
+                                                    </span>
+
+                                                    <form method="post" action="{{ path('fidele_rejet', {'id': fidele.id}) }}" onsubmit="return confirm('etes-vous sûr de vouloir rejeter?');">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('rejet' ~ fidele.id) }}">
+                                                        <button class="btn">
+                                                            <span style="font-size: 1em; color: red;">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </span>
+                                                        </button>
+                                                    </form>
+
+                                                    {#         
+                                                     <a href="{{ path('fidele_supp', {'id': fidele.id}) }}">
+                                                         <span style="font-size: 1em; color: red;">
+                                                             <i class="fas fa-trash-alt" title="Rejeter"></i>
+                                                         </span>
+                                                     </a>#}
+
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            Aucune préinscription
+                                        {% endfor %}
+                                        <!-- Message End -->
+                                    </a>
+
+                                    <div class="dropdown-divider"></div>
+                                    <a href="{{ path('listepreinscription') }}" class="dropdown-item dropdown-footer">Voir tout</a>
+                                </div>
+                            </li>
+                            <!-- Notifications Dropdown Menu
+                            <li class="nav-item dropdown">
+                                <a class="nav-link" data-toggle="dropdown" href="#">
+                                    <i class="far fa-bell"></i>
+                                    <span class="badge badge-warning navbar-badge">15</span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                    <span class="dropdown-item dropdown-header">15 Notifications</span>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="#" class="dropdown-item">
+                                        <i class="fas fa-envelope mr-2"></i> 4 new messages
+                                        <span class="float-right text-muted text-sm">3 mins</span>
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="#" class="dropdown-item">
+                                        <i class="fas fa-users mr-2"></i> 8 friend requests
+                                        <span class="float-right text-muted text-sm">12 hours</span>
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="#" class="dropdown-item">
+                                        <i class="fas fa-file mr-2"></i> 3 new reports
+                                        <span class="float-right text-muted text-sm">2 days</span>
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+                                </div>
+                            </li> -->
+
+                        </ul>
+                    </nav>
+
+
+                    <!-- Main Sidebar Container -->
+                    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+                        <!-- Brand Logo -->
+
+
+                        <!-- Sidebar -->
+                        <div class="sidebar">
+                            <!-- Sidebar user panel (optional) -->
+                            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                                <div class="image">
+                                    <img src="{{ asset('uploads/photos/'~app.user.photoFile )}}"  class="img-size-50 mr-3 img-circle"/>   
+                                </div>
+                                <div class="info">
+                                    <a href="{{path('edit_profil')}}" class="d-block">{{ app.user.nomuser }} {{ app.user.prenom }}</a>
+                                </div>
+                            </div>
+
+                            <!-- Sidebar Menu -->
+                            <nav class="mt-2">
+                                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+                                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+                                        <li class="nav-item"> 
+                                            <a href="{{ path('eglise') }}" class="nav-link">
+                                                <i class="nav-icon fas fa-th"></i>
+                                                <p>
+                                                    Configuration
+                                                </p>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% if is_granted('ROLE_SECRETAIRE') %}
+                                        <li class="nav-item"> 
+                                            <a href="{{ path('accueil') }}" class="nav-link">
+                                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                                <p>
+                                                    Tableau de bord
+                                                </p>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    <li class="nav-item has-treeview">
+                                        {% if is_granted('ROLE_SECRETAIRE') %} 
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-cogs"></i>
+                                                <p>
+                                                    Paramètres
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">11</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('zone') }}" class="nav-link">
+                                                        <i class="fas fa-chart-area"></i>
+                                                        <p> Secteur/Zone</p>
+                                                    </a>
+                                                </li>
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('commune') }}" class="nav-link">
+                                                        <i class="fab fa-creative-commons-share"></i>
+                                                        <p>Commune</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('quartier') }}" class="nav-link">
+                                                        <i class="fas fa-suitcase-rolling"></i>
+                                                        <p> Quartier</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('famille') }}" class="nav-link">
+                                                        <i class="fad fa-users-crown"></i>
+                                                        <p>Tribu/Famille</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('cellule') }}" class="nav-link">
+                                                        <i class="fas fa-pray"></i>
+                                                        <p>Cellule</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('departement') }}" class="nav-link">
+                                                        <i class="fas fa-layer-group"></i>
+                                                        <p>Departement</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('groupe') }}" class="nav-link">
+                                                        <i class="fas fa-users"></i>
+                                                        <p>Groupe</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('fonction') }}" class="nav-link">
+                                                        <i class="fas fa-briefcase"></i>
+                                                        <p>Fonction</p>
+                                                    </a>
+                                                </li>
+                                                  <li class="nav-item">
+                                                    <a href="{{ path('app_typeculte_index') }}" class="nav-link">
+                                                        <i class="fas fa-briefcase"></i>
+                                                        <p>Type culte</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('ethnie') }}" class="nav-link">
+                                                        <i class="fas fa-volume-down"></i>
+                                                        <p>Ethnie</p>
+                                                    </a>
+                                                </li>
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('classecodim') }}" class="nav-link">
+                                                        <i class="fas fa-school"></i>
+                                                        <p>Classe Ecodim</p>
+                                                    </a>
+                                                </li>
+
+
+                                            </ul>
+                                        {% endif %}
+                                    </li>
+                                    {% if is_granted('ROLE_SECRETAIRE') %}
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-users-cog"></i>
+                                                <p>
+                                                    Fidèles
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">2</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="{{ path('fidele') }}" class="nav-link">
+                                                        <i class="fas fa-user-edit"></i>
+
+                                                        <p>Enregistrement</p>
+
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('groupefidele') }}" class="nav-link">
+                                                        <i class="fas fa-users"></i>
+                                                        <p>Membre groupes  </p>
+                                                    </a>
+                                                </li>
+                                                {% if is_granted('ROLE_ADMIN') %}
+                                                    <li class="nav-item">
+                                                        <a href="{{ path('fidele_archivefidele') }}" class="nav-link">
+                                                            <i class="fas fa-archway"></i>
+                                                            <p>Archive</p>
+                                                        </a>
+                                                    </li>
+                                                {% endif %}
+                                            </ul>
+                                        </li>
+
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-save"></i>
+                                                <p>
+                                                    Culte
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">3</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="{{ path('culte') }}" class="nav-link">
+                                                        <i class="fas fa-praying-hands"></i>
+                                                        <p>Liste cultes</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('invite') }}" class="nav-link">
+                                                        <i class="fas fa-couch"></i>
+                                                        <p>Invité</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_visite_index') }}" class="nav-link">
+                                                        <i class="fas fa-couch"></i>
+                                                        <p>Visiteurs</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    {% endif %}
+                                    {% if is_granted('ROLE_RESPONSABLE_ECODIM') %}
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-university"></i>
+                                                <span class="badge badge-info right">5</span>
+                                                <p>
+                                                    ECODIM
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">5</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="{{ path('enfant') }}" class="nav-link">
+                                                        <i class="fas fa-child"></i>
+                                                        <p>Enfants</p>
+                                                    </a>
+                                                </li>
+                                                {# <li class="nav-item">
+                                                     <a href="{{ path('parentenfant_index') }}" class="nav-link">
+                                                         <i class="fas fa-child"></i>
+                                                         <p>Paternité</p>
+                                                     </a>
+                                                 </li>#}
+                                                <li class="nav-item">
+                                                    <a href="{{ path('cultecodim') }}" class="nav-link">
+                                                        <i class="fas fa-praying-hands"></i>
+                                                        <p>Culte</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('ecodimactivite_index') }}" class="nav-link">
+                                                        <i class="fas fa-biking"></i>
+                                                        <p>Activités</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('enfantactivite_index') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Cotisation</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('inscrire') }}" class="nav-link">
+                                                        <i class="fas fa-university"></i>
+                                                        <p>Inscription</p>
+                                                    </a>
+                                                </li>
+                                                {% if is_granted('ROLE_ADMIN') %}
+                                                    <li class="nav-item">
+                                                        <a href="{{ path('enfant_archiveenfant') }}" class="nav-link">
+                                                            <i class="fas fa-archway"></i>
+                                                            <p>Archive</p>
+                                                        </a>
+                                                    </li>
+
+                                                    <li class="nav-item">
+                                                        <a href="{{ path('enfantactivite_archiveenfantactivite') }}" class="nav-link">
+                                                            <i class="fas fa-archway"></i>
+                                                            <p>Archive activités</p>
+                                                        </a>
+                                                    </li>
+                                                {% endif %}
+                                            </ul>
+                                        </li>
+                                    {% endif %}
+                                    {% if is_granted('ROLE_RESPONSABLE_CONJUGAL') %}
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <p>
+                                                    VIE CONJUGALE
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">4</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="{{ path('fiancaille_index') }}" class="nav-link">
+                                                        <i class="fas fa-restroom"></i>
+                                                        <p>Fiançailles</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('mariage_index') }}" class="nav-link">
+                                                        <i class="fas fa-ring"></i>
+                                                        <p>Mariage</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('couple_index') }}" class="nav-link">
+                                                        <i class="fas fa-ring"></i>
+                                                        <p>Couple</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('naissance_index') }}" class="nav-link">
+                                                        <i class="fas fa-baby"></i>
+                                                        <p>Présentation d'Enfants</p>
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+                                        </li>
+                                    {% endif %}
+                                    {% if is_granted('ROLE_RESPONSABLE_SOCIAL') %}
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <p>
+                                                    LE SOCIAL
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">4</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_activitesociale_index') }}" class="nav-link">
+                                                        <i class="fas fa-restroom"></i>
+                                                        <p>Actions sociales</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_cotisationsociale_index') }}" class="nav-link">
+                                                        <i class="fas fa-ring"></i>
+                                                        <p>Cotisation</p>
+                                                    </a>
+                                                </li>
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_cartesocial_index') }}" class="nav-link">
+                                                        <i class="fas fa-ring"></i>
+                                                        <p>Carte du social</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+
+                                                    <a href="{{ path('app_activitesociale_adultesociaux') }}" class="nav-link">
+                                                        <i class="fas fa-baby"></i>
+                                                        <p>Cas sociaux</p>
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+                                        </li>
+
+                                    {% endif %}
+
+
+
+                                    {% if is_granted('ROLE_PASTEUR') %}
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <p>
+                                                    Actes pastoraux
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">8</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_visite2_index') }}" class="nav-link">
+                                                        <i class="fas fa-restroom"></i>
+                                                        <p>Visites</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_scene_index') }}" class="nav-link">
+                                                        <i class="fas fa-restroom"></i>
+                                                        <p>Saintes Cènes</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_pastorale_index') }}" class="nav-link">
+                                                        <i class="fas fa-restroom"></i>
+                                                        <p>Reunions</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('bapteme_index') }}" class="nav-link">
+                                                        <i class="fas fa-swimmer"></i>
+                                                        <p>Baptème </p>
+                                                    </a>
+                                                </li>
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_nommination_index') }}" class="nav-link">
+                                                        <i class="fas fa-user-graduate"></i>
+                                                        <p>Nomination </p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_conge_index') }}" class="nav-link">
+                                                        <i class="fas fa-swimmer"></i>
+                                                        <p>Congés </p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_discipline_index') }}" class="nav-link">
+                                                        <i class="fas fa-moon"></i>
+                                                        <p>Disciplines </p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('recommandation_index') }}" class="nav-link">
+                                                        <i class="fas fa-user-lock"></i>
+
+                                                        <p>Recommandation </p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('deces_index') }}" class="nav-link">
+                                                        <i class="fas fa-user-nurse"></i>
+                                                        <p>Necrologie </p>
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+                                        </li>
+
+                                    {% endif %}
+
+                                    {% if is_granted('ROLE_RESPONSABLE_EVANGELISATION') %}
+                                        <li class="nav-item has-treeview">
+                                            <a href="{{ path('app_evangelisation_index') }}" class="nav-link">
+                                                <i class="nav-icon fas fa-table"></i>
+                                                <p>
+                                                    Evangelisation
+
+                                                </p>
+                                            </a>
+
+                                        </li>
+                                    {% endif %}
+                                    <li class="nav-item has-treeview">
+
+                                        <a href="#" class="nav-link">
+                                            <i class="fad fa-drafting-compass"></i>
+                                            <p>
+                                                Activités
+                                                <i class="fas fa-angle-left right"></i>
+                                                <span class="badge badge-info right">6</span>
+                                            </p>
+                                        </a>
+                                        <ul class="nav nav-treeview">
+                                            {% if is_granted('ROLE_SECRETAIRE') %}
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('programme') }}" class="nav-link">
+                                                        <i class="far fa-calendar-alt"></i>
+                                                        <p>Programme</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            {% if is_granted('ROLE_RESPONSABLE_CELLULE') %}
+                                                <li class="nav-item">
+                                                    <a href="{{ path('seancecellule_index') }}" class="nav-link">
+                                                        <i class="far fa-calendar-alt"></i>
+                                                        <p>Cellule</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            {% if is_granted('ROLE_RESPONSABLE_GROUPE') %}
+                                                <li class="nav-item">
+                                                    <a href="{{ path('seancegroupe_index') }}" class="nav-link">
+                                                        <i class="far fa-calendar-alt"></i>
+                                                        <p>Groupe</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            {% if is_granted('ROLE_RESPONSABLE_FAMILLE') %}
+                                                <li class="nav-item">
+                                                    <a href="{{ path('seancefamille_index') }}" class="nav-link">
+                                                        <i class="far fa-calendar-alt"></i>
+                                                        <p>Famille/Tribu</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            {% if is_granted('ROLE_RESPONSABLE_DEPARTEMENT') %}
+                                                <li class="nav-item">
+                                                    <a href="{{ path('seancedepartement_index') }}" class="nav-link">
+                                                        <i class="far fa-calendar-alt"></i>
+                                                        <p>Departement</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            {% if is_granted('ROLE_RESPONSABLE_ZONE') %}
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_seancezone_index') }}" class="nav-link">
+                                                        <i class="far fa-calendar-alt"></i>
+                                                        <p>Zone</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </li>
+
+
+                                    {% if is_granted('ROLE_RESPONSABLE_TRESORERIE') %}
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-coins"></i>
+                                                <p>
+                                                    Finances
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">4</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+
+                                                {% if is_granted('ROLE_RESPONSABLE_FINANCE') %}
+                                                    <li class="nav-item">
+                                                        <a href="{{ path('dime') }}" class="nav-link">
+                                                            <i class="fas fa-coins"></i>
+                                                            <p>Dîmes </p>
+                                                        </a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a href="{{ path('offrande') }}" class="nav-link">
+                                                            <i class="fas fa-coins"></i>
+                                                            <p>Offrande</p>
+                                                        </a>
+                                                    </li>
+
+                                                    <li class="nav-item">
+                                                        <a href="{{ path('actiongrace') }}" class="nav-link">
+                                                            <i class="fas fa-coins"></i>
+                                                            <p>Actions de grâces</p>
+                                                        </a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a href="{{ path('operation') }}" class="nav-link">
+                                                            <i class="fas fa-coins"></i>
+                                                            <p>Depense</p>
+                                                        </a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a href="{{ path('don_index') }}" class="nav-link">
+                                                            <i class="fas fa-coins"></i>
+                                                            <p>Dons</p>
+                                                        </a>
+                                                    </li>
+
+                                                {% endif %}
+                                                <li class="nav-item">
+                                                    <a href="{{ path('cotisation') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Cotisations</p>
+                                                    </a>
+                                                </li>
+
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_cotisationparcellule_index') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Cotisation par cellule</p>
+                                                    </a>
+                                                </li>
+
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_cotisationparzone_index') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Cotisation par Zone</p>
+                                                    </a>
+                                                </li>
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_cotisationparfamille_index') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Cotisation par famille/tribu</p>
+                                                    </a>
+                                                </li>
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_cotisationpardepartement_index') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Cotisation par departement</p>
+                                                    </a>
+                                                </li>
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_cotisationpargroupe_index') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Cotisation par groupe</p>
+                                                    </a>
+                                                </li>
+
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('projet_index') }}" class="nav-link">
+                                                        <i class="far fa-circle nav-icon"></i>
+                                                        <p>Projet</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_cartemembre_index') }}" class="nav-link">
+                                                        <i class="fad fa-users-crown"></i>
+                                                        <p>Carte de membre</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <li class="nav-item has-treeview">
+                                            <a href="{{ path('patrimoine') }}" class="nav-link">
+                                                <i class="nav-icon fas fa-table"></i>
+                                                <p>
+                                                    Patrimoine
+                                                    <i class="fas fa-angle-left right"></i>
+                                                </p>
+                                            </a>
+
+                                        </li>
+                                    {% endif %}
+                                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="nav-icon far fa-envelope"></i>
+                                                <p>
+                                                    Communication
+                                                    <i class="fas fa-angle-left right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="#" class="nav-link">
+                                                        <i class="far fa-circle nav-icon"></i>
+                                                        <p>Mails</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="#" class="nav-link">
+                                                        <i class="far fa-circle nav-icon"></i>
+                                                        <p>Compte SMS</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('sms_index') }}" class="nav-link">
+                                                        <i class="far fa-circle nav-icon"></i>
+                                                        <p>Envoi SMS</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    {% endif %}
+
+
+                                    {% if is_granted('ROLE_SECRETAIRE') %}
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-users"></i>
+                                                <p>
+                                                    Bilan RH
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">4</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="{{ path('groupe_bilan') }}" class="nav-link">
+                                                        <i class="fas fa-users"></i>
+                                                        <p>Fidèle par département</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('groupe_fidelegroupe') }}" class="nav-link">
+                                                        <i class="fas fa-users"></i>
+                                                        <p>Fidèle par groupe</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('recherchefidele') }}" class="nav-link">
+                                                        <i class="fas fa-users"></i>
+                                                        <p>Fidèle</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('rechercheenfant') }}" class="nav-link">
+                                                        <i class="far fa-circle nav-icon"></i>
+                                                        <p>Enfant</p>
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+                                        </li>
+
+                                    {% endif %}
+
+
+
+
+
+
+                                    {% if is_granted('ROLE_SECRETAIRE') %}
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="nav-icon far fa-envelope"></i>
+                                                <p>
+                                                    Bilan départements
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">5</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_activite') }}" class="nav-link">
+                                                        <i class="fas fa-layer-group"></i>
+                                                        <p>Bilan Global</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_departement') }}" class="nav-link">
+                                                        <i class="fas fa-layer-group"></i>
+                                                        <p>Departement</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_groupe') }}" class="nav-link">
+                                                        <i class="fas fa-users"></i>
+                                                        <p>Groupe</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_zone') }}" class="nav-link">
+                                                        <i class="fas fa-pray"></i>
+                                                        <p>Zone</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_cellule') }}" class="nav-link">
+                                                        <i class="fas fa-pray"></i>
+                                                        <p>Cellule</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_cultecodim') }}" class="nav-link">
+                                                        <i class="fad fa-users-crown"></i>
+
+                                                        <p>Bilan Ecodim</p>
+                                                    </a>
+                                                </li>
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_famille') }}" class="nav-link">
+                                                        <i class="fad fa-users-crown"></i>
+
+                                                        <p>Famille</p>
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+                                        </li>
+
+                                    {% endif %}
+
+
+
+                                    {% if is_granted('ROLE_SECRETAIRE') %}
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="fad fa-drafting-compass"></i>
+
+                                                <p>
+                                                    Bilan activités
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">17</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_global') }}" class="nav-link">
+                                                        <i class="fad fa-users-crown"></i>
+
+                                                        <p>Bilan global</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_culte') }}" class="nav-link">
+                                                        <i class="fas fa-pray"></i>
+                                                        <p>Cultes</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_evangelisation') }}" class="nav-link">
+                                                        <i class="far fa-circle nav-icon"></i>
+                                                        <p>Evangelisation</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_mariage') }}" class="nav-link">
+                                                        <i class="fas fa-ring"></i>
+                                                        <p>Mariage</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_naissance') }}" class="nav-link">
+                                                        <i class="fas fa-baby"></i>
+                                                        <p>Présentation enfant</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_bapteme') }}" class="nav-link">
+                                                        <i class="fas fa-swimmer"></i>
+                                                        <p>Baptêmes</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_cene') }}" class="nav-link">
+                                                        <i class="fas fa-ring"></i>
+                                                        <p>Saintes Cènes</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_conge') }}" class="nav-link">
+                                                        <i class="fas fa-baby"></i>
+                                                        <p>Congés</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_discipline') }}" class="nav-link">
+                                                        <i class="fas fa-layer-group"></i>
+                                                        <p>Sous-disciplines</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_invite') }}" class="nav-link">
+                                                        <i class="fas fa-users"></i>
+                                                        <p>Invités/âmes</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_deces') }}" class="nav-link">
+                                                        <i class="fas fa-pray"></i>
+                                                        <p>Décès</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_nommination') }}" class="nav-link">
+                                                        <i class="fas fa-pray"></i>
+                                                        <p>Nomminations</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_visite2') }}" class="nav-link">
+                                                        <i class="fas fa-pray"></i>
+                                                        <p>Visites</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_pastorale') }}" class="nav-link">
+                                                        <i class="fad fa-users-crown"></i>
+
+                                                        <p>Pastorales</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_patrimoine') }}" class="nav-link">
+                                                        <i class="fad fa-users-crown"></i>
+
+                                                        <p>Patrimoines</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_programme') }}" class="nav-link">
+                                                        <i class="fad fa-users-crown"></i>
+
+                                                        <p>Programme</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_recommandation') }}" class="nav-link">
+                                                        <i class="fad fa-users-crown"></i>
+
+                                                        <p>Recommandations</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_sociale') }}" class="nav-link">
+                                                        <i class="fad fa-users-crown"></i>
+
+                                                        <p>Actions sociales</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_visite') }}" class="nav-link">
+                                                        <i class="fad fa-users-crown"></i>
+
+                                                        <p>Visiteurs</p>
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+                                        </li>
+
+                                    {% endif %}
+
+
+
+
+
+                                    {% if is_granted('ROLE_RESPONSABLE_FINANCE') %}
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-coins"></i>
+                                                <p>
+                                                    Bilan finance
+                                                    <i class="fas fa-angle-left right"></i>
+                                                    <span class="badge badge-info right">9</span>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_finance') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Bilan Global</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_dime') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Dîme</p>
+                                                    </a>
+                                                </li>
+
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_dimeglobale') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Dîme d'ensemble</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_offrande') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Offrande</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_actiongrace') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Action de grâce</p>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_cotisation') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Cotisations</p>
+                                                    </a>
+                                                </li>
+
+
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_cotisationexception') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Cotisation exceptionnelle</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_operation') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Depense</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_don') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+                                                        <p>Don</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="{{ path('app_bilan_depensecodim') }}" class="nav-link">
+                                                        <i class="fas fa-coins"></i>
+
+                                                        <p>Depense Ecodim</p>
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+                                        </li>
+
+                                    {% endif %}
+
+
+
+
+                                                        {% if is_granted('ROLE_PRESIDENT') %}
+                                                            <li class="nav-item has-treeview">
+                                                                <a href="#" class="nav-link">
+                                                                    <i class="fas fa-users"></i>
+                                                                    <p>
+                                                                        Bilan national activités
+                                                                        <i class="fas fa-angle-left right"></i>
+                                                                    </p>
+                                                                </a>
+                                                                <ul class="nav nav-treeview">
+
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('recherchefidelenational') }}" class="nav-link">
+                                                                            <i class="far fa-circle nav-icon"></i>
+                                                                            <p>Fidèles</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('rechercheenfant2') }}" class="nav-link">
+                                                                            <i class="far fa-circle nav-icon"></i>
+                                                                            <p>Enfants</p>
+                                                                        </a>
+                                                                    </li>
+
+
+
+
+
+
+
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_culten') }}" class="nav-link">
+                                                                            <i class="fas fa-pray"></i>
+                                                                            <p>Cultes</p>
+                                                                        </a>
+                                                                    </li>
+
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_evangelisationn') }}" class="nav-link">
+                                                                            <i class="far fa-circle nav-icon"></i>
+                                                                            <p>Evangelisation</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_mariagen') }}" class="nav-link">
+                                                                            <i class="fas fa-ring"></i>
+                                                                            <p>Mariage</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_naissancen') }}" class="nav-link">
+                                                                            <i class="fas fa-baby"></i>
+                                                                            <p>Présentation enfant</p>
+                                                                        </a>
+                                                                    </li>
+
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_baptemen') }}" class="nav-link">
+                                                                            <i class="far fa-circle nav-icon"></i>
+                                                                            <p>Baptêmes</p>
+                                                                        </a>
+                                                                    </li>
+
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_cenen') }}" class="nav-link">
+                                                                            <i class="fas fa-ring"></i>
+                                                                            <p>Saintes Cènes</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_congen') }}" class="nav-link">
+                                                                            <i class="fas fa-baby"></i>
+                                                                            <p>Congés</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_disciplinen') }}" class="nav-link">
+                                                                            <i class="fas fa-layer-group"></i>
+                                                                            <p>Sous-disciplines</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_inviten') }}" class="nav-link">
+                                                                            <i class="fas fa-users"></i>
+                                                                            <p>Invités/âmes</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_decesn') }}" class="nav-link">
+                                                                            <i class="fas fa-pray"></i>
+                                                                            <p>Décès</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_nomminationn') }}" class="nav-link">
+                                                                            <i class="fas fa-pray"></i>
+                                                                            <p>Nomminations</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_visite2n') }}" class="nav-link">
+                                                                            <i class="fas fa-pray"></i>
+                                                                            <p>Visites</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_pastoralen') }}" class="nav-link">
+                                                                            <i class="fad fa-users-crown"></i>
+
+                                                                            <p>Pastorales</p>
+                                                                        </a>
+                                                                    </li>
+
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_patrimoinen') }}" class="nav-link">
+                                                                            <i class="fad fa-users-crown"></i>
+
+                                                                            <p>Patrimoines</p>
+                                                                        </a>
+                                                                    </li>
+
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_programmen') }}" class="nav-link">
+                                                                            <i class="fad fa-users-crown"></i>
+
+                                                                            <p>Programme</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_recommandationn') }}" class="nav-link">
+                                                                            <i class="fad fa-users-crown"></i>
+
+                                                                            <p>Recommandations</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_socialen') }}" class="nav-link">
+                                                                            <i class="fad fa-users-crown"></i>
+
+                                                                            <p>Actions sociales</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_visiten') }}" class="nav-link">
+                                                                            <i class="fad fa-users-crown"></i>
+
+                                                                            <p>Visiteurs</p>
+                                                                        </a>
+                                                                    </li>
+
+
+                                                        </ul>
+                                                    {% endif %}
+                                                    
+                                                    
+                                                     {% if is_granted('ROLE_RESPONSABLE_FINANCE_NATIONAL') %}
+                                                            <li class="nav-item has-treeview">
+                                                                <a href="#" class="nav-link">
+                                                                    <i class="fas fa-users"></i>
+                                                                    <p>
+                                                                        Bilan national finance
+                                                                        <i class="fas fa-angle-left right"></i>
+                                                                    </p>
+                                                                </a>
+                                                                <ul class="nav nav-treeview">
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_dimen') }}" class="nav-link">
+                                                                            <i class="fas fa-coins"></i>
+                                                                            <p>Dîme</p>
+                                                                        </a>
+                                                                    </li>
+
+
+
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_dimeglobalen') }}" class="nav-link">
+                                                                            <i class="fas fa-coins"></i>
+                                                                            <p>Dîme d'ensemble</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_offranden') }}" class="nav-link">
+                                                                            <i class="fas fa-coins"></i>
+                                                                            <p>Offrande</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_actiongracen') }}" class="nav-link">
+                                                                            <i class="fas fa-coins"></i>
+                                                                            <p>Action de grâce</p>
+                                                                        </a>
+                                                                    </li>
+
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_cotisationn') }}" class="nav-link">
+                                                                            <i class="fas fa-coins"></i>
+                                                                            <p>Cotisations</p>
+                                                                        </a>
+                                                                    </li>
+
+
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_cotisationexceptionn') }}" class="nav-link">
+                                                                            <i class="fas fa-coins"></i>
+                                                                            <p>Cotisation exceptionnelle</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_operationn') }}" class="nav-link">
+                                                                            <i class="fas fa-coins"></i>
+                                                                            <p>Depense</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_donn') }}" class="nav-link">
+                                                                            <i class="fas fa-coins"></i>
+                                                                            <p>Don</p>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="nav-item">
+                                                                        <a href="{{ path('app_bilan_depensecodimn') }}" class="nav-link">
+                                                                            <i class="fas fa-coins"></i>
+
+                                                                            <p>Depense Ecodim</p>
+                                                                        </a>
+                                                                    </li>
+
+                                                            </li>
+                                                        </ul>
+                                                    {% endif %}
+                                                    
+                                </ul>
+
+                            </nav>
+                            <nav class="mt-2">
+                                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+
+                                    <li class="nav-header">ADMINISTRATION</li>
+                                    <li class="nav-item">
+                                        <a href="{{ asset('guide.pdf') }}" class="nav-link">
+                                            <i class="fas fa-book"></i>
+                                            <p>Guide utilisateur</p>
+                                        </a>
+                                    </li>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <li class="nav-item">
+                                            <a href="{{ asset('guide2.pdf') }}" class="nav-link">
+                                                <i class="fas fa-book"></i>
+                                                <p>Guide Administration</p>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            <!-- /.sidebar-menu -->
+                        </div>
+                        <!-- /.sidebar -->
+                    </aside>
+
+                    <!-- Content Wrapper. Contains page content -->
+                    <div class="content-wrapper">
+                        <!-- Content Header (Page header) -->
+                        <div class="content-header">
+                            <div class="container-fluid">
+                                <div class="row mb-2">
+
+                                    <div class="col-sm-12">
+                                        <ol class="breadcrumb float-sm-right">
+                                            <li class="date">
+                                                <span id="UTC_za00"></span><br/>
+
+                                                <a href="https://time.is/" id="time_is_link" rel="nofollow"> </a>  
+                                                <a href="#">   {{ "now"|date('d-m-Y', "Africa/Abidjan") }}</a> 
+
+                                            </li>
+
+                                        </ol>
+                                    </div><!-- /.col -->
+                                </div><!-- /.row -->
+                            </div><!-- /.container-fluid -->
+                        </div>
+                        <!-- /.content-header -->
+
+                        <!-- Main content -->
+                        <section class="content">
+                            <div class="container-fluid">
+                                <!-- Small boxes (Stat box) -->
+                                <!-- Small boxes (Stat box) -->
+                                <div class="row">
+                                    <div class="col-lg-3 col-6">
+                                        <!-- small box -->
+                                        <div class="small-box bg-info">
+                                            <div class="inner">
+                                                <h3>{{ (cellule|length) }}</h3>
+
+                                                <p style="font-size: 25px">Total Cellules</p>
+                                            </div>
+                                            <div class="icon">
+                                                <i class="ion ion-stats-bars"></i>
+                                            </div>
+                                            {% if is_granted('ROLE_SECRETAIRE') %}  <a href="{{ path('cellule') }}" class="small-box-footer">Plus de détails <i class="fas fa-arrow-circle-right"></i></a>
+
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <!-- ./col -->
+                                    <div class="col-lg-3 col-6">
+                                        <!-- small box -->
+                                        <div class="small-box bg-success">
+                                            <div class="inner">
+                                                <h3><h3>{{ (fidele|length) }}<sup style="font-size: 20px"></sup></h3>
+
+                                                    <p style="font-size:25px">Total adultes</p>
+                                            </div>
+                                            <div class="icon">
+
+                                                <i class="fa  fa-users"></i>
+
+                                            </div>
+                                            {% if is_granted('ROLE_SECRETAIRE') %}
+                                                <a href="{{ path('fidele') }}" class="small-box-footer">Plus inofs <i class="fas fa-arrow-circle-right"></i></a>
+                                                {% endif %}
+                                        </div>
+                                    </div>
+                                    <!-- ./col -->
+                                    <div class="col-lg-3 col-6">
+                                        <!-- small box -->
+                                        <div class="small-box bg-warning">
+                                            <div class="inner">
+                                                <h3><h3>{{ (enfant|length) }}<sup style="font-size: 20px"></sup></h3>
+
+                                                    <p style="font-size: 25px">Total enfants</p>
+                                            </div>
+                                            <div class="icon">
+                                                <i class="fa  fa-users"></i>
+
+                                            </div>
+                                            {% if is_granted('ROLE_SECRETAIRE') %}
+                                                <a href="{{ path('enfant') }}" class="small-box-footer">Plus infos <i class="fas fa-arrow-circle-right"></i></a>
+                                                {%endif %}
+                                        </div>
+                                    </div>
+                                    <!-- ./col -->
+                                    <div class="col-lg-3 col-6">
+                                        <!-- small box -->
+                                        <div class="small-box bg-danger">
+                                            <div class="inner">
+                                                <h3> {{ (enfant|length) + (fidele|length) }}</h3>
+
+                                                <p style="font-size: 25px">Total fidèles</p>
+                                            </div>
+                                            <div class="icon">
+                                                <i class="fa  fa-users"></i>
+
+                                            </div>
+                                            <a href="#" class="small-box-footer"> <i class="fas fa-arrow-circle-right"></i>
+                                                <i class="fas fa-arrow-circle-right"></i><i class="fas fa-arrow-circle-right"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                                {% block body %}
+                                
+    <div class="card card-primary">
+      
+        <div class="card-header">
+            <h3 class="card-title">Graphes des données</h3>
+        </div>
+        <div class="container">
+    
+
+                        <div class="row">
+                        
+                                <div class="col-md-6">
+                                    <div class="card">
+                                    <div class="card-header">
+                                        <div class="card-title">Graphe des adulte</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chart-container">
+                                        <canvas id="adultechart"  style="width: 50%; height: 50%"></canvas>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                                            
+
+                                <div class="col-md-6">
+                                    
+                                    <div class="card">
+                                            <div class="card-header">
+                                                <div class="card-title">Graphe des enfants</div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="chart-container">
+                                                <canvas id="enfantsChart"  style="width: 50%; height: 50%"></canvas>
+                                                </div>
+                                            </div>
+                                    </div>
+                            
+                                </div>
+                        </div>
+           
+            <div class="row">
+
+              <div class="col-md-6">
+                        <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Graphe des cultes effectif total </div>
+                        </div>
+                                    <div class="card-body">
+                                                    <div class="chart-container">
+                                                    
+                                                    <canvas id="presenceChart"  style="width: 50%; height: 50%"></canvas>
+                                                    </div>
+                                    </div>
+                        </div>
+                 </div>
+
+             <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Graphe effectif total des enfants aux cultes</div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart-container">
+                      <canvas id="enfantCulteChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              </div>
+
+            <div class="row">
+
+              <div class="col-md-6">
+                <div class="card">
+                   <div class="card-header">
+                    <div class="card-title">Graphe des cultes effectif des adultes </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart-container">
+                     
+                       <canvas id="adulteCulteChart"  style="width: 50%; height: 50%"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Graphes des membres de l'Eglise</div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart-container">
+                      <canvas
+                        id="membresChart"
+                        style="width: 50%; height: 50%"
+                      ></canvas>
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Graphe des cultes avec détails</div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart-container">
+                      <canvas id="culteChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Graphe des cultes des Enfants </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart-container">
+                      <canvas id="culteChartecodim"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Graphe des nouvelles personnes aux cultes</div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart-container">
+                      <canvas id="inviteculte"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Graphe des nouvelles âmes gagnées gagnées à l'evangelisation</div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart-container">
+                      <canvas id="evangelisationchart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+             <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Graphe de présences des Cellules</div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart-container">
+                      <canvas id="presencecelluleChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+                  <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                   <div class="card-title">Graphe des Fidèles par tranche d'âge</div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart-container">
+                      <canvas id="ageChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+
+         
+         </div>
+     
+
+          <div class="col-md-10">
+              
+                        <div class="card">
+                
+                      <div class="card-header">
+                                    <div class="card-title">Graphe des Fidèles par Ethnie</div>
+                                </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <canvas id="fideleChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    Détails
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">Total fidèles: <strong>{{ totalPatients }}</strong></p>
+                                    <ul class="list-group">
+                                        {% for label, count in dataethnie %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                {{ labelfideles[loop.index0] }}
+                                                <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                                                <span class="text-muted">{{ percentages[loop.index0] }}%</span>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+              </div>
+
+           
+            </div>
+
+
+            
+          <div class="col-md-10">
+              
+                        <div class="card">
+                
+                    <div class="card-header">
+                                    <div class="card-title">Graphe des Fidèles par Fonction</div>
+                                </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <canvas id="fidelefonctionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    Détails
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">Total fidèles: <strong>{{ totalPatientfonctions }}</strong></p>
+                                    <ul class="list-group">
+                                        {% for label, count in datafonction %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                {{ labelfidelesfonction[loop.index0] }}
+                                                <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                                                <span class="text-muted">{{ percentagesfonction[loop.index0] }}%</span>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+              </div>
+
+
+        
+        </div>
+        </div>
+
+
+     
+      
+
+                                {% endblock %}
+
+                                <!-- /.content -->
+                            </div>
+                            <!-- /.content-wrapper -->
+                            <footer class="main-footer">
+                                <strong>Copyright &copy; 2020-{{ "now"|date('Y') }} <a href="https://ekkllesia.lynovatech.com/login">Lynova Technology</a>.</strong>
+                                All rights reserved.
+                                <div class="float-right d-none d-sm-inline-block">
+                                    <b>Version</b> 3.2
+                                </div>
+                            </footer>
+
+                            <!-- Control Sidebar -->
+                            <aside class="control-sidebar control-sidebar-dark">
+                                <!-- Control sidebar content goes here -->
+                            </aside>
+                            <!-- /.control-sidebar -->
+                    </div>
+                {% endblock %}
+            </div>
+
+
+
+
+            {% block javascripts %}
+                {#{ encore_entry_script_tags('app') }#}
+                <!--
+                            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+                            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+                            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+                -->
+                <script src="{{asset('plugins/jquery/jquery.min.js')}}"></script>
+                <!-- jQuery UI 1.11.4 -->
+                <script src="{{asset('plugins/jquery-ui/jquery-ui.min.js')}}"></script>
+                <!-- DataTables -->
+                <script src="{{asset('plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
+                <script src="{{asset('plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+                <!-- AdminLTE App -->
+
+                <!-- fullCalendar 2.2.5 -->
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+                <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.css"/>
+                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+                <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.js"></script>
+
+                <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+                <script>
+                                                        $.widget.bridge('uibutton', $.ui.button)
+                </script>
+                <!-- Bootstrap 4 -->
+                <script src="{{asset('plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+                <!-- ChartJS -->
+                <script src="{{asset('plugins/chart.js/Chart.min.js')}}"></script>
+                <!-- Sparkline -->
+                <script src="{{asset('plugins/sparklines/sparkline.js')}}"></script>
+                <!-- JQVMap -->
+                <script src="{{asset('plugins/jqvmap/jquery.vmap.min.js')}}"></script>
+                <script src="{{asset('plugins/jqvmap/maps/jquery.vmap.usa.js')}}"></script>
+                <!-- jQuery Knob Chart -->
+                <script src="{{asset('plugins/jquery-knob/jquery.knob.min.js')}}"></script>
+                <!-- daterangepicker -->
+                <script src="{{asset('plugins/daterangepicker/daterangepicker.js')}}"></script>
+                <!-- Tempusdominus Bootstrap 4 -->
+                <script src="{{asset('plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
+                <!-- Summernote -->
+                <script src="{{asset('plugins/summernote/summernote-bs4.min.js')}}"></script>
+                <!-- overlayScrollbars -->
+                <script src="{{asset('plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js')}}"></script>
+                <!-- AdminLTE App -->
+                <script src="{{asset('dist/js/adminlte.js')}}"></script>
+                <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+                <script src="{{asset('dist/js/pages/dashboard.js')}}"></script>
+                <!-- AdminLTE for demo purposes -->
+                <script src="{{asset('dist/js/demo.js')}}"></script>
+                <script src="{{asset('plugins/chart.js/Chart.min.js')}}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
+
+                <!-- Scripts de S
+                <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet" />
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
+                <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+                jQuery -->
+                <!-- Bootstrap 4 -->
+                <script src="{{asset('plugins/select2/js/select2.full.min.js')}}"></script>
+                <script src="{{asset('plugins/inputmask/min/jquery.inputmask.bundle.min.js')}}"></script>
+                <script src="{{asset('plugins/moment/moment.min.js')}}"></script>
+                <script src="{{asset('mychart.js')}}"></script>
+
+
+
+
+                <script>
+                                                        $('.loader').hide();
+                                                        jQuery('document').ready(function () {
+                                                            jQuery('.select2').select2(
+                                                                    {width: '100%', allowClear: true, theme: "classic"}
+                                                            );
+                                                        });
+                </script>
+
+                <span id="UTC_za00"></span><br/>
+
+                <a href="https://time.is/" id="time_is_link" rel="nofollow"></a>
+                <script src="//widget.time.is/fr.js"></script>
+                <script>
+                                                        time_is_widget.init({
+                                                            UTC_za00: {},
+                                                        });
+                </script>
+
+
+ <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('enfantsChart').getContext('2d');
+            const enfantsChart = new Chart(ctx, {
+                type: 'doughnut', // ou 'bar', 'doughnut' selon votre préférence
+                data: {
+                    labels: ['Filles', 'Garçons'],
+                    datasets: [{
+                        data: [{{ stats.filles }}, {{ stats.garcons }}],
+                        backgroundColor: [
+                            'rgba(236, 207, 207, 0.7)',
+                            'rgba(29, 216, 79, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Répartition des enfats (Total: {{ stats.total }})'
+                        },
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+
+    
+ <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('adultechart').getContext('2d');
+            const adultechart = new Chart(ctx, {
+                type: 'doughnut', // ou 'bar', 'doughnut' selon votre préférence
+                data: {
+                    labels: ['Femme', 'Hommes'],
+                    datasets: [{
+                        data: [{{ totalfidele.femmes }}, {{ totalfidele.hommes }}],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Répartition des adultes (Total: {{ totalfidele.totalfidele }})'
+                        },
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+ <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('presenceChart').getContext('2d');
+            const presenceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: {{ labels|json_encode|raw }},
+                    datasets: [{
+                        label: 'Total des présents',
+                        data: {{ totalPresences|json_encode|raw }},
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Total: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre de personnes'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date du culte'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+
+    
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('membresChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Femmes ', 'Hommes', 'Filles', 'Garçons'],
+                    datasets: [{
+                        label: 'Total: {{ totalfidele2 }}',
+                        data: [
+                            {{ adultesFemmes }},
+                            {{ adultesHommes }},
+                            {{ enfantsFilles }},
+                            {{ enfantsGarcons }}
+                        ],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(75, 192, 192, 0.7)'
+                        ],
+                    
+                            
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre de membres'
+                            }
+                        }
+                    }, 
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Répartition des membres par sexe et âge'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+     
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('culteChart').getContext('2d');
+            
+            const dates = {{ dates|raw }};
+            const sommeNombre1 = {{ sommeNombre1|raw }};
+            const sommeNombre2 = {{ sommeNombre2|raw }};
+            const sommeNombre3 = {{ sommeNombre3|raw }};
+            const sommeNombre4 = {{ sommeNombre4|raw }};
+            const totalNombre = {{ totalNombre|raw }};
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: ' Hommes',
+                            data: sommeNombre1,
+                            backgroundColor: 'rgba(102, 145, 226, 0.7)',
+                            borderColor: 'rgb(54, 213, 238)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Femmes',
+                            data: sommeNombre2,
+                            backgroundColor: 'rgba(227, 17, 17, 0.7)',
+                            borderColor: 'rgb(242, 39, 127)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Enfants',
+                            data: sommeNombre3,
+                            backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                            borderColor: 'rgba(255, 206, 86, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Invités',
+                            data: sommeNombre4,
+                            backgroundColor: 'rgba(41, 218, 124, 0.7)',
+                            borderColor: 'rgb(26, 235, 235)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: false,
+                        },
+                        y: {
+                            stacked: false,
+                            beginAtZero: true,
+                            
+                        }
+                    }
+                },
+                  
+            });
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('inviteculte').getContext('2d');
+            
+            const dates = {{ dates|raw }};
+            const sommeNombre1 = {{ invite|raw }};
+ 
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: ' Invite',
+                            data: sommeNombre1,
+                            backgroundColor: 'rgba(102, 145, 226, 0.7)',
+                            borderColor: 'rgb(54, 213, 238)',
+                            borderWidth: 1
+                        }
+                        
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: false,
+                        },
+                        y: {
+                            stacked: false,
+                            beginAtZero: true,
+                            
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('culteChartecodim').getContext('2d');
+            
+            const dates = {{ dateecodims|raw }};
+            const sommeNombre1 = {{ sommeNombreecodim1|raw }};
+            const sommeNombre2 = {{ sommeNombreecodim2|raw }};
+
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Filles',
+                            data: sommeNombre2,
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Garçons',
+                            data: sommeNombre1,
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }
+                        
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: false,
+                        },
+                        y: {
+                            stacked: false,
+                            beginAtZero: true,
+                            
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    
+       
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('evangelisationchart').getContext('2d');
+            
+            const dates = {{ dateops|raw }};
+            const sommeNombre1 = {{ personnes1|raw }};
+ 
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: ' Personnes contactées',
+                            data: sommeNombre1,
+                            backgroundColor: 'rgba(218, 41, 121, 0.7)',
+                            borderColor: 'rgb(230, 49, 106)',
+                            borderWidth: 1
+                        }
+                        
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: false,
+                        },
+                        y: {
+                            stacked: false,
+                            beginAtZero: true,
+                            
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+     
+ <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('presencecelluleChart').getContext('2d');
+            const presencecelluleChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: {{ labelcellules|json_encode|raw }},
+                    datasets: [{
+                        label: 'Total des présents',
+                        data: {{ totaltPresentCellules|json_encode|raw }},
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Total: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre de personnes'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date du culte'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+
+    
+ <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('adulteCulteChart').getContext('2d');
+            const adulteCulteChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: {{ labels|json_encode|raw }},
+                    datasets: [{
+                        label: 'Total des présents',
+                        data: {{ totalPresences|json_encode|raw }},
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Total: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre de personnes'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date du culte'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+    
+ <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('enfantCulteChart').getContext('2d');
+            const enfantCulteChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: {{ labelcecodims|json_encode|raw }},
+                    datasets: [{
+                        label: 'Total des présents',
+                        data: {{ totalPresenceecodims|json_encode|raw }},
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Total: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre de personnes'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Dates des actitivés'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+    
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('fideleChart').getContext('2d');
+    const fideleChart = new Chart(ctx, {
+        type: 'pie', // ou 'doughnut' pour un diagramme en anneau
+        data: {
+            labelfideles: {{ labels|json_encode|raw }},
+            datasets: [{
+                data: {{ dataethnie|json_encode|raw }},
+                backgroundColor: {{ backgroundColors|json_encode|raw }},
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const percentage = {{ percentages|json_encode|raw }}[context.dataIndex];
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+  
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('fidelefonctionChart').getContext('2d');
+    const fideleChart = new Chart(ctx, {
+        type: 'pie', // ou 'doughnut' pour un diagramme en anneau
+        data: {
+            labelfidelesfonction: {{ labels|json_encode|raw }},
+            datasets: [{
+                data: {{ datafonction|json_encode|raw }},
+                backgroundColor: {{ backgroundColorsfonction|json_encode|raw }},
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const percentage = {{ percentagesfonction|json_encode|raw }}[context.dataIndex];
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+
+        <script>
+            // Récupérer l'élément canvas
+            const ctx = document.getElementById('ageChart').getContext('2d');
+
+            // Données passées depuis le contrôleur Symfony
+            const ageRanges = {{ age_ranges|json_encode|raw }};
+            const membersCount = {{ members_count|json_encode|raw }};
+
+            // Créer le graphique
+            const ageChart = new Chart(ctx, {
+                type: 'bar', // Type de graphique : 'bar', 'line', 'pie', etc.
+                data: {
+                    labels: ageRanges,
+                    datasets: [{
+                        label: 'Nombre ',
+                        data: membersCount,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)', // Couleur des barres
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0 // Pour n'avoir que des entiers sur l'axe Y
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Répartition des Membres par Tranche d\'Âge'
+                        }
+                    }
+                }
+            });
+        </script>
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+            {% endblock %}
+    </body>
+</html>

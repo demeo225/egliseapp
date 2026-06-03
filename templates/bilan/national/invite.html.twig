@@ -1,0 +1,102 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des invites {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_inviten') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+    </div>
+</form>    
+</div> 
+
+<div class="rows">
+    {% if app.request.method == 'POST' and invites |length==0 %}
+        Aucune invitenée trouvée
+
+    {% else %}
+
+        {% if invites |length >0 %}
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Resultats de la recherche</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Region</th>
+                                <th>Region pastorale</th>
+                                <th>Eglise</th>
+                                <th>Invite</th>
+                                <th>Numéro</th>
+                                <th>Genre</th>
+                                <th>Invité(e) par</th>
+                                <th>Culte</th>
+
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for invite in invites %}
+
+                                <tr>
+
+                                    <td> {% if invite.eglise.region is not empty %} {{ invite.eglise.region }}{% else %} Non rensigné {% endif %}</td>
+                                    <td> {% if invite.eglise.regionpastorale is not empty %} {{ invite.eglise.regionpastorale }}{% else %} Non renseignée {% endif %}</td>
+                                    <td> {% if invite.eglise is not empty %} {{ invite.eglise }}{% else %} {% endif %}</td>
+
+
+                                    <td>{{ invite.nom}}</td>
+                                    <td>{{ invite.contact}}</td>
+                                    <td> {% if invite.fidele is not empty %} {{ invite.fidele.nomfidele}} {% else %} {{ invite.invitant}} {% endif %}</td>                <td>
+                                    <td> {% if invite.culte is not empty %} {{ date_format(invite.culte.dateculte)}} {% else %} {% endif %}</td>
+
+
+
+
+
+                                </tr>
+
+
+                            {% endfor %}
+
+
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+{% endblock %}
+

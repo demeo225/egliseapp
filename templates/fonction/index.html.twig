@@ -1,0 +1,212 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion des fonctions{% endblock %}
+
+{% block body %}
+
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste des fonctions de l'église</h3>
+            </div>
+                <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                              <button type="button" title="Enregistrement rapide" id="btn-fideles-modal" data-target="{{ path('fonction_add') }}" class="btn btn-primary"> 
+                    Nouveau
+                </button>
+
+
+                <a href='{{ path('fonctions_multiple_add') }}'>
+                    <button class="btn btn-primary" title="Enregistrement multiple">Nouveau ++</button>
+                </a>
+
+               
+
+                <hr style="visibility: hidden" />  
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Fonction</th>
+                            <th>Membres</th>
+                            <th>Modifier</th>
+                            <th>Supprimer</th>
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fonction in fonction %}
+                            <tr>
+                            <td id="{{fonction.id}}" data-original="{{ fonction.libelle|upper}}" class="td-cliquable">{{ fonction.libelle|upper}}</td>
+
+
+
+
+                                <td>
+                                    <button type="button" id="btn-fideles-modal" data-target="{{ path('fonction_search_fideles', {'id':fonction.id}) }}"> 
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-users" title="Voir fidèles"></i>
+                                        </span>
+                                    </button>
+                                    <a href="detail/se?id={{ fonction.id }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-print" title="Imprimer les membres"></i>
+                                        </span>
+                                    </a>
+                                </td>
+
+
+                                <td>
+                                    <a href="{{ path('fonction_update', {'id': fonction.id}) }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <form method="post" action="{{ path('fonction_delete', {'id': fonction.id}) }}" onsubmit="return confirm('Voulez-vous supprimer?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ fonction.id) }}">
+
+                                        <button class="btn">
+                                            <span style="font-size: 1em; color: red;">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                      
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- Modal des  -->
+    <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+            $(document).on('click', 'button#btn-fideles-modal', function () {
+                // créer le modal qui porte l'id fidelesModal
+                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                    keyboard: false
+                });
+
+                // recupere le div class="modal-body" du div id="fidelesModal"
+                let container = $('#fidelesModal .modal-body');
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('data-target'),
+                    async: true,
+                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                        container.empty();
+                    },
+                    success: function (html) {
+                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                        modal.show(); // on affiche la fenêtre modal
+                        //console.log(html);
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#example1').DataTable();
+
+            let send = function (id, original, fonction) {
+                if (original != fonction && fonction.length > 3) {
+                    $('td#' + id).text(fonction);
+                    $.ajax({
+                        type: 'POST',
+                        url: '/fonction/update/datatable/' + id,
+                        data: {
+                            'fonction': fonction
+                        },
+                        async: true,
+                        success: function (response) {
+                            if (response.update == false) {
+                                $('td#' + id).text(original);
+                            } else {
+                                // développer une alert ou un toast pour comfirmer que la modification 
+                                // est bien pris en compte
+                                var w = window.open('', '', 'width=200,height=100')
+                                w.document.write('Modification avec succès')
+                                w.focus()
+                                setTimeout(function () {
+                                    w.close();
+                                }, 5000);
+
+                            }
+                        }
+                    });
+                } else {
+                    $('td#' + id).text(original);
+                }
+            }
+
+            $(document).on('dblclick', '.td-cliquable', function () {
+                $(this).html('<input type="text" value="' + $(this).text() + '">');
+            });
+
+            $('.td-cliquable')
+                    .focusout(function () {
+                        send($(this).attr('id'), $(this).attr('data-original'), $('input[type="text"]', this).val()); // sortir du focus
+                    })
+                    .blur(function () {
+                        send($(this).attr('id'), $(this).attr('data-original'), $('input[type="text"]', this).val()); // tabulation
+                    })
+                    .keyup(function (event) {
+                        if (event.which === 13) { // touche entrée
+                            send($(this).attr('id'), $(this).attr('data-original'), $('input[type="text"]', this).val());
+                        }
+                    });
+            ;
+        });
+    </script>
+{% endblock %}

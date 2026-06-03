@@ -1,0 +1,46 @@
+
+<div class="card card-body">
+
+    {{ form_start(form) }}
+    <div class="my-custom-class-for-errors">
+        {{ form_errors(form) }}
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.libelle, {'label':'Projet '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.description, {'label':'Description '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.ouvrage, {'label':' Maitre d\'ouvrage '}) }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.chefprojet, {'label':'Chef projet '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.montantdepense, {'label':'Montant depensé '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.devis, {'label':'Devis '}) }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.debutprojet, {'label':'Date debut '}) }}
+        </div>
+
+        <div class="col-md-4">
+            {{ form_row(form.finprojet, {'label':'Date de fin '}) }}
+        </div>
+    </div>
+    <button class="btn btn-success">{{ button_label|default('Valider') }}</button>
+    <a href="{{ path('projet_index') }}" class="btn btn-primary">Afficher la liste</a>
+
+
+
+
+    {{ form_end(form) }}
+</div>

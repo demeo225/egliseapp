@@ -1,0 +1,70 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification Depense{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification depense {{ depensecellule.montant }}</h3>
+        </div>
+        <div class="card card-body">
+
+
+            {{ form_start(form) }}
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <div class="my-custom-class-for-errors">
+                {{ form_errors(form) }}
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.typeoff, {'label':'Operation '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.datedepense, {'label':'Date '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.objet, {'label':'Objet '}) }}
+                </div>
+
+
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.ajout, {'label':'Montant '}) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_row(form.detail, {'label':'Detail '}) }}
+                </div>
+
+            </div>
+     
+            <div class="row"> 
+                <div class="col-md-1">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+                <div class="col-md-3"><a href="{{ path('app_depensecellule_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+
+            {{ form_end(form) }}
+        </div>
+
+
+    </div>
+
+
+{% endblock %}

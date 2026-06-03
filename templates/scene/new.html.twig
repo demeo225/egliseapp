@@ -1,0 +1,16 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}New Scene{% endblock %}
+
+{% block body %}
+  
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestions des Saintes Sènes</h3>
+        </div>
+        <div class="card card-body">
+
+    {{ include('scene/_form.html.twig') }}
+        </div>
+    </div>
+{% endblock %}

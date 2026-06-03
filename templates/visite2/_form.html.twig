@@ -1,0 +1,64 @@
+
+<div class="card card-primary">
+
+    <div class="card card-body">
+        {{ form_start(form) }}
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+          
+          
+        <div class="row">
+            <div class="col-md-3">
+                {{ form_row(form.datevisite, {'label':'Date '}) }}
+            </div>
+             <div class="col-md-3">
+                {{ form_row(form.heure, {'label':'Heure '}) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.lieu, {'label':'Lieu '}) }}
+            </div>
+
+            <div class="col-md-3">
+                {{ form_row(form.fidele, {'label':'Choix du fidèle  '}) }}
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-md-4">
+                {{ form_row(form.personne, {'label':'Nouveau membre '}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.verset, {'label':'Versets bibliques '}) }}
+            </div>
+
+            <div class="col-md-4">
+                {{ form_row(form.responsable, {'label':'Resonsable '}) }}
+            </div>
+
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-12">
+                {{ form_row(form.observation, {'label':'Observation '}) }}
+            </div>
+        </div>
+
+
+        <div class="row"> 
+            <div class="col-md-2">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div>
+            <div class="col-md-3"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+            <div class="col-md-3"><a href="{{ path('app_visite2_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+        </div> 
+        {{ form_end(form) }}
+
+    </div>
+</div>

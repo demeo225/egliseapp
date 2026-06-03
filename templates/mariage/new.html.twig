@@ -1,0 +1,16 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}New mariage{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Nouveau mariage</h3>
+        </div>
+
+        {{ include('mariage/_form.html.twig') }}
+
+    </div>
+
+{% endblock %}
+

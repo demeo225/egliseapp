@@ -1,0 +1,69 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Details invité
+{% endblock %}
+
+{% block body %}
+  <div class="card card-primary">
+  <div class="card-header">
+            <h3 class="card-title"> Details sur invité </h3>
+        </div>
+    <div class="card body">
+    <table class="table">
+
+        <thead>
+            <tr>
+                <th>Nom & prenoms</th>
+                <th>Numero</th>
+                <th>Genre</th>
+                <th>Profession</th>
+                <th>Lieu d'habitation</th>
+                <th>Date d'arrivée</th>
+                <th>Invité par</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+
+                <td>{{ invite.nom}}</td>
+                <td>{{ invite.contact}}</td>
+                <td>{{ invite.sexe}}</td>
+                <td>{{ invite.profession}}</td>
+                <td>{{ invite.habitation}}</td>
+                <td> {% if invite.culte is not empty %} {{ invite.culte }} {% else %} {{ date_format(invite.createAt)}} {% endif %}</td>
+                <td> {% if invite.fidele is not empty %} {{ invite.fidele.nomfidele}} {% else %} {{ invite.invitant}} {% endif %}</td>                <td>
+                    <a href="{{ path('invite_update', {'id': invite.id}) }}">
+                        <span style="font-size: 2em; color: Dodgerblue;">
+
+                            <i class="fas fa-edit" title="Modifier"></i>
+
+                        </span>
+                    </a>
+
+
+                </td>
+            </tr>
+        </tbody>
+    </td>
+</tr></tbody><tfooter>
+    <tr>
+        <td>
+            <a href='{{ path('invite') }}'>
+                <button class="btn btn-primary">Retour</button>
+            </a>
+        </td>
+        <td>
+            <form method="post" action="{{ path('invite_delete', {'id': invite.id}) }}" onsubmit="return confirm('etes-vous sûr de vouloir supprimer?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ invite.id) }}">
+                <button class="btn btn-danger">
+                    Supprimer
+                </button>
+            </form>
+
+        </td>
+
+    </tr></tfooter></form></table>
+    </div>
+  </div>
+    {% endblock %}

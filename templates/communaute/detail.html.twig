@@ -1,0 +1,63 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des eglise de : :{{ nomcommunaute|upper }}{% endblock %}
+
+{% block body %}
+
+
+
+      <div class="card card-primary">
+    
+         <div class="card-header">
+            <h3 class="card-title">LISTE DES EGLISES DE :{{ nomcommunaute|upper }} </h3>
+        </div>
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    <a href='{{ path('communaute_index') }}'>
+                        <button class="btn btn-success">Retour à la liste</button>
+                    </a>
+                                  
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                        <th>Code</th>
+                        <th>Eglise</th>
+                        <th>Contact</th>
+                        <th>Quartier</th>
+                        <th>Email Admin</th>
+                     
+                        </thead>
+                        </tr>
+                        <tbody>
+                            {% for eglise in eglises %}
+
+                                <tr>
+
+                                    <td>{{ eglise.code|upper}}</td>
+                                    <td>{{ eglise.denomination|upper}}</td>
+                                    <td>{{ eglise.contact1}}</td>
+                                    <td>{{ eglise.quartier|upper}}</td>
+                                    <td>{{ eglise.administrateur|upper}}</td>
+                                    
+                                </tr>
+
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    
+
+
+
+{% endblock %}

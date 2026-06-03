@@ -1,0 +1,66 @@
+{% extends 'home/index.html.twig' %}
+{% block title %}{{ eglise.denomination }} : Activités de: {{ nomgroupe|upper }} {% endblock %}
+
+{% block body %}
+
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    <a href='{{ path('groupe') }}'>
+                        <button class="btn btn-success">Liste groupes</button>
+                    </a>
+                    <div class="btn btn-primary">
+                        Activités de : {{ nomgroupe|upper }} </div>
+                    <hr style="visibility: hidden" />
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Groupe</th>
+                                <th>Activité</th>
+                                <th>Lieu</th>
+                                <th>Thème</th>
+                                <th>Intervenant</th>
+                                <th>Présents</th>
+                                <th>Date </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activitegroupe in activitegroupes %}
+                                <tr>
+
+                                    <td> {% if activitegroupe.groupe is not null  %} {{ activitegroupe.groupe.nom|upper }}{% else %} {% endif %}</td>
+                                    <td>{{ activitegroupe.objet }}</td>
+                                    <td>{{ activitegroupe.lieu }}</td>
+                                    <td>{{ activitegroupe.theme }}</td>
+
+                                    <td>
+                                        {% if activitegroupe.fidele is not null  %}  {{ activitegroupe.fidele.nomfidele }} {% else %}{{ activitegroupe.typeofficiant }} {% endif %}
+                                    </td>
+                                    <td>{{ activitegroupe.nbrepresent }}</td>
+                                    <td>{{ activitegroupe.datesuper ? activitegroupe.datesuper|date('d-m-Y') : '' }}</td>
+
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="16">Aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+{% endblock %}

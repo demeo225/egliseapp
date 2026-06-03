@@ -1,0 +1,15 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Edit Objetcharge{% endblock %}
+
+{% block body %}
+   	<div class="card card-primary">
+		<div class="card-header">
+			<h3 class="card-title">Modification objet de depense</h3>
+		</div>
+		<div class="card card-body">
+
+			{{ include('objetcharge/_form.html.twig') }}
+
+		</div>
+{% endblock %}

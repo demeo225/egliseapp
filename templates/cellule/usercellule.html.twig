@@ -1,0 +1,85 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion Utilisateur Cellule{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Attribution d'utilisateur</h3>
+        </div>
+        <div class="card-body">
+
+            {{ form_start(form) }}
+             <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+      
+            <div class="col-md-4">
+                {{ form_row(form.users, {'label':'Utilisateur '}) }}
+            </div>
+            <div class="row mb-4">
+                <div class="col-6">
+                    <div class="form-group">
+                        {{ form_label(form.nom, "Cellule", {'label_attr':{'class':'col-form-label'}})}}
+                        {{ form_errors(form.nom)  }}
+                        <div class="foo">
+                            {{ form_widget(form.nom,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>
+               <div class="col-6">
+                    <div class="form-group">
+                        {{ form_label(form.lieu, "Lieu") }}
+                        {{ form_errors(form.lieu)  }}
+                        <div>
+                            {{ form_widget(form.lieu,{'label_attr':{'class':'foo'}})   }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+
+
+                <div class="col-6">
+                    <div class="form-group">
+                        {{ form_label(form.responsable1, "Responsable premier") }}
+                        {{ form_errors(form.responsable1)  }}
+                        <div>
+                            {{ form_widget(form.responsable1,{'label_attr':{'class':'foo'}})   }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">                        
+                        {{ form_label(form.responsable2, "Responsable second") }}
+                        {{ form_errors(form.responsable2)  }}
+                        <div>
+                            {{ form_widget(form.responsable2 ,{'label_attr':{'class':'foo'}})   }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row align-content-center"> 
+                <p><div class="btn btn-default">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div></p>
+
+                <div class="btn btn-default"><a href="{{ path('cellule') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+
+{% endblock %}

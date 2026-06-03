@@ -1,0 +1,180 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des baptemes {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_bapteme') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+    </div>
+</form>    
+</div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and baptemes |length==0 %}
+            Aucun Baptème
+
+        {% else %}
+
+            {% if baptemes |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan baptêmes</h3>
+                    </div>
+                    <div class="center">
+                        {% for bapteme in baptemes %}
+                            {% set seance = (baptemes|length)  %}
+
+                            {% if loop.last  %}
+                                Total :   {{ seance }} <br /> 
+
+                            {% endif %}
+
+                        {% endfor %}
+                    </div>
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Promotion</th>
+                                    <th>Pasteur officiant</th>
+                                    <th>Parrain</th>
+                                    <th>Lieu </th>
+                                    <th>Date </th>
+                                    <th>Voir les fidèles </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for bapteme in baptemes %}
+
+                                    <tr>
+                                        <td>{{ bapteme.promotion }}</td>
+                                        <td>{{ bapteme.pasteurofficient }}</td>
+                                        <td>{{ bapteme.parrain }}</td>
+                                        <td>{{ bapteme.lieubapteme }}</td>
+                                        <td>{{ bapteme.datebapteme ? date_format(bapteme.datebapteme) }}</td>
+                                        <td>
+                                            <button type="button" id="btn-fideles-modal" class="btn btn-primary" data-target="{{ path('bapteme_search_ames', {'id':bapteme.id}) }}"> 
+                                                <i class="fas fa-users" title="Details"></i>
+                                            </button> 
+                                        </td>
+
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+    <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fidelesModalLabel">Liste des promus </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+     {% block javascripts %}
+            {{ parent() }}
+            <script>
+                $(document).ready(function () {
+                    // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+                    $(document).on('click', 'button#btn-fideles-modal', function () {
+                        // créer le modal qui porte l'id fidelesModal
+                        let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                            keyboard: false
+                        });
+
+                        // recupere le div class="modal-body" du div id="fidelesModal"
+                        let container = $('#fidelesModal .modal-body');
+
+                        $.ajax({
+                            type: 'POST',
+                            url: $(this).attr('data-target'),
+                            async: true,
+                            beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                                container.empty();
+                            },
+                            success: function (html) {
+                                container.append(html); // une fois la réponse, on rempli le div.modal-body
+                                modal.show(); // on affiche la fenêtre modal
+                                //console.log(html);
+                            }
+                        });
+                    });
+                });
+            </script>
+
+            <script>
+                $(document).ready(function () {
+                    // quand on clic sur le button voir les evangile pour ouvrir la fenêtre modal
+                    $(document).on('click', 'button#btn-evangile-modal', function () {
+                        // créer le modal qui porte l'id evangileModal
+                        let modal = new bootstrap.Modal(document.getElementById('evangileModal'), {
+                            keyboard: false
+                        });
+
+                        // recupere le div class="modal-body" du div id="evangileModal"
+                        let container = $('#evangileModal .modal-body');
+
+                        $.ajax({
+                            type: 'POST',
+                            url: $(this).attr('data-target'),
+                            async: true,
+                            beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                                container.empty();
+                            },
+                            success: function (html) {
+                                container.append(html); // une fois la réponse, on rempli le div.modal-body
+                                modal.show(); // on affiche la fenêtre modal
+                                //console.log(html);
+                            }
+                        });
+                    });
+                });
+            </script>
+        {% endblock %}

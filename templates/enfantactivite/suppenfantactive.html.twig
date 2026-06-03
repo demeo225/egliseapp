@@ -1,0 +1,74 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Suppression enfant
+{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-danger">
+        <div class="card-header">
+            <h4 class="card-title">Retrait de {{ enfantactivite.enfant.nom }} <img src="{{ asset('uploads/photos/'~enfantactivite.enfant.photoFile )}}"  class="img-size-50 mr-4 img-square"/></h4>
+        </div>
+        <div class="card-body">
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="row mb-4">
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.enfant, "Nom & Prénoms") }}
+                        {{ form_errors(form.enfant)  }}s
+                        <div>
+                            {{ form_widget(form.enfant) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.montantpayer, "Montant payé") }}
+                        {{ form_errors(form.montantpayer)  }}
+                        <div>
+                            {{ form_widget(form.montantpayer) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.reste, "Reste à payer") }}
+                        {{ form_errors(form.reste) }}
+                        <div>
+                            {{ form_widget(form.reste)  }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mb-4">
+
+
+
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.ecodimactivite, "Activité") }}
+                        {{ form_errors(form.ecodimactivite)  }}
+                        <div>
+                            {{ form_widget(form.ecodimactivite) }}
+                        </div>
+                    </div>
+                </div>
+             
+            </div>
+
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+{% endblock %}

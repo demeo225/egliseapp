@@ -1,0 +1,155 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des naissances {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_naissance') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.sexenaiss, {'label':'Sexe'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+    </div>
+</form>    
+</div> 
+
+<div class="rows">
+    {% if app.request.method == 'POST' and naissances |length==0 %}
+        Aucune donnée trouvée
+
+    {% else %}
+
+        {% if naissances |length >0 %}
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Resultats de la recherche</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Date présentation</th>
+                                <th>Enfant</th>
+                                <th>Sexe</th>
+                                <th>Image </th>
+                                <th>Details </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for naissance in naissances %}
+
+                                <tr>
+
+                                    <td>{{ date_format(naissance.datepresentation) }}</td>
+                                    <td>{{ naissance.nomnaiss|upper}}</td>
+                                    <td>{% set sexe = naissance.sexenaiss %}
+                                        {% if sexe == 1 %} Garçon
+                                        {% else %}
+                                            Fille
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td> {% if naissance.photoFile is not empty %}  <a href="{{ asset('uploads/photos/' ~ naissance.photoFile) }}">Voir photo</a>
+                                    {% else %} Aucune image {% endif %}</td>
+
+
+
+                                        <td>
+                                            <button type="button" id="btn-fideles-modal" class="btn btn-primary" data-target="{{ path('naissance_show', {'id':naissance.id}) }}"> 
+                                                <i class="fas fa-list" title="Details"></i>
+                                            </button> 
+
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                        {% endif %}
+
+
+
+                            <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endblock %}
+
+                                {% block javascripts %}
+                                    {{ parent() }}
+                                    <script>
+                                        $(document).ready(function () {
+                                            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+                                            $(document).on('click', 'button#btn-fideles-modal', function () {
+                                                // créer le modal qui porte l'id fidelesModal
+                                                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                                                    keyboard: false
+                                                });
+
+                                                // recupere le div class="modal-body" du div id="fidelesModal"
+                                                let container = $('#fidelesModal .modal-body');
+
+                                                $.ajax({
+                                                    type: 'POST',
+                                                    url: $(this).attr('data-target'),
+                                                    async: true,
+                                                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                                                        container.empty();
+                                                    },
+                                                    success: function (html) {
+                                                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                                                        modal.show(); // on affiche la fenêtre modal
+                                                        //console.log(html);
+                                                    }
+                                                });
+                                            });
+                                        });
+                                    </script>
+
+
+                                {% endblock %}
+

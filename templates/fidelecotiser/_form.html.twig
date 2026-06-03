@@ -1,0 +1,42 @@
+
+<div class="card card-primary">
+
+    <div class="card card-body ">
+        {{ form_start(form) }}
+ <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.fidele, {'label':'Choix du fidèle'}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.cotisation, {'label':'Cotisation'}) }}
+            </div>
+
+        </div>
+        <div class="row">
+
+            <div class="col-md-4">
+                {{ form_row(form.montpaye, {'label':'Montant '}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.datecotiser, {'label':'Date'}) }}
+            </div>
+        </div>
+        <div class="row"> 
+            <p><div class="btn btn-default">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div></p>
+
+            <div class="btn btn-default"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+            <div class="btn btn-default"><a href="{{ path('fidelecotiser_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+        </div> 
+        {{ form_end(form) }}
+    </div>
+</div>

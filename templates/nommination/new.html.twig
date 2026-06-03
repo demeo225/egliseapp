@@ -1,0 +1,13 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}New Nommination{% endblock %}
+
+{% block body %}
+       <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Nomination</h3>
+        </div>
+
+    {{ include('nommination/_form.html.twig') }}
+       </div>
+{% endblock %}

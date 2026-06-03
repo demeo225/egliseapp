@@ -1,0 +1,14 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification fidèle{% endblock %}
+
+{% block body %}
+         <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification fidèle</h3>
+        </div>
+
+    {{ include('fidele/_form.html.twig') }}
+
+         </div>
+{% endblock %}

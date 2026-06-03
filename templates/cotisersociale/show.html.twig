@@ -1,0 +1,62 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Cotisersociale{% endblock %}
+
+{% block body %}
+    <h1>Cotisersociale</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ cotisersociale.id }}</td>
+            </tr>
+            <tr>
+                <th>Datecotiser</th>
+                <td>{{ cotisersociale.datecotiser ? cotisersociale.datecotiser|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Montantpayer</th>
+                <td>{{ cotisersociale.montantpayer }}</td>
+            </tr>
+            <tr>
+                <th>Reste</th>
+                <td>{{ cotisersociale.reste }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ cotisersociale.createdAt ? cotisersociale.createdAt|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedAt</th>
+                <td>{{ cotisersociale.updatedAt ? cotisersociale.updatedAt|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ cotisersociale.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ cotisersociale.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ cotisersociale.deletedAt ? cotisersociale.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ cotisersociale.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ cotisersociale.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_cotisersociale_index') }}">back to list</a>
+
+    <a href="{{ path('app_cotisersociale_edit', {'id': cotisersociale.id}) }}">edit</a>
+
+    {{ include('cotisersociale/_delete_form.html.twig') }}
+{% endblock %}

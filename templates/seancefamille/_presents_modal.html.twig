@@ -1,0 +1,38 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-success">
+                <strong>Séance du :</strong> {{ seance.datesuper ? seance.datesuper|date('d/m/Y') : '-' }}<br>
+                <strong>Famille :</strong> {{ seance.famille ? seance.famille.nom : '-' }}<br>
+                <strong>Lieu :</strong> {{ seance.lieu|default('-') }}
+            </div>
+            
+            <div class="alert alert-info">
+                <strong>Total des présents :</strong> {{ total }}
+            </div>
+            
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Fidèle</th>
+                        <th>Contact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for present in presents %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ present.nom }}</td>
+                        <td>{{ present.contact|default('-') }}</td>
+                    </tr>
+                    {% else %}
+                    <td>
+                        <td colspan="4" class="text-center">Aucun présent enregistré</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

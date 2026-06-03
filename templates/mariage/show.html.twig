@@ -1,0 +1,70 @@
+
+
+<div class="container-fluid">
+    <table class="table" border="1">
+
+        <thead>
+
+        </thead>
+        <tbody>
+            <tr class="btn-success">
+
+                <td>Date</td>
+                <td>Epoux</td>
+                <td>Epouse</td>
+                <td>Témoin Epoux</td>
+                <td>Témoin Epouse</td>
+            </tr>
+            <tr>
+
+                <td>{{ date_format(mariage.datemariage) }}</td>
+                <td>{% if mariage.epousemembre is not empty %} {{ mariage.epousemembre.nomfidele}} {% else %}{{ mariage.epoux}}{% endif %}</td>
+                <td>{% if mariage.epouxmembre is not empty %} {{ mariage.epouxmembre.nomfidele}} {% else %}{{ mariage.epouse}}{% endif %}</td>
+
+                <td>{{ mariage.temoinepoux|upper}}</td>
+                <td>{{ mariage.temoinepouse|upper}}</td>
+
+            </tr>   
+            <tr class="btn-success">
+
+                <td>Pasteur officient</td>
+                <td>Parrain/marraine</td>
+                <td>Lieu</td>
+                <td>Don en espèce</td>
+                <td>Dons en nature</td>
+
+            </tr>
+            <tr>
+                <td>{{ mariage.pasteurmariage|upper}}</td>
+                <td>{{ mariage.parrain|upper}}</td>
+                <td>{{ mariage.lieumariage|upper}}</td>
+                <td>{{ mariage.especedon}}</td>
+                <td>{{ mariage.naturedon}}</td>
+            </tr>
+
+
+            <tr class="btn-success">
+                <td>Regime</td>
+                <td>Date enreg.</td>
+                <td>Enregistré par</td>
+
+
+            </tr>
+
+            <tr>
+                <td> {% set regime =mariage.regime %}
+                    {% if regime == 1 %} Communauté de bien
+                    {% else %}
+                        Séparation de bien
+                    {% endif %}</td>
+                <td>{{ date_format(mariage.createAt) }}</td>
+
+                <td> {{ mariage.createdBy.nomuser}}</td>
+
+            </tr>
+        </tbody>
+
+    </table>
+</div>
+
+

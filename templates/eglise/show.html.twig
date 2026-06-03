@@ -1,0 +1,68 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Eglise{% endblock %}
+
+{% block body %}
+    <h1>Eglise</h1>
+
+    <table class="table">
+        <tbody>
+      
+            <tr>
+                <th>Communaute</th>
+                <td>{{ eglise.communaute }}</td>
+            </tr>
+            <tr>
+                <th>Denomination</th>
+                <td>{{ eglise.denomination }}</td>
+            </tr>
+            <tr>
+                <th>Contact1</th>
+                <td>{{ eglise.contact1 }}</td>
+            </tr>
+            <tr>
+                <th>Contact2</th>
+                <td>{{ eglise.contact2 }}</td>
+            </tr>
+            <tr>
+                <th>Adresse</th>
+                <td>{{ eglise.adresse }}</td>
+            </tr>
+            <tr>
+                <th>Logo</th>
+                <td>{{ eglise.logo }}</td>
+            </tr>
+            <tr>
+                <th>Quartier</th>
+                <td>{{ eglise.quartier }}</td>
+            </tr>
+            <tr>
+                <th>Agrement</th>
+                <td>{{ eglise.agrement }}</td>
+            </tr>
+            <tr>
+                <th>Verset</th>
+                <td>{{ eglise.verset }}</td>
+            </tr>
+            <tr>
+                <th>Sigle</th>
+                <td>{{ eglise.sigle }}</td>
+            </tr>
+            <tr>
+                <th>Facebook</th>
+                <td>{{ eglise.facebook }}</td>
+            </tr>
+            <tr>
+                <th>Texte</th>
+                <td>{{ eglise.texte }}</td>
+            </tr>
+       
+        </tbody>
+    </table>
+
+    <a href="{{ path('eglise') }}">Liste Eglise</a>
+
+    <a href="{{ path('eglise_edit', {'id': eglise.id}) }}">Modification</a>
+
+ 
+{% endblock %}

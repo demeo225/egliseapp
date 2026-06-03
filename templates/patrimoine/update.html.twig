@@ -1,0 +1,82 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion du patrimoine{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion de patrimoine</h3>
+        </div>
+         <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <div class="card card-body">
+            {{ form_start(form) }}
+  
+               <div class="col-4">
+                        <div class="form-group">
+                            {{ form_label(form.datepatrimoine, "Date")}}
+                            {{ form_errors(form.datepatrimoine)  }}
+                            <div>
+                                {{ form_widget(form.datepatrimoine) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            {{ form_label(form.article, "Article")}}
+                            {{ form_errors(form.article)  }}
+                            <div>
+                                {{ form_widget(form.article) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            {{ form_label(form.quantite, "Quantité")}}
+                            {{ form_errors(form.quantite)  }}
+                            <div>
+                                {{ form_widget(form.quantite) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            {{ form_label(form.prixunitaire, "Prix unitaire")}}
+                            {{ form_errors(form.prixunitaire)  }}
+                            <div>
+                                {{ form_widget(form.prixunitaire) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row"> 
+                  
+                        <div class="col-md-2">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+                        <div class="col-md-4"><a href="{{ path('patrimoine') }}" class="btn btn-success">Afficher la liste</a> </div>
+
+                        <div style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+                
+                </div>
+
+                <div>
+                    {{ form_rest(form) }}
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+   
+
+
+
+
+
+{% endblock %}

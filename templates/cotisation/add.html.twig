@@ -1,0 +1,58 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotisation  {% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion des cotisations </h3>
+        </div>
+        <div class="card card-body">
+            {{ form_start(form) }}
+              {# Affichage des messages flash #}
+        <div class="row">
+            <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+            <div class="row">
+
+                <div class="col-md-4">
+                    {{ form_row(form.objet, {'label':'Objet '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.montant, {'label':'Montant '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.periodecotisation,{'label':'Date limite '}) }}
+
+                </div>
+            </div>
+
+            <div class="row"> 
+                <div class="col-md-2">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div>
+                <div class="col-md-3"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+                <div class="col-md-2"><a href="{{ path('cotisation') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+        </div>
+
+
+        <div>
+            {{ form_rest(form) }}
+        </div>
+        {{ form_end(form) }}
+    </div>
+
+
+
+
+
+{% endblock %}

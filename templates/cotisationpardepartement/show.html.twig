@@ -1,0 +1,63 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotisation departement{% endblock %}
+
+{% block body %}
+       <div class="card-body">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Details {{ cotisationpardepartement.objet }} </h3>
+            </div>
+
+            <table class="table">
+                <tbody>
+
+                    <tr>
+                        <th>Date de fin</th>
+                        <td>{{ cotisationpardepartement.datefin ? cotisationpardepartement.datefin|date('d-m-Y') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Objet</th>
+                        <td>{{ cotisationpardepartement.objet }}</td>
+                    </tr>
+                    <tr>
+                        <th>Montant</th>
+                        <td>{{ cotisationpardepartement.montant|number_format(0, '.', ' ') }}</td>
+                    </tr>
+
+
+                    <tr>
+                        <th>Montantal cotisé</th>
+                        <td>
+                            {% set detail = cotisationpardepartement.cotiserpardepartements  %}
+                            {% for detail in detail %}
+                                {% set sum = detail.montantpayer + sum ?? 0 %}
+                                {% if loop.last  %} <b> {{ sum|number_format(0, '.', ' ') }}</b>  {% endif %}
+                            {% endfor %}
+
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Etat</th>
+                        <td>
+                            {% if date('now') < date(cotisationpardepartement.datefin) %}
+                                <b>En cours</b>
+
+                            {% else %}
+
+                                <i class="btn btn-success">  Achévée</i>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <a href='{{ path('app_cotisationpardepartement_index') }}'>
+                <button class="btn btn-success">Liste cotisations</button>
+            </a>
+        </div>
+    </div>
+
+{% endblock %}

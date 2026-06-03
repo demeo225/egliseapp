@@ -1,0 +1,13 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}New commune{% endblock %}
+
+{% block body %}
+      <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion des communes</h3>
+        </div>
+
+    {{ include('commune/_form1.html.twig') }}
+      </div>
+{% endblock %}

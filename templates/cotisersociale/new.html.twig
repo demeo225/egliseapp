@@ -1,0 +1,13 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Nouvelle cotisation{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Nouvel enregistrement</h3>
+        </div>
+
+        {{ include('cotisersociale/_form.html.twig') }}
+    </div>
+{% endblock %}

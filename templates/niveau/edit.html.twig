@@ -1,0 +1,15 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Edit Niveau{% endblock %}
+
+{% block body %}
+    	<div class="card card-primary">
+		<div class="card-header">
+			<h3 class="card-title">Modification Niveau d'étude</h3>
+		</div>
+		<div class="card card-body">
+
+			{{ include('niveau/_form.html.twig') }}
+
+		</div>
+{% endblock %}

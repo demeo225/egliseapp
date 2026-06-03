@@ -1,0 +1,25 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotiserfamille{% endblock %}
+
+{% block body %}
+    <h1>Cotiserfamille</h1>
+
+    <table class="table">
+        <tbody>
+       
+            <tr>
+                <th>Montantpayer</th>
+                <td>{{ cotiserfamille.montantpayer|number_format(0, '.', ' ') }}</td>
+            </tr>
+            <tr>
+                <th>Total cotisé</th>
+                <td>{{ cotiserfamille.reste|number_format(0, '.', ' ') }}</td>
+            </tr>
+         
+
+        </tbody>
+    </table>
+
+
+{% endblock %}

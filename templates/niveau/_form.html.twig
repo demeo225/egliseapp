@@ -1,0 +1,29 @@
+<div class="card card-primary">
+
+    <div class="card card-body">
+        {{ form_start(form) }}
+  <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.libelle, {'label':'Categorie * :','attr':{'class':'form-control'}}) }}
+            </div>
+       
+
+        </div>
+ 
+            <div class="row"> 
+                <div class="col-md-2">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save', 'onclick' :'compareDates()'}}) }}</div>
+                <div class="col-md-4"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add', 'onclick' :'compareDates()'}}) }} </div>
+                <div class="col-md-4"><a href="{{ path('app_niveau_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+            {{ form_end(form) }}
+        </div>
+    </div>

@@ -1,0 +1,91 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des programmes {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_programme') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+
+
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and programmes |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+
+            {% if programmes |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Resultats de la recherche</h3>
+                    </div>
+                    
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Programme</th>
+                                    <th>Description</th>
+                                    <th>Debut</th>
+                                    <th>Fin</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for programme in programmes %}
+
+                                    <tr>
+
+                                        <td>{{ programme.title}}</td>
+
+                                        <td>{{ programme.description|raw}}</td>
+
+
+                                        <td>{{ date_format(programme.start)}} à {{ programme.start|date('H:i:s') }}</td>
+                                        <td>{{ date_format(programme.end)}} à {{ programme.end|date('H:i:s') }}</td>
+
+
+
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+        {% endblock %}
+

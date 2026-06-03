@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Livremembre index{% endblock %}
+
+{% block body %}
+    <h1>Livremembre index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Numero</th>
+                <th>Datelivret</th>
+                <th>Etat</th>
+                <th>CreatedAt</th>
+                <th>UpdatedAt</th>
+                <th>CreatedFromIp</th>
+                <th>UpdatedFromIp</th>
+                <th>DeletedAt</th>
+                <th>DeletedFromIp</th>
+                <th>Editable</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for livremembre in livremembres %}
+            <tr>
+                <td>{{ livremembre.id }}</td>
+                <td>{{ livremembre.numero }}</td>
+                <td>{{ livremembre.datelivret ? livremembre.datelivret|date('Y-m-d') : '' }}</td>
+                <td>{{ livremembre.etat ? 'Yes' : 'No' }}</td>
+                <td>{{ livremembre.createdAt ? livremembre.createdAt|date('Y-m-d') : '' }}</td>
+                <td>{{ livremembre.updatedAt ? livremembre.updatedAt|date('Y-m-d') : '' }}</td>
+                <td>{{ livremembre.createdFromIp }}</td>
+                <td>{{ livremembre.updatedFromIp }}</td>
+                <td>{{ livremembre.deletedAt ? livremembre.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ livremembre.deletedFromIp }}</td>
+                <td>{{ livremembre.editable ? 'Yes' : 'No' }}</td>
+                <td>
+                    <a href="{{ path('app_livremembre_show', {'id': livremembre.id}) }}">detail</a>
+                    <a href="{{ path('app_livremembre_edit', {'id': livremembre.id}) }}">modifier</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="12">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_livremembre_new') }}">Create new</a>
+{% endblock %}

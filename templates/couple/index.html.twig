@@ -1,0 +1,57 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Couples de l'Eglise{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Liste des Couples</h3>
+        </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+        <div class="card-body">
+            <a href='{{ path('couple_new') }}'>
+                <button class="btn btn-primary">Nouveau couple</button>
+            </a>
+
+            <hr style="visibility: hidden" />
+
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Epoux</th>
+                        <th>Contact Epoux</th>
+                        <th>Epouse</th>
+                        <th>Contact Epouse</th>
+                        <th>Lieu d'habitation</th>
+                        <th>Modifier</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for couple in couples %}
+                        <tr>
+                            <td> {% if couple.epoux is not empty %} {{ couple.epoux.nomfidele }}{% else %} {% endif %}</td>
+                            <td>{% if couple.epoux is not empty %}{{ couple.epoux.contact1 }}{% else %} {% endif %}</td>
+                            <td>{% if couple.epouse is not empty %}{{ couple.epouse.nomfidele }}{% else %} {% endif %}</td>
+                            <td>{% if couple.epouse is not empty %}{{ couple.epouse.contact1 }} {% else %} {% endif %}</td>
+                            <td>{% if couple.epoux is not empty %}{{ couple.epoux.quartier.libelle }} {% else %} {% endif %}</td>
+                            <td><a href="{{ path('couple_edit', {'id': couple.id}) }}">Modifier</a></td>
+                        </tr>
+                   
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

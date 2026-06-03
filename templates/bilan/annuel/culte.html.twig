@@ -1,0 +1,141 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des cultes{% endblock %}
+
+{% block body %}
+<div class="card card-body">
+    {{ form_start(form_recherche, {'action': path('app_bilan_culte'), 'method': 'POST'}) }}
+        
+        <div class="card card-success">
+            <div class="card-header">
+                <h3 class="card-title">Critères de recherche</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.typeculte, {'label': 'Type de culte'}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.messager, {'label': 'Messager / Orateur'}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dirigeant, {'label': 'Dirigeant'}) }}
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label': 'Date début'}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin, {'label': 'Date fin'}) }}
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary mt-4">
+                            <i class="fas fa-search"></i> Rechercher
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ path('app_bilan_culte') }}" class="btn btn-secondary mt-4">
+                            <i class="fas fa-undo"></i> Réinitialiser
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    {{ form_end(form_recherche) }}
+</div>
+
+{% if bilan is defined and bilan is not null %}
+    {% if bilan.isEmpty %}
+        <div class="alert alert-info mt-3">
+            Aucune donnée trouvée pour les critères sélectionnés.
+        </div>
+    {% else %}
+        {# Statistiques #}
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <div class="info-box bg-info">
+                    <span class="info-box-icon"><i class="fas fa-church"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Nombre total de cultes</span>
+                        <span class="info-box-number">{{ bilan.totalCultes }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-box bg-success">
+                    <span class="info-box-icon"><i class="fas fa-users"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total fidèles</span>
+                        <span class="info-box-number">{{ bilan.totalFideles|number_format }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-box bg-warning">
+                    <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Moyenne par culte</span>
+                        <span class="info-box-number">{{ bilan.moyenneParCulte|number_format(0) }} pers.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {# Tableau des résultats #}
+        <div class="card card-primary mt-3">
+            <div class="card-header">
+                <h3 class="card-title">Détail des cultes</h3>
+            </div>
+            <div class="card-body table-responsive">
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type culte</th>
+                            <th>Thème</th>
+                            <th>Dirigeant</th>
+                            <th>Orateur/Messager</th>
+                            <th>Hommes</th>
+                            <th>Femmes</th>
+                            <th>Enfants</th>
+                            <th>Invités</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for culte in bilan.cultes %}
+                            <tr>
+                                <td>{{ culte.dateculte|date('d/m/Y') }}</td>
+                                <td>{{ culte.typeculte ? culte.typeculte.libelle }}</td>
+                                <td>{{ culte.theme|default('-') }}</td>
+                                <td>{{ culte.dirigeant.nomfidele|default('-') }}</td>
+                                <td>{{ culte.messager.nomfidele|default(culte.orateur|default('-')) }}</td>
+                                <td class="text-right">{{ culte.nmbrehomme|default(0)|number_format }}</td>
+                                <td class="text-right">{{ culte.nobrefemme|default(0)|number_format }}</td>
+                                <td class="text-right">{{ culte.nbrefant|default(0)|number_format }}</td>
+                                <td class="text-right">{{ culte.invite|default(0)|number_format }}</td>
+                                <td class="text-right">
+                                    <strong>
+                                        {{ (culte.nmbrehomme|default(0) + 
+                                           culte.nobrefemme|default(0) + 
+                                           culte.nbrefant|default(0) + 
+                                           culte.invite|default(0))|number_format }}
+                                    </strong>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="9" class="text-right">TOTAUX :</th>
+                            <th class="text-right">{{ bilan.totalFideles|number_format }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

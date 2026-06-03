@@ -1,0 +1,90 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion des enfants{% endblock %}
+
+{% block body %}
+
+
+    <section class="container">
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <a href='{{ path('enfant_add') }}'>
+                        <button class="btn btn-primary">Nouveau</button>
+                    </a>
+                    <a href='{{ path('enfant_print') }}'>
+                        <button class="btn btn-primary">Imprimer</button>
+                    </a>
+
+                    <hr style="visibility: hidden" />
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Enfant</th>
+                                <th>Contact parent</th>
+                                <th>Classe</th>
+                                <th>Age</th>
+                                <th>Photo</th>
+                                <th>Restaurer</th>
+
+                                </tr>
+                        </thead>
+                        <tbody>
+                            {% for enfant in enfant %}
+                                <tr>
+                                    <td>{{ enfant.code|upper}}</td>
+                                    <td>{{ enfant.nom|upper}}</td>
+                                    <td>{{ enfant.contact}}</td>
+                                    <td>{{ enfant.classenfant}}</td>
+                                    <td>
+                                        {% set naissance = enfant.datenaiss|date('Y') %}
+                                        {% set today = "now"|date('Y') %}
+                                        {% set difference = today - naissance %}
+
+                                        {{ difference }}
+
+                                    </td>
+
+
+
+
+                                    <td>
+                                        <img src="{{ asset('uploads/photos/'~enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/>
+                                        </a>
+                                    </td>
+
+                           
+                                    <td>
+                                  <form method="post" action="{{ path('enfant_restaure', {'id': enfant.id}) }}" onsubmit="return confirm('Voulez-vous restaurer cet enfant ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('restaureenfant' ~ enfant.id) }}">
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: red;">
+                                                    <i class="fas fa-trash-alt" title="Restaurer"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+                                    </td>
+
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+{% endblock %}

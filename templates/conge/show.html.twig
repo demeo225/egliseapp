@@ -1,0 +1,72 @@
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Details conge</h3>
+        </div>
+        <div class="card card-body">
+
+
+
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Fidèle</th>
+                        <td> {% if conge.fidele is not empty %} {{ conge.fidele.nomfidele|upper }} {% else %} {% endif %}</td>
+                    </tr>
+                    <tr>
+                        <th>Date debut</th>
+                        <td>{{ conge.dateconge ? conge.dateconge|date('d-m-Y') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date fin</th>
+                        <td>{{ conge.datefin ? conge.datefin|date('d-m-Y') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Etat</th>
+                        <td> {% if conge.etat == 0  %} En cours {% else %} Achevé {% endif %} </td>
+                    </tr>
+
+                    <tr>
+                        <th>Cause</th>
+                        <td>{{ conge.cause }}</td>
+                    </tr>
+                    <tr>
+                        <th>Detail</th>
+                        <td>{{ conge.detail|raw }}</td>
+                    </tr>
+                    <tr>
+                        <th>Durée</th>
+                        <td>
+                            {% if conge.datefin is not empty %}
+                                {% set difference = date(conge.dateconge).diff(conge.datefin) %}
+                          {{ difference.format('%m mois %d jour(s) ') }}
+
+                            {% else %}
+
+                                {% set datePost = conge.dateconge|date('d-m-Y') %}
+                                {% set today = "now"|date('d-m-Y') %}
+                                {% set difference = date(today).diff(date(datePost))%}
+                          {{ difference.format('%m mois %d jour(s) ') }}
+
+                            {% endif %}
+
+                        </td>
+                    </tr>
+                </tbody>
+                <tr>
+                    <td>
+                        
+                        {% if conge.datefin|date('Y-m-d') >= "now"|date('Y-m-d')    %} <form method="post" action="{{ path('app_conge_delete', {'id': conge.id}) }}" onsubmit="return confirm('Voulez-vous confirmer le retour du congé?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ conge.id) }}">
+                                <button class="btn">
+                                    <span style="font-size: 1em; color: red;">
+                                        <i class="fas fa-trash-alt" title="Retour de congé"></i>
+                                    </span>
+                                </button>
+                            </form>
+
+                        {% else %}  {% endif %}
+                    </td>
+                </tr>
+            </table>
+

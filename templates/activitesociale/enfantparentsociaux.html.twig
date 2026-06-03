@@ -1,0 +1,70 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Liste des enfants handicapés{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Liste des enfants handicapés</h3>
+        </div>
+        <div class="card-body">
+
+            <a href="{{ path('app_activitesociale_index') }}">
+                <button class="btn btn-primary">Actions sociales</button>
+            </a>
+
+            <a href="{{ path('app_activitesociale_enfantsociaux') }}">
+                <button class="btn btn-success">Liste des handicapés</button>
+            </a>
+
+            <a href="{{ path('app_activitesociale_adultesociaux') }}">
+                <button class="btn btn-success">Adultes cas sociaux</button>
+            </a>
+
+            <hr style="visibility: hidden" />
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Enfant</th>
+                        <th>Contact</th>
+                        <th>Quartier</th>
+                        <th>Condition de vie</th>
+                        <th>Etat de vie parent</th>
+                        <th>Age</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enfant in enfants %}
+                        <tr>
+
+                            <td>{{ enfant.code|upper }}</td>
+                            <td>{{ enfant.nom }}</td>
+                            <td>{{ enfant.contact }}</td>
+                            <td>{% if enfant.quartier is not null %} {{ enfant.quartier.libelle}} {% else %} Non renseigné {% endif %} </td>
+
+                            <td>{{ enfant.lieuvivre }}</td>
+                            <td>{{ enfant.vieparent }}</td>
+                            <td>
+
+
+                                {% set naissance = enfant.datenaiss|date('Y') %}
+                                {% set today = "now"|date('Y') %}
+                                {% set difference = today - naissance %}
+
+                                {{ difference }}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="14">Aucune donnée trouvée</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

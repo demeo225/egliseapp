@@ -1,0 +1,53 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Region{% endblock %}
+
+{% block body %}
+       <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Details </h3>
+        </div>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ region.id }}</td>
+            </tr>
+            <tr>
+                <th>Libelle</th>
+                <td>{{ region.libelle }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ region.createdAt ? region.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedAt</th>
+                <td>{{ region.updatedAt ? region.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ region.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ region.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ region.deletedAt ? region.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ region.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ region.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+       </div>
+{% endblock %}

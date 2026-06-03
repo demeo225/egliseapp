@@ -1,0 +1,127 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Cotisationparfamille index{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des cotisations ordinnaires</h3>
+            </div>
+              <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('app_cotisationparfamille_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+
+                <a href='{{ path('app_cotiserparfamille_index') }}'>
+                    <button class="btn btn-success">Paiements cotisation</button>
+                </a>
+
+                <hr style="visibility: hidden" /> 
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Objet</th>
+                            <th>Montant</th>
+                            <th>Dernier delais</th>
+                            <th>Etat</th>
+                            <th>Action</th>
+
+                            <th>Details</th>
+                            <th>Modifier</th>
+                            <th>Supprimer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cotisationparfamille in cotisationparfamilles %}
+                            <tr>
+                                <td>{{ cotisationparfamille.objet }}</td>
+                                <td>{{ cotisationparfamille.montant|number_format(0, '.', ' ') }}</td>
+                                <td>
+                                    {% if date('now') < date(cotisationparfamille.datefin) %}
+                                        <b>En cours</b>
+
+                                    {% else %}
+
+                                        <i class="btn btn-success">  Achévée</i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ cotisationparfamille.datefin ? date_format(cotisationparfamille.datefin) }}</td>
+
+                                <td>
+                                    {% if cotisationparfamille.etatcotiser == 1 %}
+                                        <form method="post" action="{{ path('cotisationparfamille_cloture', {'id': cotisationparfamille.id}) }}" onsubmit="return confirm('Voulez-vous clore cette cotisation?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('cloturecotisationparfam' ~ cotisationparfamille.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: red;">
+                                                    <i class="fas fa-trash-alt" title="Fermer"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+
+                                    {% else %}
+
+
+
+
+                                        <form method="post" action="{{ path('cotisationparfamille_active', {'id': cotisationparfamille.id}) }}" onsubmit="return confirm('Voulez-vous réactiver cette cotisation?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('activecotisationparfam' ~ cotisationparfamille.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: blue;">
+                                                    <i class="fas fa-edit" title="Activer"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+
+
+                                <td>
+                                    <a href="cotiser/se?id={{ cotisationparfamille.id }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-list" title="Details"></i>
+                                        </span>
+                                    </a>
+
+                                </td>
+                                <td>
+                                    <a href="{{ path('app_cotisationparfamille_edit', {'id': cotisationparfamille.id}) }}"><span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit" title="Modifier"></i>
+                                        </span></a>
+                                </td>
+                                <td>
+                                    {% if cotisationparfamille.detailparfamilles is empty %}
+
+                                        <form method="post" action="{{ path('app_cotisationparfamille_delete', {'id': cotisationparfamille.id}) }}" onsubmit="return confirm('êtes-vous sûr de vouloir supprimer?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ cotisationparfamille.id) }}">
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: red;">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

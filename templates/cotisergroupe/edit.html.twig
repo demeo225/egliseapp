@@ -1,0 +1,78 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotisation groupe{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification Paie de cotisation</h3>
+        </div>
+        <div class="card card-body">
+        {{ form_start(form) }}
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+                 <div class="row">
+
+
+
+                <div class="col-md-4">
+                    {{ form_row(form.groupe) }}
+                </div>
+
+
+
+                <div class="col-md-4">
+                    {{ form_row(form.cotisationgroupe,{'label':'Objet'}) }}
+                </div>
+
+
+
+
+
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.fidele) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.montantpayer, {'label':'Montant :','attr':{'class':'form-control'}}) }}
+                </div>
+
+
+
+
+
+                <div class="col-md-4">
+                    {{ form_row(form.datecotiser, {'label':'Date :','attr':{'class':'form-control'}}) }}
+                </div>
+
+            </div>
+
+        <div class="row"> 
+            <p><div class="btn btn-default">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div></p>
+
+            <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+            <div class="btn btn-default"><a href="{{ path('cotisergroupe_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+        </div> 
+        <div>
+            {{ form_rest(form) }}
+        </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+
+
+
+
+
+{% endblock %}

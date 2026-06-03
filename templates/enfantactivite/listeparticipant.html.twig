@@ -1,0 +1,96 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des participants{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste des participants</h3>
+            </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+
+                <a href='{{ path('presenceactivite') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('ecodimactivite_index') }}'>
+                    <button class="btn btn-success">Activités </button>
+                </a>
+                <a href='{{ path('enfantactivite_index') }}'>
+                    <button class="btn btn-success">Cotisations</button>
+                </a>
+                <hr style="visibility: hidden" />
+
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                    <tr>
+                    <th>Activite</th>
+                    <th>Date</th>
+                    <th>Lieu</th>
+                    <th>Code</th>
+                    <th>Enfant</th>
+                    <th>Contact Parents</th>
+                    <th>Age</th>
+                    <th>Photo</th>
+                    <th>Retirer</th>
+                     </tr>
+                    </thead>
+                   
+                    <tbody>
+                        {% for enfantactivite in enfantactivite %}
+
+                            <tr>
+
+                                <td> {% if enfantactivite.ecodimactivite is not empty  %} {{ enfantactivite.ecodimactivite.nomactivite|upper}} {% else %} {% endif %}</td>
+                                <td>{% if enfantactivite.ecodimactivite is not empty  %}{{ enfantactivite.ecodimactivite.dateactivite ? enfantactivite.ecodimactivite.dateactivite|date('d-m-Y') : '' }}  {% else %} {% endif %}</td>
+                                <td>{% if enfantactivite.ecodimactivite is not empty  %}{{ enfantactivite.ecodimactivite.lieu }}  {% else %} {% endif %}</td>
+                                <td>{{ enfantactivite.enfant.code|upper}}</td>
+                                <td>{{ enfantactivite.enfant.nom|upper}}</td>
+                                <td>{{ enfantactivite.enfant.contact}}</td>
+                                <td>{{ enfantactivite.enfant.age}}</td>
+
+                                <td>    <a href="{{ path('enfantactivite_show', {'id': enfantactivite.id}) }}"> 
+                                        <img src="{{ asset('uploads/photos/'~enfantactivite.enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> </a>  </td>
+
+                                <td>
+
+                                    <a href="{{ path('enfantactivite_suppenfantactive', {'id': enfantactivite.id}) }}">
+
+                                        <form method="post" action="{{ path('enfantactivite_suppenfantactive', {'id': enfantactivite.id}) }}" onsubmit="return confirm('etes-vous sûr de vouloir supprimer?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('supp' ~ enfantactivite.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: red;">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+
+                                </td>
+                            </tr>
+
+                       
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+{% endblock %}

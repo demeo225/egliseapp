@@ -1,0 +1,62 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Recommandation{{ recommandation.fidele.nomfidele}}
+{% endblock %}
+
+{% block body %}
+
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title"> Details recommandation du {{ recommandation.dateop|date('d-m-Y') }}  </h3>
+        </div>
+        <div class="card body">
+            <table class="table">
+
+
+                <tbody>
+
+
+
+                    <tr class="btn-success">
+                        <td>Fidèle</td>
+                        <td>Eglise Destination</td>
+                        <td>Référence</td>
+                        <td>Objet</td>
+                        <td>Redigée le</td>
+
+
+                    </tr>
+                    <tr>
+                        <td>{{ recommandation.fidele.nomfidele|upper}}</td>
+                        <td>{{ recommandation.destination}}</td>
+                        <td>{{ recommandation.reference}}</td>
+                        <td>{{ recommandation.objet}}</td>
+
+                        <td>{{ recommandation.dateop|date('d-m-Y ')}}</td>
+                    </tr>
+
+
+
+                    <tr>
+                        <td>
+                            <a href='{{ path('recommandation_index') }}'>
+                                <button class="btn btn-primary">Afficher la liste</button>
+                            </a>
+                            <a href="{{ path('recommandation_edit', {'id': recommandation.id}) }}">
+                                <span style="font-size: 2em; color: Dodgerblue;">
+
+                                    <i class="fas fa-edit"></i>
+
+                                </span>
+                            </a>
+                        </td>
+
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+{% endblock %}

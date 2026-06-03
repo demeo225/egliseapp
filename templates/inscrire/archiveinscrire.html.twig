@@ -1,0 +1,103 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Archive inscrires{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+    </style>
+
+    <div class="card card-dark">
+        <div class="card-header">
+            <h3 class="card-title">Archive des classes ECODIM</h3>
+        </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    {% for message in app.flashes('inscrire') %}
+                        <div class="primary">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+
+
+                    <table id="example1" class="table table-bordered table-striped table-danger">
+
+                        <thead>
+                            <tr class="btn-success">
+                                <th>Code</th>
+                                <th>Enfant</th>
+                                <th>Classe Ecodim</th>
+                                <th>Date de suppression</th>
+                                <th>Photo</th>
+
+                                <th>Detail</th>
+                                <th>Restaurer</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for inscrire in inscrire %}
+                                <tr>
+                                    <td>{{ inscrire.enfant.code|upper}}</td>
+                                    <td>{{ inscrire.enfant.nom|upper}}</td>
+                                    <td>{{ inscrire.classecodim.nom}}</td>
+                                    <td>{{ inscrire.updateAt|date('d-m-Y à H:m:s')}}</td>
+
+                                    <td>
+                                        <img src="{{ asset('uploads/photos/'~inscrire.enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/>                                               
+
+
+
+                                    <td>
+                                        <a href="{{ path('inscrire_detail', {'id': inscrire.id}) }}">
+                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                <i class="fas fa-address-card"></i>
+                                            </span>
+                                        </a>
+                                    </td>
+
+
+
+                                    <td>
+                                        <form method="post" action="{{ path('inscrire_restaure', {'id': inscrire.id}) }}" onsubmit="return confirm('Voulez-vous restaurer cet enfant dans cette classe?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('restaure' ~ inscrire.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: red;">
+                                                    <i class="fas fa-address-book"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+
+                </div>
+
+            </div>
+
+
+  
+
+
+{% endblock %}
+{# empty Twig template #}

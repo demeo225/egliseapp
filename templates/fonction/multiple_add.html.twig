@@ -1,0 +1,247 @@
+{# templates/fonction/multiple_add.html.twig #}
+{% extends "home/index.html.twig" %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4>Enregistrement multiple de fonctions</h4>
+        </div>
+        <div class="row">
+            <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h1 class="m-0 flash-text">{{ message }}</h1>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card-body">
+            {{ form_start(form) }}
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> 
+                Vous pouvez enregistrer plusieurs fonctions à la fois. Cliquez sur "Ajouter une ligne" pour ajouter plus de fonctions.
+            </div>
+            
+            <div id="fonctions-collection" 
+                 data-prototype="{{ form_widget(form.fonctions.vars.prototype)|e('html_attr') }}"
+                 data-index="{{ form.fonctions|length }}">
+                
+                {% for fonctionField in form.fonctions %}
+                    <div class="fonction-item" data-index="{{ loop.index0 }}">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form_row(fonctionField.nom, {
+                                            'label': 'Nom de la fonction',
+                                            'attr': {'class': 'form-control', 'placeholder': 'Ex: Fonction 1'}
+                                        }) }}
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger btn-sm remove-fonction">
+                                            <i class="fas fa-trash"></i> Supprimer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="mt-3">
+                <button type="button" class="btn btn-success" id="add-fonction">
+                    <i class="fas fa-plus"></i> Ajouter une ligne
+                </button>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Valider
+                </button>
+                 <a href="{{ path('fonction') }}" class="btn btn-secondary">Afficher la liste</a> 
+            </div>
+            
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const collectionHolder = document.getElementById('fonctions-collection');
+    const addButton = document.getElementById('add-fonction');
+    
+    if (!collectionHolder || !addButton) return;
+    
+    // Récupérer l'index actuel
+    let index = parseInt(collectionHolder.dataset.index);
+    if (isNaN(index)) index = collectionHolder.children.length;
+    
+    // Fonction pour ajouter une nouvelle ligne (CORRIGÉE)
+    function addFonctionForm() {
+        const prototype = collectionHolder.dataset.prototype;
+        const newForm = prototype.replace(/__name__/g, index);
+        
+        const div = document.createElement('div');
+        div.className = 'fonction-item';
+        div.setAttribute('data-index', index);
+        div.innerHTML = `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            ${newForm}
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger btn-sm remove-fonction">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        collectionHolder.appendChild(div);
+        index++;
+        collectionHolder.dataset.index = index;
+    }
+    
+    // Ajouter au clic (CORRIGÉ: appel de la bonne fonction)
+    addButton.addEventListener('click', addFonctionForm);
+    
+    // Gérer la suppression des lignes (CORRIGÉ)
+    function handleRemoveClick(e) {
+        const button = e.target.closest('.remove-fonction');
+        if (button) {
+            if (confirm('Voulez-vous vraiment supprimer cette ligne ?')) {
+                const item = button.closest('.fonction-item');
+                if (item) {
+                    item.remove();
+                }
+            }
+        }
+    }
+    
+    // Écouter les clics pour la suppression
+    document.addEventListener('click', handleRemoveClick);
+    
+    // Validation avant soumission
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const inputs = document.querySelectorAll('.fonction-item input[id$="_nom"]');
+            let hasEmpty = false;
+            
+            inputs.forEach(input => {
+                if (input.value.trim() === '') {
+                    hasEmpty = true;
+                    input.classList.add('is-invalid');
+                    
+                    // Ajouter un message d'erreur
+                    let errorDiv = input.parentElement.querySelector('.invalid-feedback');
+                    if (!errorDiv) {
+                        errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback';
+                        errorDiv.innerText = 'Le nom de la fonction ne peut pas être vide.';
+                        input.parentElement.appendChild(errorDiv);
+                    }
+                } else {
+                    input.classList.remove('is-invalid');
+                    const errorDiv = input.parentElement.querySelector('.invalid-feedback');
+                    if (errorDiv) errorDiv.remove();
+                }
+            });
+            
+            if (hasEmpty) {
+                e.preventDefault();
+                alert('Veuillez remplir tous les champs avant de valider.');
+            } else if (inputs.length === 0) {
+                e.preventDefault();
+                alert('Veuillez ajouter au moins une fonction.');
+            }
+        });
+        
+        // Nettoyer la validation à la saisie
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.id && e.target.id.endsWith('_nom')) {
+                e.target.classList.remove('is-invalid');
+                const errorDiv = e.target.parentElement.querySelector('.invalid-feedback');
+                if (errorDiv) errorDiv.remove();
+            }
+        });
+    }
+    
+    // Ajouter une première ligne si le formulaire est vide
+    if (collectionHolder.children.length === 0) {
+        addFonctionForm();
+    }
+});
+
+// Disparition automatique des messages flash après 5 secondes
+setTimeout(function() {
+    document.querySelectorAll('.my-alert').forEach(alert => {
+        alert.style.transition = 'opacity 0.5s ease';
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 500);
+    });
+}, 5000);
+</script>
+
+<style>
+.fonction-item {
+    margin-bottom: 20px;
+}
+
+.fonction-item .card {
+    border-left: 4px solid #007bff;
+    transition: all 0.3s ease;
+}
+
+.fonction-item .card:hover {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.remove-fonction {
+    margin-top: 0 !important;
+}
+
+.is-invalid {
+    border-color: #dc3545;
+}
+
+.invalid-feedback {
+    display: block;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.my-alert {
+    animation: slideIn 0.5s ease;
+    cursor: pointer;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.align-items-end {
+    align-items: flex-end !important;
+}
+</style>
+{% endblock %}

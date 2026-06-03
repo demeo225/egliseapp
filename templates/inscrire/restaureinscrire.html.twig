@@ -1,0 +1,56 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Restauration enfants{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-danger">
+        <div class="card-header">
+            <h3 class="card-title">Restauration de {{ inscrire.enfant.nom|upper }} <img src="{{ asset('uploads/photos/'~inscrire.enfant.photoFile )}}"  class="img-size-50 mr-3 img-square"/></h3>
+        </div>
+        <div class="card-body">
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="row mb-4">
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.dateinscrire, "Insertion le")}}
+                        {{ form_errors(form.dateinscrire)  }}
+                        <div>
+                            {{ form_widget(form.dateinscrire) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.createAt, "Date suppression")}}
+                        {{ form_errors(form.createAt)  }}
+                        <div>
+                            {{ form_widget(form.createAt) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.raisondelete, "Raison du retrait")}}
+                        {{ form_errors(form.raisondelete)  }}
+                        <div>
+                            {{ form_widget(form.raisondelete) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+                                        <div class="col-3 ">{{ form_row(form.save, {'label':'Restaurer ','attr':{'value':'save'}}) }}</div>
+
+                <div>
+                    {{ form_rest(form) }}
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+
+
+    {% endblock %}

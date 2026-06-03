@@ -1,0 +1,132 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des culte {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_culten') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+                <div class="col-md-3">
+                    {{ form_row(form_recherche.region, {'label':'Rgion '}) }}
+                </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.typeculte, {'label':'Type culte'}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+
+                <br />
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+            </div>    
+    </div>
+</form>    
+</div> 
+
+<div class="rows">
+    {% if app.request.method == 'POST' and cultes |length==0 %}
+        Aucune donnée trouvée
+
+    {% else %}
+
+        {% if cultes |length >0 %}
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Resultats de la recherche</h3>
+                </div>
+                <div style="align-content: center">
+
+                    {% for culte in cultes %}
+                        {% set seancec =   cultes|length  %}
+
+
+                        {% set nmbrehomme =culte.nmbrehomme%}
+                        {% set nobrefemme = culte.nobrefemme %}
+                        {% set nbrefant = culte.nbrefant %}
+                        {% set nbreinvite = culte.invite %}
+                        {% set totalc = nmbrehomme + nobrefemme + nbrefant + nbreinvite + totalc ?? 0 %}
+
+                        {% if loop.last  %}
+
+
+                            Nombre total cultes:   {{ seancec }} <br />
+
+                            {% set moyene1 = totalc / seancec %}
+                            Moyenne :<b> {{ moyene1|number_format() }} personnes / culte</b> 
+
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="card-body">
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Region</th>
+                                <th>Region pastorale</th>
+                                <th>Eglise</th>
+                                <th>Date</th>
+                                <th>Thème</th>
+                                <th>Type</th>
+                                <th>Orateur</th>
+                                <th>Total fidèles</th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+
+                            <tr>
+
+                                {% for culte in cultes %}
+
+                                    <td> {% if culte.eglise.region is not empty %} {{ culte.eglise.region }}{% else %} Non rensigné {% endif %}</td>
+                                    <td> {% if culte.eglise.regionpastorale is not empty %} {{ culte.eglise.regionpastorale }}{% else %} Non renseignée {% endif %}</td>
+                                    <td> {% if culte.eglise is not empty %} {{ culte.eglise }}{% else %} {% endif %}</td>
+                                    <td>{{ date_format(culte.dateculte)}}</td>
+                                    <td>{{ culte.theme}}</td>
+                                    <td>{{ culte.typeculte }}</td>
+                                    <td>{% if culte.messager is not empty %} {{ culte.messager.nomfidele}} {% else %}{{ culte.orateur}}{% endif %}</td>
+                                    <td>
+                                        {% set nmbrehomme =culte.nmbrehomme%}
+                                        {% set nobrefemme = culte.nobrefemme %}
+                                        {% set nbrefant = culte.nbrefant %}
+                                        {% set nbreinvite = culte.invite %}
+
+                                        {{ nmbrehomme + nobrefemme + nbrefant + nbreinvite }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+
+
+{% endblock %}
+

@@ -1,0 +1,30 @@
+
+{% extends "home/index.html.twig" %}
+
+{% block title %}Choix du groupe{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-body">
+        <form action="{{ path('seancegroupe_fidelegroupe') }}" method="POST">
+
+            <div class="row mb-4">
+
+                <div class="col-md-4">
+                    <select name="selGroupe" class="select2" required="true">
+                        <option value="">-- Sélectionner -- </option>
+                        {% for groupe in groupe %}
+                            <option value="{{ groupe.id }}">{{ groupe.nom }} </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <br />
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+     
+            </div>    
+        </form>    
+    </div> 
+        {% endblock %}

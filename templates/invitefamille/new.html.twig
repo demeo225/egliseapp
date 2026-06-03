@@ -1,0 +1,15 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}New Invitefamille{% endblock %}
+
+{% block body %}
+       <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title"> {{ famille.nom|upper }} : Gestion des invités de famille</h3>
+        </div>
+
+    {{ include('invitefamille/_form.html.twig') }}
+
+       </div>
+    
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Liste des cas sociaux adultes{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Liste des fidèles handicapés</h3>
+        </div>
+        <div class="card-body">
+
+            <a href="{{ path('app_activitesociale_index') }}">
+                <button class="btn btn-primary">Actions sociales</button>
+            </a>
+
+            <a href="{{ path('app_activitesociale_adulteparentsociaux') }}">
+                <button class="btn btn-success">Fidèles orphelins</button>
+            </a>
+
+            <a href="{{ path('app_activitesociale_enfantsociaux') }}">
+                <button class="btn btn-success">Enfants cas sociaux</button>
+            </a>
+
+
+            <hr style="visibility: hidden" />
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Fidèle</th>
+                        <th>Age</th>
+                        <th>Quartier</th>
+                        <th>Handicape</th>
+                        <th>Maladie</th>
+                        <th>Date d'arriver</th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fidele in fideles %}
+                        <tr>
+
+                            <td>{{ fidele.code|upper }}</td>
+                            <td>{{ fidele.nomfidele }}</td>
+                            <td>
+
+                                {% set naissance = fidele.datenaiss|date('Y') %}
+                                {% set today = "now"|date('Y') %}
+                                {% set difference = today - naissance %}
+
+                                {{ difference }}
+
+                            </td>
+                            <td>{{ fidele.quartier.libelle }}</td>
+                            <td>{{ fidele.handicap }}</td>
+                            <td>{{ fidele.maladie }}</td>
+                            <td>{{ fidele.datearriver ? fidele.datearriver|date('d-m-Y') : '' }}</td>
+
+
+
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="14">Aucune donnée trouvée</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

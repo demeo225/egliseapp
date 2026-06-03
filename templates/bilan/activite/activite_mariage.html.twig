@@ -1,0 +1,147 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des mariages {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_mariage') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                    
+                      <div class="col-md-3">
+                        {{ form_row(form_recherche.regime , {'label':'Regime'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>  
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and mariages |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+
+            {% if mariages |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Resultats de la recherche</h3>
+                    </div>
+
+
+                    <hr style="visibility: hidden" /> 
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Date </th>
+                                    <th>Epouse</th>
+                                    <th>Epoux</th>
+                                    <th>Regime</th>
+                                    <th>Photo</th>
+                                    <th>Details</th>
+
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mariage in mariages %}
+                                    <tr>
+                                        <td>{{ mariage.datemariage ? date_format(mariage.datemariage) }}</td>
+                                        <td>{% if mariage.epousemembre is not empty %} {{ mariage.epousemembre.nomfidele}} {% else %}{{ mariage.epouse}}{% endif %}</td>
+                                        <td>{% if mariage.epouxmembre is not empty %} {{ mariage.epouxmembre.nomfidele}} {% else %}{{ mariage.epoux}}{% endif %}</td>
+                                        <td> {{ mariage.regime }}
+                                        <td> {% if mariage.photo is not empty %}
+                                            <img src="{{ asset('uploads/photos/'~mariage.photoFile )}}"  class="img-size-50 mr-3 img-suqare" />
+                                        {% else %}  {% endif %}
+
+                                            </td>
+
+                                            <td>
+                                                <button type="button" id="btn-fideles-modal" class="btn btn-primary" data-target="{{ path('mariage_show', {'id':mariage.id}) }}"> 
+                                                    <i class="fas fa-list" title="Details"></i>
+                                                </button> 
+
+                                            </td>
+
+                                        </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="20">Acune donnée trouvée</td>
+                                            </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% endif %}
+                                        {% endif %}
+
+                                            <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-body">
+
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endblock %}
+                                                {% block javascripts %}
+                                                    {{ parent() }}
+                                                    <script>
+                                                        $(document).ready(function () {
+                                                            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+                                                            $(document).on('click', 'button#btn-fideles-modal', function () {
+                                                                // créer le modal qui porte l'id fidelesModal
+                                                                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                                                                    keyboard: false
+                                                                });
+
+                                                                // recupere le div class="modal-body" du div id="fidelesModal"
+                                                                let container = $('#fidelesModal .modal-body');
+
+                                                                $.ajax({
+                                                                    type: 'POST',
+                                                                    url: $(this).attr('data-target'),
+                                                                    async: true,
+                                                                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                                                                        container.empty();
+                                                                    },
+                                                                    success: function (html) {
+                                                                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                                                                        modal.show(); // on affiche la fenêtre modal
+                                                                        //console.log(html);
+                                                                    }
+                                                                });
+                                                            });
+                                                        });
+                                                    </script>
+
+
+                                                {% endblock %}

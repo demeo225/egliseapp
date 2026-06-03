@@ -1,0 +1,35 @@
+
+
+    <table class="table">
+        <tbody>
+          
+            <tr>
+                <th>Expediteur</th>
+                <td>{{ courrier.expediteur }}</td>
+            </tr>
+            <tr>
+                <th>Destinataire</th>
+                <td>{{ courrier.destinataire }}</td>
+            </tr>
+            <tr>
+                <th>Date expedition</th>
+                <td>{{ date_format(courrier.dateexpedition )}}</td>
+            </tr>
+            <tr>
+                <th>Date reception</th>
+                <td>{{ date_format(courrier.daterecep) }}</td>
+            </tr>
+            <tr>
+                <th>Objet</th>
+                <td>{{ courrier.objet }}</td>
+            </tr>
+            <tr>
+                <th>Type
+                courrier</th>
+                <td>{{ courrier.typecourrier }}</td>
+            </tr>
+        
+        </tbody>
+    </table>
+
+

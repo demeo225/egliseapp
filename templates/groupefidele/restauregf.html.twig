@@ -1,0 +1,52 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Restauration fidèle{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-danger">
+        <div class="card-header">
+            <h3 class="card-title">Voulez-vous reintégrer {{ groupefidele.fidele.nomfidele }} dans le groupe {{ groupefidele.groupe.nom }} <img src="{{ asset('uploads/photos/'~groupefidele.fidele.photoFile )}}"  class="img-size-50 mr-3 img-square"/></h3>
+        </div>
+        <div class="card-body">
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.rolegroupe, {'label':' Role '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.createAt, {'label':'Date Insertion '}) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_row(form.updateAt, {'label':'Date suppression '}) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_row(form.groupe, {'label':'Groupe '}) }}
+                </div>
+
+                 <div class="col-md-4">
+                       Retiré(e) par:
+                    {{ groupefidele.fidele.createdBy.nomuser}}  {{ groupefidele.fidele.createdBy.prenom}}
+                </div>
+              
+
+            </div>
+                
+                 
+             
+
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+{% endblock %}

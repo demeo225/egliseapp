@@ -1,0 +1,13 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Edit Objetdepense{% endblock %}
+
+{% block body %}
+    <h1>Edit Objetdepense</h1>
+
+    {{ include('objetdepense/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_objetdepense_index') }}">back to list</a>
+
+    {{ include('objetdepense/_delete_form.html.twig') }}
+{% endblock %}

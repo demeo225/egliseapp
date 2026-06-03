@@ -1,0 +1,42 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Objetdepense index{% endblock %}
+
+{% block body %}
+    <h1>Objetdepense index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+          
+                <th>Laclasse</th>
+                <th>Intitule</th>
+                <th>Compte</th>
+                <th>Libelle</th>
+
+            </tr>
+        </thead>
+        <tbody>
+        {% for objetdepense in objetdepenses %}
+            <tr>
+               
+                <td>{{ objetdepense.laclasse }}</td>
+                <td>{{ objetdepense.intitule }}</td>
+                <td>{{ objetdepense.compte }}</td>
+                <td>{{ objetdepense.libelle }}</td>
+
+                <td>
+                    <a href="{{ path('app_objetdepense_show', {'id': objetdepense.id}) }}">show</a>
+                    <a href="{{ path('app_objetdepense_edit', {'id': objetdepense.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="12">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_objetdepense_new') }}">Create new</a>
+{% endblock %}

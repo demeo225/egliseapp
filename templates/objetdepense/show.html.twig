@@ -1,0 +1,62 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Objetdepense{% endblock %}
+
+{% block body %}
+    <h1>Objetdepense</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ objetdepense.id }}</td>
+            </tr>
+            <tr>
+                <th>Laclasse</th>
+                <td>{{ objetdepense.laclasse }}</td>
+            </tr>
+            <tr>
+                <th>Intitule</th>
+                <td>{{ objetdepense.intitule }}</td>
+            </tr>
+            <tr>
+                <th>Compte</th>
+                <td>{{ objetdepense.compte }}</td>
+            </tr>
+            <tr>
+                <th>Libelle</th>
+                <td>{{ objetdepense.libelle }}</td>
+            </tr>
+            <tr>
+                <th>Ideglise</th>
+                <td>{{ objetdepense.ideglise }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ objetdepense.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ objetdepense.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ objetdepense.deletedAt ? objetdepense.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ objetdepense.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ objetdepense.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_objetdepense_index') }}">back to list</a>
+
+    <a href="{{ path('app_objetdepense_edit', {'id': objetdepense.id}) }}">edit</a>
+
+    {{ include('objetdepense/_delete_form.html.twig') }}
+{% endblock %}

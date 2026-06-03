@@ -1,0 +1,68 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste baptêmes{% endblock %}
+
+{% block body %}
+
+    <div class="card-body">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des baptêmes</h3>
+            </div>
+           <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+
+                <a href='{{ path('bapteme_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+
+
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Promotion</th>
+                            <th>Pasteur officiant</th>
+                            <th>Parrain</th>
+                            <th>Lieu </th>
+                            <th>Date </th>
+                            <th>Voir les fidèles </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bapteme in baptemes %}
+                            <tr>
+                                <td>{{ bapteme.promotion }}</td>
+                                <td>{{ bapteme.pasteurofficient }}</td>
+                                <td>{{ bapteme.parrain }}</td>
+                                <td>{{ bapteme.lieubapteme }}</td>
+                                <td>{{ bapteme.datebapteme ? date_format(bapteme.datebapteme) }}</td>
+                                <td>
+                                    <a href="fidele/se?id={{ bapteme.id }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-users" title="Voir fidèles"></i>
+                                        </span>
+                                    </a>
+
+                                </td>
+            
+                            </tr>
+                    
+                           
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,244 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Suppression enfant
+{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-danger">
+        <div class="card-header">
+            <h3 class="card-title">Suppression de {{ enfant.nom }} <img src="{{ asset('uploads/photos/'~enfant.photoFile )}}"  class="img-size-50 mr-3 img-square"/></h3>
+        </div>
+        <div class="card-body">
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="row mb-4">
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.sexe, "Sexe")}}
+                        {{ form_errors(form.sexe)  }}
+                        <div>
+                            {{ form_widget(form.sexe) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.nom, "Nom & Prénoms") }}
+                        {{ form_errors(form.nom)  }}
+                        <div>
+                            {{ form_widget(form.nom) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.contact, "Contact") }}
+                        {{ form_errors(form.contact)  }}
+                        <div>
+                            {{ form_widget(form.contact) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.lieunaiss, "Lieu de naissance") }}
+                        {{ form_errors(form.lieunaiss) }}
+                        <div>
+                            {{ form_widget(form.lieunaiss)  }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mb-4">
+
+
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.email, "Email") }}
+                        {{ form_errors(form.email)  }}
+                        <div>
+                            {{ form_widget(form.email) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.contactwhatssap, "N° Whatssap") }}
+                        {{ form_errors(form.contactwhatssap)  }}
+                        <div>
+                            {{ form_widget(form.contactwhatssap) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.datenaiss, "Date de naissance") }}
+                        {{ form_errors(form.datenaiss)  }}
+                        <div>
+                            {{ form_widget(form.datenaiss) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.groupesang, "Groupe sanguin") }}
+                        {{ form_errors(form.groupesang)  }}
+                        <div>
+                            {{ form_widget(form.groupesang) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row mb-4">
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.niveauetude, "Niveau d'étude") }}
+                        {{ form_errors(form.niveauetude)  }}
+                        <div>
+                            {{ form_widget(form.niveauetude) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+
+                    <div class="form-group">
+                        {{ form_label(form.numpiece, "N° Pièce") }}
+                        {{ form_errors(form.numpiece)  }}
+                        <div>
+                            {{ form_widget(form.numpiece) }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.ethnie, "Ethnie") }}
+                        {{ form_errors(form.ethnie) }}
+                        <div>
+                            {{ form_widget(form.ethnie)  }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.famille, "Famille") }}
+                        {{ form_errors(form.famille) }}
+                        <div>
+                            {{ form_widget(form.famille)  }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row mb-4">
+
+
+            </div>
+
+
+
+            <div class="row mb-4">
+
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.nationalite, "Nationalité") }}
+                        {{ form_errors(form.nationalite) }}
+                        <div>
+                            {{ form_widget(form.nationalite)  }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.quartier, "Quartier") }}
+                        {{ form_errors(form.quartier) }}
+                        <div>
+                            {{ form_widget(form.quartier)  }}
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.code, "Code") }}
+                        {{ form_errors(form.code) }}
+                        <div>
+                            {{ form_widget(form.code)  }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.comptefacebook, "Compte Facebook") }}
+                        {{ form_errors(form.comptefacebook)  }}
+                        <div>
+                            {{ form_widget(form.comptefacebook) }}
+                        </div>
+                    </div> 
+                </div> 
+            </div>
+
+
+
+            <div class="row mb-4">
+
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.classenfant, "Classe") }}
+                        {{ form_errors(form.classenfant) }}
+                        <div>
+                            {{ form_widget(form.classenfant)  }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.commune, "Commune") }}
+                        {{ form_errors(form.commune) }}
+                        <div>
+                            {{ form_widget(form.commune)  }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.cellule, "Cellule") }}
+                        {{ form_errors(form.cellule) }}
+                        <div>
+                            {{ form_widget(form.cellule)  }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bapteme{% endblock %}
+
+{% block body %}
+    <h1>Bapteme</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>{{ bapteme.id }}</td>
+            </tr>
+            <tr>
+                <th>Pasteur officiant</th>
+                <td>{{ bapteme.pasteurofficient }}</td>
+            </tr>
+            <tr>
+                <th>Promotion</th>
+                <td>{{ bapteme.promotion }}</td>
+            </tr>
+            <tr>
+                <th>Date bapteme</th>
+                <td>{{ bapteme.datebapteme ? bapteme.datebapteme|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Lieu bapteme</th>
+                <td>{{ bapteme.lieubapteme }}</td>
+            </tr>
+     
+            <tr>
+                <th>Femme</th>
+                <td>{{ bapteme.femme }}</td>
+            </tr>
+            <tr>
+                <th>Homme</th>
+                <td>{{ bapteme.homme }}</td>
+            </tr>
+            <tr>
+                <th>Total</th>
+                <td>{{ bapteme.total }}</td>
+            </tr>
+            <tr>
+     
+        </tbody>
+    </table>
+
+    <a href="{{ path('bapteme_index') }}">back to list</a>
+
+    <a href="{{ path('bapteme_edit', {'id': bapteme.id}) }}">edit</a>
+
+    {{ include('bapteme/_delete_form.html.twig') }}
+{% endblock %}

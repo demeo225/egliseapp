@@ -1,0 +1,13 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Edit Nominer{% endblock %}
+
+{% block body %}
+    <h1>Edit Nominer</h1>
+
+    {{ include('nominer/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_nominer_index') }}">back to list</a>
+
+    {{ include('nominer/_delete_form.html.twig') }}
+{% endblock %}

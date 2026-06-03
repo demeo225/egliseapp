@@ -1,0 +1,135 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Seance departement{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title"> Details activités du {{ seancedepartement.datesuper ? seancedepartement.datesuper|date('d-m-Y') : '' }} </h3>
+        </div>
+        <div class="card body">
+
+            <table class="table">
+                <tbody>
+
+                    <tr>
+                        <th>Date</th>
+                        <td>{{ seancedepartement.datesuper ? seancedepartement.datesuper|date('d-m-Y') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Lieu</th>
+                        <td>{{ seancedepartement.lieu }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Theme</th>
+                        <td>{{ seancedepartement.theme }}</td>
+                    </tr>
+                    <tr>
+                        <th>Homme</th>
+                        <td>{{ seancedepartement.nbrepresent }}</td>
+                    </tr>
+                    <tr>
+                        <th>Femmes</th>
+                        <td>{{ seancedepartement.femme }}</td>
+                    </tr>
+                    <tr>
+                        <th>Enfants</th>
+                        <td>{{ seancedepartement.enfant }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Total présents</th>
+                        <td>
+                            {% set nbrepresent =seancedepartement.nbrepresent %}
+                            {% set femme =seancedepartement.femme %}
+                            {% set enfant =seancedepartement.enfant %}
+                            {% set total = enfant +nbrepresent + femme %}
+
+                            {{ total }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Intervenant</th>
+                        <td> {% if seancedepartement.fidele is not null  %}  {{ seancedepartement.fidele.nomfidele }} {% else %}{{ seancedepartement.typeofficiant }} {% endif %}</td>
+                    </tr>
+                    <tr>
+                        <th>Objet</th>
+                        <td>{{ seancedepartement.objet }}</td>
+                    </tr>
+                    <tr>
+                        <th>Versets bibliques</th>
+                        <td>{{ seancedepartement.versets }}</td>
+                    </tr>
+                    <tr>
+                        <th>Resume</th>
+                        <td>{{ seancedepartement.resume|raw }}</td>
+                    </tr>
+                    <tr>
+                        <th>Offrande</th>
+                        <td>{{ seancedepartement.offrande }}</td>
+                    </tr>
+                    <tr>
+                        <th>Heure debut</th>
+                        <td>{{ seancedepartement.heuredebut ? seancedepartement.heuredebut|date('H:i:s')}}</td>
+                    </tr>
+                    <tr>
+                        <th>Heure fin</th>
+                        <td>{{ seancedepartement.heurefin ? seancedepartement.heurefin|date('H:i:s')}}</td>
+                    </tr>
+                    <tr>
+                        <th>Durée</th>
+                        <td>
+                            {% set difference = date(seancedepartement.heuredebut).diff(seancedepartement.heurefin) %}
+                            {{ difference.format('%H:%I:%S') }}
+
+
+
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                    <th>Type activité</th>
+                    <td>
+            
+
+                {{ seancedepartement.typeactivite }}
+
+                    </td>
+                </tr>
+                    <tr>
+                    <th>Fiche rapport</th>
+                    <td>
+                        {% if seancedepartement.photo is not empty %} <a href="{{ asset('uploads/photos/' ~ seancedepartement.photo) }}" target="_blank">
+                        Afficher rapport</a> {% else %} Fiche rapport indisponible {% endif %}
+
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col-md-3"><a href="{{ path('seancedepartement_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+
+                <div class="col-md-3">   <a href="{{ path('seancedepartement_edit', {'id': seancedepartement.id}) }}" class="btn btn-primary">Modifier</a></div>
+
+                <div class="col-md-3">
+
+                    <form method="post" action="{{ path('seancedepartement_delete', {'id': seancedepartement.id}) }}" onsubmit="return confirm('êtes-vous sûr de vouloir supprimer?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ seancedepartement.id) }}">
+                        <button class="btn">
+                            <span style="font-size: 1em; color: red;">
+                                <i class="fas fa-trash-alt" title="Supprimer"></i>
+                            </span>
+                        </button>
+                    </form> 
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}

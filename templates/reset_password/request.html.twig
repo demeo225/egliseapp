@@ -1,0 +1,37 @@
+
+
+
+{% block stylesheets %}
+   <style>
+        .centre1 {
+            margin: auto;
+            width: 50%;
+            border: 3px solid #0000ff;
+            padding: 10px;
+        }
+    </style>
+    {% endblock %}
+{% block body %}
+ 
+    {% for flashError in app.flashes('reset_password_error') %}
+        <div class="alert alert-danger" role="alert">{{ flashError }}</div>
+    {% endfor %}
+      <div class="centre1">
+        <div class="container">
+    <h1>Réinitialisation mot de passe</h1>
+
+    {{ form_start(requestForm) }}
+    <div class="btn-primary widget-user-2">
+        {{ form_row(requestForm.email) }}
+    </div>
+    <div class="card">
+            <small>
+              Veuillez entrer votre mail et un lien de réinitialisation vous sera envoyé à cette adresse Email
+            </small>
+        </div>
+
+        <button class="btn btn-primary">Valider</button>
+    {{ form_end(requestForm) }}
+        </div>
+    </div>
+{% endblock %}

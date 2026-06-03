@@ -1,0 +1,108 @@
+
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des membres{% endblock %}
+
+{% block body %}
+
+
+    <div class="card-body">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste des membres </h3>
+            </div>
+            {% for message in app.flashes('message') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            
+            
+            
+            <!-- /.card-header -->
+            <div class="card-body">
+                {% if is_granted('ROLE_RESPONSABLE_GROUPE') %}
+                <a href='{{ path('seancegroupe_new') }}'>
+                    <button class="btn btn-primary">Nouvelle activité</button>
+                </a>
+             
+                <a href={{ path('cotisationgroupe_index') }}>
+                    <button class="btn btn-success">Cotisation</button>
+                </a>
+                <a href={{ path('cotisergroupe_index') }}>
+                    <button class="btn btn-success">Paiements Cotisations</button>
+                </a>
+              
+                <a href={{ path('app_depensegroupe_index') }}>
+                    <button class="btn btn-primary">Depenses</button>
+
+                </a>
+
+            {% endif %}
+    
+                <hr style="visibility: hidden" />
+
+
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                   
+                            <th>Code</th>
+                            <th>Fidèle</th>
+                            <th>Baptisé(e)</th>
+                            <th>Contact </th>
+                            <th>Statut</th>
+                            <th>Quartier</th>
+                            <th>Famille/Tribu</th>
+                            <th>Cellule</th>
+                            <th>Photo</th>
+                    </thead>
+                    <tbody>
+                        {% for fidele in membres %}
+                            <tr>
+                                <td>{{ fidele.code }}</td>
+                                <td>{{ fidele.nomfidele|upper}}</td>
+                                <td> {% set stutbapteme= fidele.stutbapteme %}
+                                    {% set sexe= fidele.sexe %}
+                                    {% if stutbapteme == 'Oui' and sexe == 'Homme' %}
+                                        Baptisé
+                                    {% elseif stutbapteme == 'Non' and sexe == 'Homme' %}
+                                        Non baptisé
+                                    {% elseif stutbapteme == 'Oui' and sexe == 'Femme' %}
+                                        Baptisée
+                                    {% else %}
+                                        Non Baptisée
+                                    {% endif %}
+
+                                </td>
+
+                                <td>{{ fidele.contact1 }}   </td>
+
+                                <td>{{ fidele.statutmatri }}</td>
+                                <td>{% if fidele.quartier is not null %} {{ fidele.quartier.libelle}} {% else %} Non renseigné {% endif %} </td>
+                                <td>{% if fidele.famille is not null %} {{ fidele.famille.nom}} {% else %} Non renseigné {% endif %} </td>
+                                <td>{% if fidele.cellule is not null %} {{ fidele.cellule.nom}} {% else %} Non renseigné {% endif %} </td>
+
+                                <td> 
+                                 
+                                   {% if fidele.photo is not empty %}
+                               <img src="{{ asset('uploads/brochures/'~fidele.photoFile )}}"    class="rounded-square img-fluid" style="width: 100px;"/>  
+                           
+                                    {% else %} {% endif %}
+                                </td>
+
+                            </tr>
+                     
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+{% endblock %}

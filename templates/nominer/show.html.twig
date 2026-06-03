@@ -1,0 +1,54 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Nominer{% endblock %}
+
+{% block body %}
+    <h1>Nominer</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ nominer.id }}</td>
+            </tr>
+            <tr>
+                <th>Detail</th>
+                <td>{{ nominer.detail }}</td>
+            </tr>
+            <tr>
+                <th>CreateAt</th>
+                <td>{{ nominer.createAt ? nominer.createAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdateAt</th>
+                <td>{{ nominer.updateAt ? nominer.updateAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ nominer.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ nominer.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ nominer.deletedAt ? nominer.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ nominer.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ nominer.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_nominer_index') }}">back to list</a>
+
+    <a href="{{ path('app_nominer_edit', {'id': nominer.id}) }}">edit</a>
+
+    {{ include('nominer/_delete_form.html.twig') }}
+{% endblock %}

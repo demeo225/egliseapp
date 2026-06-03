@@ -1,0 +1,22 @@
+
+{% block stylesheets %}
+
+    <style>
+        .centre {
+            margin: auto;
+            width: 50%;
+            border: 3px solid #73AD21;
+            padding: 10px;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    <div class="centre">
+    <h1>Reinitialisation du mot de passe</h1>
+
+    {{ form_start(resetForm) }}
+    {{ form_row(resetForm.plainPassword) }}
+    <button class="btn btn-primary">Reinitialier</button>
+    {{ form_end(resetForm) }}
+    </div>
+{% endblock %}

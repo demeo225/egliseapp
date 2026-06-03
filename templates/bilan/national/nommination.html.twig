@@ -1,0 +1,151 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des nomminations {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_nomminationn') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+
+
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and nomminations |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+
+            {% if nomminations |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Resultats de la recherche</h3>
+                    </div>
+
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+
+                                    <th>Region</th>
+                                    <th>Region pastorale</th>
+                                    <th>Eglise</th>
+                                    <th>Date nomination</th>
+                                    <th>Decret</th>
+                                    <th>Fidèles</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for nommination in nomminations %}
+
+                                    <tr>
+                                        <td> {% if nommination.eglise.region is not empty %} {{ nommination.eglise.region }}{% else %} Non rensigné {% endif %}</td>
+                                        <td> {% if nommination.eglise.regionpastorale is not empty %} {{ nommination.eglise.regionpastorale }}{% else %} Non renseignée {% endif %}</td>
+                                        <td> {% if nommination.eglise is not empty %} {{ nommination.eglise }}{% else %} {% endif %}</td>
+                                        <td>  {{ nommination.datenomination|date('d-m-Y')  }} </td>
+                                        <td>{{ nommination.decret }} </td>
+                                        <td> 
+                                            <div>
+
+
+                                                <button type="button" id="btn-fideles-modal" class="btn btn-primary" data-target="{{ path('nommination_search_fideles', {'id':nommination.id}) }}">Voir les fideles</button>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+
+    <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fidelesModalLabel">Liste des promus </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+            $(document).on('click', 'button#btn-fideles-modal', function () {
+                // créer le modal qui porte l'id fidelesModal
+                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                    keyboard: false
+                });
+
+                // recupere le div class="modal-body" du div id="fidelesModal"
+                let container = $('#fidelesModal .modal-body');
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('data-target'),
+                    async: true,
+                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                        container.empty();
+                    },
+                    success: function (html) {
+                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                        modal.show(); // on affiche la fenêtre modal
+                        //console.log(html);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

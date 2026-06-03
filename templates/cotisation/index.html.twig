@@ -1,0 +1,153 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion des cotisations{% endblock %}
+
+{% block body %}
+
+    <div class="card-body">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des cotisations ordinnaires</h3>
+            </div>
+        {# Affichage des messages flash #}
+        <div class="row">
+            <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('cotisation_add') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('cotisationexceptionnelle') }}'>
+                    <button class="btn btn-primary">Cotisation exceptionnelle</button>
+                </a>
+
+                <a href='{{ path('fidelecotiser_detailcotisation') }}'>
+                    <button class="btn btn-success">Details paiements cotisation</button>
+                </a>
+                <a href='{{ path('fidelecotiser_index') }}'>
+                    <button class="btn btn-success">Paiement cotisation</button>
+                </a>  
+                <hr style="visibility: hidden" /> 
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Date limite</th>
+                            <th>Objet</th>
+                            <th>Montant par entité</th>
+                            <th>Etat</th>
+                            <th>Detail</th>
+                             
+                                <td> Clôturer</td>
+                                <th>Modifier</th>
+                                <th>Supprimer</th>
+                              
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cotisation in cotisation %}
+                            <tr>
+                                <td>{{ date_format(cotisation.periodecotisation)}}</td>
+                                <td>{{ cotisation.objet}}</td>
+                                <td> <b> {{ cotisation.montant|number_format(0, '.', ' ')}} </b></td>
+                                <td> 
+                                    {% if date('now') < date(cotisation.periodecotisation) %}
+                                        <b>En cours</b>
+
+                                    {% else %}
+
+                                        <i class="btn btn-success">  Achévée</i>
+                                    {% endif %}
+
+
+                                </td>
+
+                                <td>
+                                 
+                                        
+                                             <a href="fidelecotiser/se?id={{ cotisation.id }}">
+                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                <i class="fas fa-list" title="Details"></i>
+                                            </span>
+                                        </a>
+                                </td>
+
+
+                                <td>
+                                    {% if cotisation.etatcotisation == 1 %}
+                                        <form method="post" action="{{ path('cotisation_cloture', {'id': cotisation.id}) }}" onsubmit="return confirm('Voulez-vous clore cette cotisation?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('cloture' ~ cotisation.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: red;">
+                                                    <i class="fas fa-trash-alt" title="Fermer"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+
+                                    {% else %}
+
+
+
+
+                                        <form method="post" action="{{ path('cotisation_active', {'id': cotisation.id}) }}" onsubmit="return confirm('Voulez-vous réactiver cette cotisation?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('activecotisation' ~ cotisation.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: blue;">
+                                                    <i class="fas fa-edit" title="Activer"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+
+
+                               
+                                    <td>
+                                        <a href="{{ path('cotisation_update', {'id': cotisation.id}) }}">
+                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                <i class="fas fa-edit"></i>
+                                            </span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if cotisation.fidelecotisers is empty %}
+                                            <form method="post" action="{{ path('cotisation_delete', {'id': cotisation.id}) }}" onsubmit="return confirm('Voulez-voussupprimer?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ cotisation.id) }}">
+
+                                                <button class="btn">
+                                                    <span style="font-size: 1em; color: red;">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </span>
+                                                </button>
+                                            </form>
+                                      
+                                    </td>
+                                {% endif %}
+                            </tr>
+                      
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+{% endblock %}

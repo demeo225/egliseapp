@@ -1,0 +1,54 @@
+
+{% block body %}
+
+
+
+    <div class="intro-header" style="background-image: url('/images/logo.jpg');"><br><br>
+        <!-- /.card-header -->
+        <center>
+            <h2><u><b>LISTE DES INVITES RECUS</b></u></h2>
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Nom & prénoms</th>
+                        <th>Contact</th>
+                        <th>Sexe</th>
+                        <th>Fonction</th>
+                        <th>Action</th>
+
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invite in invite %}
+                        <tr>
+                            <td>{{ invite.nom}}</td>
+                            <td>{{ invite.contact}}</td>
+                            <td>{{ invite.sexe}}</td>
+                            <td>{{ invite.profession}}</td>
+
+                            <td>
+                                <a href="{{ path('invite_update', {'id': invite.id}) }}">
+                                    <span style="font-size: 1em; color: Dodgerblue;">
+                                        <i class="fas fa-edit"></i>
+                                    </span>
+                                </a>
+
+                          
+                            </td>                                         
+
+
+                        </tr>
+
+
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </center>
+    </div>
+
+{% endblock %}

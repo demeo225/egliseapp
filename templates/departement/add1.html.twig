@@ -1,0 +1,63 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion Departement{% endblock %}
+
+{% block body %}
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion de Departement</h3>
+        </div>
+        <div class="card card-body">
+
+            {{ form_start(form) }}
+            {% for message in app.flashes('departement') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('modifdepartement') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <div class="row mb-4">
+
+                
+                    <div class="col-md-3">
+                    {{ form_row(form.nom, {'libelle':'Depaartement ', 'attr':{'class':'form-control'}}) }}
+                </div>
+                    <div class="col-md-3">
+                    {{ form_row(form.description, {'libelle':'Description ', 'attr':{'class':'form-control'}}) }}
+                </div>
+                
+                    <div class="col-md-3">
+                    {{ form_row(form.responsable1, {'libelle':'Responsable ', 'attr':{'class':'form-control'}}) }}
+                </div>
+                    <div class="col-md-3">
+                    {{ form_row(form.responsable2, {'libelle':'Responsable nd. ', 'attr':{'class':'form-control'}}) }}
+                </div>
+                
+         
+
+            </div>
+         
+
+
+            <div class="row"> 
+                <div class="col-md-1">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save'}}) }}</div>
+
+                <div class="col-md-2.5"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                <div class="col-md-2"><a href="{{ path('departement') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+{% endblock %}

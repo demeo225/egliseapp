@@ -1,0 +1,420 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan financier {% endblock %}
+
+{% block body %}
+    <div> 
+    <div class="card card-body">
+        
+        <form action="{{ path('app_bilan_finance') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+
+
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and offrandes |length==0 %}
+            Aucune offrande trouvée
+
+        {% else %}
+
+            {% if offrandes |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan offrande</h3>
+                    </div>
+                    <div style="align-content: center">
+                              {% for offrande in offrandes %}
+                        {% set seance = offrandes|length %}
+                        {% set sum = offrande.montant + sum ?? 0 %}
+                        {% if loop.last  %}
+                             Moyenne:  <b> {{ (sum/seance)|number_format(0, '.', ' ') }} F CFA </b> par séance <br />
+                            Montant total :  <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} C CFA</b>  {% endif %}
+                    {% endfor %}
+                    </div>
+
+                    <hr style="visibility: hidden" /> 
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Date </th>
+                                    <th>Montant</th>
+
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for offrande in offrandes %}
+
+                                    <tr>
+
+                                        <td>{{ date_format(offrande.dateoff) }}</td>
+
+                                        <td>{{ offrande.montant|number_format(0, '.', ' ')  }}</td>
+
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="rows">
+            {% if app.request.method == 'POST' and actiongraces |length==0 %}
+                Aucune action de grâce trouvée
+
+            {% else %}
+
+                {% if actiongraces |length >0 %}
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">Bilan actions de grâces</h3>
+                        </div>
+
+                        <div style="align-content: center">
+                                    {% for actiongrace in actiongraces %}
+                        {% set sum = actiongrace.montant + sum ?? 0 %}
+                        {% set seance = actiongraces|length %}
+                        {% if loop.last  %}
+                            Moyenne:  <b> {{ (sum/seance)|number_format(0, '.', ' ') }} F CFA </b> par séance <br />
+
+                            Montant total :  <b> {{ sum|number_format(0, '.', ' ')}}F CFA --  {{ sum|format_number(style='spellout')}} F CFA</b>  {% endif %}
+                            {% endfor %}
+                        </div>
+                        <hr style="visibility: hidden" /> 
+                        <div class="card-body">
+
+                            <table id="example1" class="table table-bordered table-striped">
+
+                                <thead>
+                                    <tr>
+                                        <th>Date </th>
+                                        <th>Fidèle</th>
+                                        <th>Contact</th>
+                                        <th>Montant</th>
+
+
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for actiongrace in actiongraces %}
+
+                                        <tr>
+
+                                            <td>{{ date_format(actiongrace.dateactiongrace) }}</td>
+                                            <td>
+
+                                                {{ actiongrace.fidele.nomfidele}}
+
+                                            </td> 
+                                            <td>
+                                                {{ actiongrace.fidele.contact1}}
+                                            </td> 
+
+                                            <td>{{ actiongrace.montant }}</td>
+
+
+                                        </tr>
+
+
+                                    {% endfor %}
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+            </div>
+
+            <div class="rows">
+                {% if app.request.method == 'POST' and dimes |length==0 %}
+                    Aucune dîme trouvée
+
+                {% else %}
+
+                    {% if dimes |length >0 %}
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">Bilan dîmes individuelles</h3>
+                            </div>
+
+
+                            <div style="align-content: center">
+                                              {% for dime in dimes %}
+                        {% set seance = dimes|length %}
+                      
+                        
+                        {% set sum = dime.montant + sum ?? 0 %}
+                        {% if loop.last  %}
+                              {% set moyenne = sum/seance %}
+                            Moyenne : <b> {{ moyenne|number_format(0, '.', ' ') }} F CFA </b> par séance <br>
+                            Montant total :  <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} F CFA</b>  {% endif %}
+                            {% endfor %}
+                            </div>
+
+                            <hr style="visibility: hidden" /> 
+                            <div class="card-body">
+
+                                <table id="example1" class="table table-bordered table-striped">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Date </th>
+                                            <th>Fidèle</th>
+                                            <th>Contact</th>
+                                            <th>Montant</th>
+
+
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for dime in dimes %}
+
+                                            <tr>
+
+                                                <td>{{ date_format(dime.datedime) }}</td>
+                                                <td>
+
+                                                    {{ dime.fidele.nomfidele}}
+
+                                                </td> 
+                                                <td>
+
+                                                    {{ dime.fidele.contact1}}
+
+                                                </td> 
+
+                                                <td>{{ dime.montant }}</td>
+
+
+                                            </tr>
+
+
+                                        {% endfor %}
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                </div>
+                <div class="rows">
+                    {% if app.request.method == 'POST' and dimeglobales |length==0 %}
+                        Aucune dîme d'ensemble trouvée
+
+                    {% else %}
+
+                        {% if dimeglobales |length >0 %}
+                            <div class="card card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title">Bilan dîmes d'ensembles</h3>
+                                </div>
+                                <div style="align-content: center">
+                                                 {% for dimeglobale in dimeglobales %}
+                        {% set seance = dimeglobales|length %}
+                     
+                        {% set sum = dimeglobale.montant + sum ?? 0 %}
+                           {% set moyene = sum/seance  %}
+                        {% if loop.last  %}
+                            
+                            Moyenne:  <b> {{ (sum/seance)|number_format(0, '.', ' ') }} F CFA </b> par séance <br />
+                            Montant total :  <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} F CFA</b>  {% endif %}
+                    
+                            {% endfor %}
+                                </div>
+
+                                <hr style="visibility: hidden" /> 
+                                <div class="card-body">
+
+                                    <table id="example1" class="table table-bordered table-striped">
+
+                                        <thead>
+                                            <tr>
+                                                <th>Date </th>
+                                                <th>Montant</th>
+
+
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {% for dimeglobale in dimeglobales %}
+
+                                                <tr>
+
+                                                    <td>{{ date_format(dimeglobale.datedime) }}</td>
+
+                                                    <td>{{ dimeglobale.montant|number_format(0, '.', ' ')  }}</td>
+
+
+                                                </tr>
+
+
+                                            {% endfor %}
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <div class="rows">
+                        {% if app.request.method == 'POST' and dons |length==0 %}
+                            Aucun don trouvé
+
+                        {% else %}
+
+                            {% if dons |length >0 %}
+                                <div class="card card-primary">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Bilan des dons</h3>
+                                    </div>
+                                    <div style="align-content: center">
+                                        {% for don in dons %}
+                                            {% set sum = don.valeurdon + sum ?? 0 %}
+                                            {% if loop.last  %} Montant total :  <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} F CFA</b>  {% endif %}
+                                        {% endfor %}
+                                    </div>
+
+                                    <hr style="visibility: hidden" /> 
+                                    <div class="card-body">
+
+                                        <table id="example1" class="table table-bordered table-striped">
+
+                                            <thead>
+                                                <tr>
+                                                    <th>Date </th>
+                                                    <th>Nature don</th>
+                                                    <th>Objet</th>
+                                                    <th>Montant</th>
+
+
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                {% for don in dons %}
+
+                                                    <tr>
+                                                        <td>{{ date_format(don.datedon) }}</td>
+                                                        <td>{{ don.nature }}</td>
+                                                        <td>{{ don.description|raw }}</td>
+                                                        <td>{{ don.valeurdon|number_format(0, '.', ' ')  }}</td>
+
+
+                                                    </tr>
+
+
+                                                {% endfor %}
+
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                            
+<div class="rows">
+    {% if app.request.method == 'POST' and operations |length==0 %}
+        Aucune depense trouvée
+
+    {% else %}
+
+        {% if operations |length >0 %}
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Bilan des dépenses</h3>
+                </div>
+
+                <div style="align-content: center">
+                   {% for operation in operations %}
+                        {% set seance = operations|length %}
+                        {% set sum = operation.montant + sum ?? 0 %}
+                        {% if loop.last  %}
+                            Moyenne:  <b> {{ (sum/seance)|number_format(0, '.', ' ') }} F CFA </b> par séance <br />
+
+                            Montant total :  <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} F CFA</b>  {% endif %}
+                            {% endfor %}
+                </div>
+                <hr style="visibility: hidden" /> 
+                <div class="card-body">
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Date </th>
+                                <th>Objet</th>
+                                <th>Montant</th>
+
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for operation in operations %}
+
+                                <tr>
+                                    <td>{{ date_format(operation.dateop) }}</td>
+
+                                    <td>{{ operation.objet }}</td>
+
+
+                                    <td>{{ operation.montant|number_format(0, '.', ' ')  }}</td>
+
+
+                                </tr>
+
+
+                            {% endfor %}
+
+
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% endif %}
+                        </div>
+                    {% endblock %}
+

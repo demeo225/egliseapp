@@ -1,0 +1,68 @@
+<div class="card card-body">
+    {{ form_start(form) }}
+
+    <div class="my-custom-class-for-errors">
+        {{ form_errors(form) }}
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.communaute, {'label':'Communauté '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.denomination, {'label':'Temple '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.contact1, {'label':'Contact '}) }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.contact2, {'label':'Fixe '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.adresse, {'label':'Adresse '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.photo, {'label':'Logo '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.quartier, {'label':'Siège social '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.verset, {'label':'Verset de base '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.texte, {'label':'Texte de base '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.sigle, {'label':'Sigle '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.facebook, {'label':'Cpte Facebook '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.agrement, {'label':'Agrement '}) }}
+        </div>
+        {#
+           <div class="col-md-4">
+            {{ form_row(form.arrete, {'label':'Agréée par arrêté N° '}) }}
+        </div>#}
+        <div class="col-md-4">
+            {{ form_row(form.commune) }}
+        </div>
+
+        <div class="col-md-4">
+            {{ form_row(form.annee, {'label':'Année d\'implantation° '}) }}
+        </div> 
+        <div class="col-md-4">
+            {{ form_row(form.region, {'label':'Region° '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.regionpastorale, {'label':'Region pastorale '}) }}
+        </div>
+    </div>
+
+    <button class="btn btn-success">{{ button_label|default('Valider') }}</button>
+    <a href="{{ path('eglise') }}" class="btn btn-primary">Afficher la liste</a>
+    {{ form_end(form) }}
+</div>

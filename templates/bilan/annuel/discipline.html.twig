@@ -1,0 +1,159 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des sous-disciplines {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_discipline') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.fidele, {'label':'Fidele'}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut1, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+
+
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and disciplines |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+
+            {% if disciplines |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Resultats de la recherche</h3>
+                    </div>
+
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Fidèle</th>
+                                    <th>Contact</th>
+                                    <th>Photo</th>
+                                    <th>Date debut</th>
+                                    <th>Date fin</th>
+                                    <th>Cause</th>
+                                    <th>Etat</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for discipline in disciplines %}
+
+                                    <tr>
+
+                                        <td> {% if discipline.fidele is not empty %} {{ discipline.fidele.nomfidele|upper }} {% else %} {% endif %}</td>
+
+                                        <td> {% if discipline.fidele is not empty %} {{ discipline.fidele.contact1 }} {% else %} {% endif %}</td>
+                                        <td> 
+
+                                            {% if discipline.fidele.photoFile is not empty %}<img src="{{ asset('uploads/photos/'~discipline.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" title="Voir details" style="max-width: 100%;  max-height: 100%"/>{% else %} {% endif %}</td>
+
+                                        <td>{{ discipline.datedebut ? discipline.datedebut|date('d-m-Y') : '' }}</td>
+                                        <td>{{ discipline.datefin ? discipline.datefin|date('d-m-Y') : '' }}</td>
+                                        <td>{{ discipline.cause }}</td>
+                                        <td> {% if discipline.etat == 0  %}<b style="color: red"> En cours </b> {% else %} Achevé {% endif %} </td>
+
+                                        <td>
+
+                                            <button type="button" id="btn-fideles-modal" data-target="{{ path('app_discipline_show', {'id': discipline.id}) }}"> 
+                                                <span style="font-size: 1em; color: Dodgerblue;">
+                                                    <i class="fas fa-list" title="Details"></i>
+                                                </span>
+                                            </button>
+
+
+                                        </td>
+
+                                    </tr>
+
+
+                                {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+
+            <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="fidelesModalLabel"> </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block javascripts %}
+            {{ parent() }}
+            <script>
+                $(document).ready(function () {
+                    // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+                    $(document).on('click', 'button#btn-fideles-modal', function () {
+                        // créer le modal qui porte l'id fidelesModal
+                        let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                            keyboard: false
+                        });
+
+                        // recupere le div class="modal-body" du div id="fidelesModal"
+                        let container = $('#fidelesModal .modal-body');
+
+                        $.ajax({
+                            type: 'POST',
+                            url: $(this).attr('data-target'),
+                            async: true,
+                            beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                                container.empty();
+                            },
+                            success: function (html) {
+                                container.append(html); // une fois la réponse, on rempli le div.modal-body
+                                modal.show(); // on affiche la fenêtre modal
+                                //console.log(html);
+                            }
+                        });
+                    });
+                });
+            </script>
+        {% endblock %}

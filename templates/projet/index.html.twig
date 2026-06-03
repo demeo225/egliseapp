@@ -1,0 +1,90 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion des projets{% endblock %}
+
+{% block body %}
+
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste des projets</h3>
+            </div>
+            {% for message in app.flashes('projet') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('projet_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Projet</th>
+                            <th>Debut</th>
+                            <th>Fin</th>
+                            <th>Devis</th>
+                            <th>Montant depensé</th>
+                            <th>Modifier</th>
+                            <th>Detail</th>
+                            <th>Supprimer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for projet in projets %}
+                            <tr>
+                                <td>{{ projet.libelle}}</td>
+
+
+                                <td>{{ date_format(projet.debutprojet)}}</td>
+
+                                <td>{{ projet.finprojet|date('d-m-Y')}}</td>
+                                <td>{{ projet.devis|number_format(0, '.', ' ')}}</td>
+                                <td>{{ projet.montantdepense|number_format(0, '.', ' ')}}</td>
+
+                                <td>
+                                    <a href="{{ path('projet_edit', {'id': projet.id}) }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ path('projet_show', {'id': projet.id}) }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-list"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <form method="post" action="{{ path('projet_delete', {'id': projet.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.id) }}">
+                                        <button class="btn">
+                                            <span style="font-size: 1em; color: red;">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+{% endblock %}

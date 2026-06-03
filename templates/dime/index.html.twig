@@ -1,0 +1,118 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion des dimes{% endblock %}
+
+{% block body %}
+
+    <div class="card-body">
+
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des dîmes</h3>
+            </div>
+            {% for message in app.flashes('dime') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('dime_add') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('dimeglobale_index') }}'>
+                    <button class="btn btn-success">Dime Anonymes</button>
+                </a>
+                <a href="{{ path('offrande') }}" class="btn btn-success">Offrandes</a>
+
+                <b>Solde</b>
+                <button class="btn btn-success">
+                    {% for solde in soldes %}
+                        {{ solde.montant|number_format(0, '.', ' ') }} --   {{ solde.montant|format_number(style='spellout')}} F CFA
+
+                    {% endfor %}
+                </button>
+                <hr style="visibility: hidden" />
+
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Code du fidèle</th>
+                            {% if is_granted('ROLE_PASTEUR') %}  <th>Fidele</th>   {% endif %}
+                            <th>Montant </th>
+                                {% if is_granted('ROLE_PASTEUR') %}
+                                <th>Modifier</th>
+                                <th>Supprimer</th>
+                                {% endif %}
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for diff in differences %}
+                            {% set sum = 0 %}
+                            {% for dime in dimes %}
+                                {% if diff.datedime ==  dime.datedime %}
+                                    {% set sum = dime.montant + sum ?? 0 %}
+                                    {% if loop.last  %} <b hidden="hidden"> {{ sum }}</b>  {% endif %}
+                                <tr>
+                                    <td>{{ dime.datedime|date('d-m-Y')}}</td>
+                                    <td>{{ dime.fidele.code|upper}}</td>
+                                    {% if is_granted('ROLE_PASTEUR') %}   <td>{{ dime.fidele.nomfidele}}</td>  {% endif %}
+                                    <td>{{ dime.montant|number_format(0, '.', ' ')}}</td>
+
+
+
+                                    {% if is_granted('ROLE_PASTEUR') %}
+                                        <td>
+                                            <a href="{{ path('dime_update', {'id': dime.id}) }}">
+                                                <span style="font-size: 1em; color: Dodgerblue;">
+                                                    <i class="fas fa-edit"></i>
+                                                </span>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <form method="post" action="{{ path('dime_delete', {'id': dime.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ dime.id) }}">
+
+                                                <button class="btn">
+                                                    <span style="font-size: 1em; color: red;">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </span>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endif %}
+
+                        {% else %}
+
+                        {% endfor %}
+                        {% if sum == 0  %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3"><b>Total</b> </td>
+
+                                <td colspan="4"><b>{{ sum|number_format(0, '.', ' ') }} </b> </td>
+
+
+
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+{% endblock %}

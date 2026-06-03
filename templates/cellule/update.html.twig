@@ -1,0 +1,161 @@
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification de Cellule</h3>
+        </div>
+       <div class="card card-body">
+
+        {{ form_start(form, {'attr': {'action': path('cellule_update', {'id': cellule.id}) }}) }}
+            {{ form_errors(form) }}
+            <div class="row mb-4">
+
+                <div class="col-3">
+
+                    <div class="form-group">
+                        {{ form_label(form.nom, "Cellule", {'label_attr':{'class':'col-form-label'}})}}
+                        {{ form_errors(form.nom)  }}
+                        <div class="foo">
+                            {{ form_widget(form.nom,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+
+                    <div class="form-group">
+                        {{ form_label(form.description, "description ", {'label_attr':{'class':'col-form-label'}}) }}
+                        {{ form_errors(form.description)  }}
+                        <div>
+                            {{ form_widget(form.description ,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-3">
+
+                    <div class="form-group">
+                        {{ form_label(form.responsable1, "Responsable premier") }}
+                        {{ form_errors(form.responsable1)  }}
+                        <div>
+                            {{ form_widget(form.responsable1,{'label_attr':{'class':'foo'}})   }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+
+                    <div class="form-group">
+                        {{ form_label(form.responsable2, "Responsable second") }}
+                        {{ form_errors(form.responsable2)  }}
+                        <div>
+                            {{ form_widget(form.responsable2 ,{'label_attr':{'class':'foo'}})   }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+
+                <div class="col-3">
+
+                    <div class="form-group">
+                        {{ form_label(form.lattitude, "Lattitude") }}
+                        {{ form_errors(form.lattitude) }}
+                        <div>
+                            {{ form_widget(form.lattitude,{'label_attr':{'class':'foo'}})  }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+
+                    <div class="form-group">
+                        {{ form_label(form.longitude, "Longitude") }}
+                        {{ form_errors(form.longitude) }}
+                        <div>
+                            {{ form_widget(form.longitude,{'label_attr':{'class':'foo'}})  }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.adresse, "Contact du responsable") }}
+                        {{ form_errors(form.adresse) }}
+                        <div>
+                            {{ form_widget(form.adresse,{'label_attr':{'class':'foo'}})  }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+
+                    <div class="form-group">
+
+                        {{ form_label(form.lieu, "Lieu") }}
+                        {{ form_errors(form.lieu) }}
+                        <div>
+                            {{ form_widget(form.lieu,{'label_attr':{'class':'foo'}})  }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row mb-4">
+
+                <div class="col-3">
+
+                    <div class="form-group row">
+
+                        <div class="form-group">
+                            {{ form_label(form.jour, "Jour") }}
+                            {{ form_errors(form.jour) }}
+                            <div>
+                                {{ form_widget(form.jour,{'label_attr':{'class':'foo'}})  }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.heure, "Heure") }}
+                        {{ form_errors(form.heure) }}
+                        <div>
+                            {{ form_widget(form.heure,{'label_attr':{'class':'foo'}})  }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+
+                        {{ form_label(form.quartier, "Quartier") }}
+                        {{ form_errors(form.quartier) }}
+                        <div>
+                            {{ form_widget(form.quartier,{'label_attr':{'class':'foo'}})  }}
+                        </div>
+                    </div>  </div>
+                <div class="col-3">
+
+                    <div class="form-group">
+                        {{ form_label(form.zone, "Zone") }}
+                        {{ form_errors(form.zone) }}
+                        <div>
+                            {{ form_widget(form.zone,{'label_attr':{'class':'foo'}})  }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row"> 
+               <div class="col-md-1.5">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div></p>
+
+            <div class="col-md-2" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+            </div> 
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+

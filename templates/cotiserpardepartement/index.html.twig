@@ -1,0 +1,78 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Cotiserpardepartement index{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste de paiement des cotisations</h3>
+            </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('app_cotiserpardepartement_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+     <a href='{{ path('cotiserpardepartement_detailcotisation') }}'>
+                    <button class="btn btn-danger">Details paiement</button>
+                </a>
+
+                <hr style="visibility: hidden" />  
+
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+
+                            <th>Departement</th>
+                            <th>Objet </th>
+                            <th>Montant </th>
+                            <th>Montant payé</th>
+                            <th>Reste</th>
+                            <th>Date limite</th>
+
+                            <th>actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cotiserpardepartement in cotiserpardepartements %}
+                            <tr>
+                                <td> {% if cotiserpardepartement.departement is not empty %} {{ cotiserpardepartement.departement.nom }} {% else %} {% endif %}</td>
+                                <td> {% if cotiserpardepartement.cotisationpardepartement is not empty %} {{ cotiserpardepartement.cotisationpardepartement.objet }} {% else %} {% endif %}</td>
+                                <td> {% if cotiserpardepartement.cotisationpardepartement is not empty %} {{ cotiserpardepartement.cotisationpardepartement.montant|number_format(0, '.', ' ') }} {% else %} {% endif %}</td>
+                                <td>{{ cotiserpardepartement.montantpayer|number_format(0, '.', ' ') }}</td>
+                                <td>
+                                    {% if  cotiserpardepartement.reste ==0 %} <b>Soldé</b> 
+                                    {% elseif cotiserpardepartement.reste >0 %} {{ cotiserpardepartement.reste|number_format(0, '.', ' ') }} {% elseif cotiserpardepartement.reste < 0 %} 
+                                            <i class="btn btn-success"> Soldé </i> {% endif %}
+                                        
+                                    
+                                   </td>
+                                
+                                <td>{{ cotiserpardepartement.datecotiser ? cotiserpardepartement.datecotiser|date('d-m-Y') : '' }}</td>
+                      
+                                <td>
+                                         {% if cotiserpardepartement.reste <= 0 %} {% else %}
+                                            <a href="{{ path('app_cotiserpardepartement_edit', {'id': cotiserpardepartement.id}) }}">   <span style="font-size: 1em; color: Dodgerblue;">
+                                                    <i class="fas fa-edit"></i>
+                                                </span></a>
+                                        {% endif %}
+                                </td>
+                            </tr>
+                     
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

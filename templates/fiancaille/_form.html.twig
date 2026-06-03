@@ -1,0 +1,48 @@
+<div class="card card-body">
+
+    {{ form_start(form) }}
+    <div class="my-custom-class-for-errors">
+        {{ form_errors(form) }}
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.datefiancaille, {'label':' Date '})}}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.fiance) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.fiancee)}}
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.pasteurfiancaille, {'label':' Pasteur officient ', 'class': 'foo'}) }}
+        </div>
+
+
+    </div>
+    <div class="row"> 
+        <p><div class="btn btn-default">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div></p>
+
+        <div class="btn btn-default"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+        <div class="btn btn-default"><a href="{{ path('fiancaille_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+    </div> 
+    {{ form_start(form) }}
+
+</div>
+
+
+
+
+
+
+
+
+
+<button class="btn btn-success">{{ button_label|default('Valider') }}</button>
+<a href="{{ path('fiancaille_index') }}" class="btn btn-primary">Afficher la liste</a>
+{{ form_end(form) }}

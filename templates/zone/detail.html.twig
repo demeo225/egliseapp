@@ -1,0 +1,45 @@
+<div class="card card-primary">
+
+    <div class="card-header">
+        <h3 class="card-title">Liste des cellules  </h3>
+    </div>
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Cellule</th>
+                                <th>Premier responsable</th>
+                                <th>Contact responsable</th>
+                                <th>Lieu</th>
+                                <th>Jour</th>
+                                <th>Heure</th>
+
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cellule in cellules %}
+                                <tr>
+                                    <td> {% if cellule.nom is not empty  %} {{ cellule.nom}} {% else %} {% endif %} </td>
+                                    <td>{{ cellule.responsable1}}</td>
+                                    <td>{{ cellule.adresse}}</td>
+                                    <td>{{ cellule.lieu}}</td>
+                                    <td>{{ cellule.jour}}</td>
+                                    <td>{{ cellule.heure|date('H:m:s')}}</td>
+
+
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnee trouve</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        
+                    </table>
+                </div>
+
+            </div>
+

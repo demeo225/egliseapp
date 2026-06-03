@@ -1,0 +1,32 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Sms{% endblock %}
+
+{% block body %}
+    <h1>Sms</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ sms.id }}</td>
+            </tr>
+            <tr>
+                <th>Destinataire</th>
+                <td>{{ sms.destinataire }}</td>
+            </tr>
+            <tr>
+                <th>Message</th>
+                <td>{{ sms.message }}</td>
+            </tr>
+            <tr>
+                <th>Expediteur</th>
+                <td>{{ sms.expediteur }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('sms_index') }}">back to list</a>
+
+
+{% endblock %}

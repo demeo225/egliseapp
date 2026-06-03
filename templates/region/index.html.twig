@@ -1,0 +1,90 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion des regions{% endblock %}
+
+{% block body %}
+
+
+    
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des regions</h3>
+            </div>
+ <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+          
+            <!-- /.card-header -->
+            <div class="card-body">
+
+                <a href='{{ path('app_region_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('eglise') }}'>
+                    <button class="btn btn-danger">Eglises</button>
+                </a>
+
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Region</th>
+               
+                            <th> Voir eglise</th>
+                            <th>Modifier</th>
+                            <th>Supprimer</th>
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for region in regions %}
+                            <tr>
+                                <td>{{ region.libelle|upper}}</td>
+                          
+                                <td>
+                                    <a href="detail/se?id={{ region.id }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-users" title="Voir les eglises"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ path('app_region_edit', {'id': region.id}) }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <form method="post" action="{{ path('app_region_delete', {'id': region.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ region.id) }}">
+                                        <button class="btn">
+                                            <span style="font-size: 1em; color: red;">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5">aucune donnée trouvée</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    
+
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "home/index.html.twig" %}
+
+
+{% block title %}New Presenceculteecodim{% endblock %}
+
+{% block body %}
+    <h1>Create new Presenceculteecodim</h1>
+
+    {{ include('presenceculteecodim/_form.html.twig') }}
+
+    <a href="{{ path('app_presenceculteecodim_index') }}">back to list</a>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        var $classecodim = $('#presenceculteecodim_classecodim');
+        // When classecodim gets selected ...
+
+        $classecodim.change(function () {
+
+
+            // ... retrieve the corresponding form.
+            var $form = $(this).closest('form');
+            // Simulate form data, but only include the selected classecodim value.
+            var data = {};
+            data[$classecodim.attr('name')] = $classecodim.val();
+            // Submit data via AJAX to the form's action path.
+
+            $.ajax({
+
+                url: $form.attr('action'),
+                type: $form.attr('method'),
+                data: data,
+                complete: function (html) {
+
+                    // Replace current cultecodim field ...
+                    $('#presenceculteecodim_cultecodim').replaceWith(
+                            // ... with the returned one from the AJAX response.
+                            $(html.responseText).find('#presenceculteecodim_cultecodim')
+                            );
+
+                    // Position field now displays the appropriate cultecodims.
+                }
+            });
+        });
+    </script>
+{% endblock %}

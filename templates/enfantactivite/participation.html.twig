@@ -1,0 +1,18 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Participation{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Choix du participant</h3>
+        </div>
+        {% for message in app.flashes('success') %}
+            <div class="primary">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {{ include('enfantactivite/_form.html.twig') }}
+
+    </div>
+{% endblock %}

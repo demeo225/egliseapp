@@ -1,0 +1,15 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion Eglise{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification Eglise</h3>
+        </div>
+        <div class="card-body">
+            {{ include('eglise/_form.html.twig', {'button_label': 'Modifier'}) }}
+
+        </div></div>
+
+{% endblock %}

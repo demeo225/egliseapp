@@ -1,0 +1,14 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Depense Ecodim{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion de depenses</h3>
+        </div>
+
+        {{ include('depensecodim/_form.html.twig') }}
+
+    </div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Detail activité{% endblock %}
+
+{% block body %}
+       <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Details de la cotisation </h3>
+        </div>
+
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Activité</th>
+                <td>{{ ecodimactivite.nomactivite }}</td>
+            </tr>
+            <tr>
+                <th>Participation</th>
+                <td>{{ ecodimactivite.participation }}</td>
+            </tr>
+            <tr>
+                <th>Lieu</th>
+                <td>{{ ecodimactivite.lieu }}</td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td>{{ ecodimactivite.dateactivite ? ecodimactivite.dateactivite|date('d-m-Y') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Responsable</th>
+                <td>{{ ecodimactivite.responsable1 }}</td>
+            </tr>
+            <tr>
+                <th>Responsable 2nd</th>
+                <td>{{ ecodimactivite.responsable2 }}</td>
+            </tr>
+
+            <tr>
+                <th>Montant total cotisé</th>
+                <td>
+                    {% set detail = ecodimactivite.detailenfantactivites  %}
+                    {% for detail in detail %}
+                        {% set sum = detail.montantpayer + sum ?? 0 %}
+                        {% if loop.last  %} <b> {{ sum }}F CFA</b>  {% endif %}
+                    {% endfor %}
+                 
+
+                </td>
+            </tr>
+
+
+
+            <tr>
+                <td><a href="{{ path('ecodimactivite_index') }}" class="btn btn-primary">Afficher la liste</a></td>
+            </tr>
+        </tbody>
+    </table>
+       </div>
+            
+
+
+
+{% endblock %}

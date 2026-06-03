@@ -1,0 +1,323 @@
+{# templates/departement/multiple_add.html.twig #}
+{% extends "home/index.html.twig" %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4>Enregistrement multiple de departements</h4>
+        </div>
+        
+        {# Affichage des messages flash #}
+        <div class="row">
+            <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card-body">
+            {{ form_start(form) }}
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> 
+                Vous pouvez enregistrer plusieurs departements à la fois. Cliquez sur "Ajouter une ligne" pour ajouter plus de departements.
+            </div>
+            
+            <div id="departements-collection" 
+                 data-prototype="{{ form_widget(form.departements.vars.prototype)|e('html_attr') }}"
+                 data-index="{{ form.departements|length }}">
+                
+                {% for departementField in form.departements %}
+                    <div class="departement-item" data-index="{{ loop.index0 }}">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-end">
+                                    <div class="col-md-3">
+                                        {{ form_row(departementField.nom, {
+                                            'label': 'Nom du departement',
+                                            'attr': {'class': 'form-control', 'placeholder': 'Ex: Jeunesse'}
+                                        }) }}
+                                    </div>
+                                 
+                                    <div class="col-md-2">
+                                        {{ form_row(departementField.responsable1, {
+                                            'label': 'Responsable 1',
+                                            'attr': {'class': 'form-control', 'placeholder': 'Nom du responsable'}
+                                        }) }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        {{ form_row(departementField.responsable2, {
+                                            'label': 'Responsable 2',
+                                            'attr': {'class': 'form-control', 'placeholder': 'Nom du responsable'}
+                                        }) }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ form_row(departementField.description, {
+                                            'label': 'Description',
+                                            'attr': {'class': 'form-control', 'placeholder': 'Description', 'rows': 1}
+                                        }) }}
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger btn-sm remove-departement w-100">
+                                            <i class="fas fa-trash"></i> Supprimer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="mt-3">
+                <button type="button" class="btn btn-success" id="add-departement">
+                    <i class="fas fa-plus"></i> Ajouter une ligne
+                </button>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Valider
+                </button>
+                <a href="{{ path('departement') }}" class="btn btn-secondary">Afficher la liste</a> 
+            </div>
+            
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const collectionHolder = document.getElementById('departements-collection');
+    const addButton = document.getElementById('add-departement');
+    
+    if (!collectionHolder || !addButton) return;
+    
+    // Récupérer l'index actuel
+    let index = parseInt(collectionHolder.dataset.index);
+    if (isNaN(index)) index = collectionHolder.children.length;
+    
+    // Fonction pour ajouter une nouvelle ligne
+    function addDepartementForm() {
+        const prototype = collectionHolder.dataset.prototype;
+        let newForm = prototype.replace(/__name__/g, index);
+        
+        // Créer le div principal
+        const div = document.createElement('div');
+        div.className = 'departement-item';
+        div.setAttribute('data-index', index);
+        
+        // Créer la structure avec align-items-end
+        div.innerHTML = `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-end">
+                        <div class="col-md-3"></div>
+                        <div class="col-md-2"></div>
+                        <div class="col-md-2"></div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger btn-sm remove-departement w-100">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insérer le formulaire dans les colonnes
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newForm;
+        
+        // Récupérer tous les champs
+        const fields = tempDiv.querySelectorAll('.form-group');
+        
+        // Placer chaque champ dans la colonne correspondante
+        const cols = div.querySelectorAll('.row > div');
+        fields.forEach((field, idx) => {
+            if (cols[idx]) {
+                cols[idx].appendChild(field.cloneNode(true));
+            }
+        });
+        
+        collectionHolder.appendChild(div);
+        
+        // Corriger les IDs et names
+        const newIndex = index;
+        div.querySelectorAll('[id]').forEach(el => {
+            if (el.id && el.id.includes('__name__')) {
+                el.id = el.id.replace(/__name__/g, newIndex);
+            }
+        });
+        div.querySelectorAll('[name]').forEach(el => {
+            if (el.name && el.name.includes('__name__')) {
+                el.name = el.name.replace(/__name__/g, newIndex);
+            }
+        });
+        div.querySelectorAll('label').forEach(label => {
+            if (label.htmlFor && label.htmlFor.includes('__name__')) {
+                label.htmlFor = label.htmlFor.replace(/__name__/g, newIndex);
+            }
+        });
+        
+        index++;
+        collectionHolder.dataset.index = index;
+    }
+    
+    // Ajouter au clic
+    addButton.addEventListener('click', addDepartementForm);
+    
+    // Gérer la suppression des lignes
+    collectionHolder.addEventListener('click', function(e) {
+        const button = e.target.closest('.remove-departement');
+        if (button) {
+            if (confirm('Voulez-vous vraiment supprimer cette ligne ?')) {
+                const item = button.closest('.departement-item');
+                if (item) {
+                    item.remove();
+                }
+            }
+        }
+    });
+    
+    // Validation avant soumission
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const inputs = document.querySelectorAll('.departement-item input[id$="_nom"]');
+            let hasEmpty = false;
+            
+            inputs.forEach(input => {
+                if (input.value.trim() === '') {
+                    hasEmpty = true;
+                    input.classList.add('is-invalid');
+                    
+                    let errorDiv = input.parentElement.querySelector('.invalid-feedback');
+                    if (!errorDiv) {
+                        errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback';
+                        errorDiv.innerText = 'Le nom du departement ne peut pas être vide.';
+                        input.parentElement.appendChild(errorDiv);
+                    }
+                } else {
+                    input.classList.remove('is-invalid');
+                    const errorDiv = input.parentElement.querySelector('.invalid-feedback');
+                    if (errorDiv) errorDiv.remove();
+                }
+            });
+            
+            if (hasEmpty) {
+                e.preventDefault();
+                alert('Veuillez remplir tous les champs "Nom du departement" avant de valider.');
+            }
+        });
+    }
+    
+    // Ajouter une première ligne si le formulaire est vide
+    if (collectionHolder.children.length === 0) {
+        addDepartementForm();
+    }
+});
+
+// Disparition automatique des messages flash
+setTimeout(function() {
+    document.querySelectorAll('.my-alert').forEach(alert => {
+        alert.style.transition = 'opacity 0.5s ease';
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 500);
+    });
+}, 5000);
+</script>
+
+<style>
+.departement-item {
+    margin-bottom: 20px;
+}
+
+.departement-item .card {
+    border-left: 4px solid #007bff;
+    transition: all 0.3s ease;
+}
+
+.departement-item .card:hover {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.departement-item .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -5px;
+    margin-left: -5px;
+}
+
+.departement-item .row > div {
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+/* Alignement vertical pour les boutons */
+.align-items-end {
+    align-items: flex-end !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+/* Ajustement pour que les champs aient la même hauteur */
+.form-group {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    margin-bottom: 0.25rem;
+}
+
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.invalid-feedback {
+    display: block;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.my-alert {
+    animation: slideIn 0.5s ease;
+    cursor: pointer;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.w-100 {
+    width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .departement-item .row > div {
+        margin-bottom: 10px;
+    }
+    
+    .departement-item .row > div:last-child {
+        margin-bottom: 0;
+    }
+}
+</style>
+{% endblock %}

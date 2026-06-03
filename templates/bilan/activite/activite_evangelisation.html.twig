@@ -1,0 +1,192 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des evangelisations {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_evangelisation') }}" method="POST" >
+
+                    <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>  
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and evangelisations |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+
+            {% if evangelisations |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Resultats de la recherche</h3>
+                    </div>
+
+
+                    <div style="align-content: center">
+                        {% for evangelisation in evangelisations %}
+                            {% set sum = evangelisation.personnes1 + sum ?? 0 %}
+                            {% if loop.last  %} Personnes contactées: <b> {{ sum|number_format(0, '.', ' ')}} personne(s)</b>  {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <hr style="visibility: hidden" /> 
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Lieu</th>
+                                    <th>Responsable</th>
+                                    <th>Nouvelles âmes</th>
+                                    <th>Details</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for evangelisation in evangelisations %}
+                                    <tr>
+                                        <td>{{ evangelisation.dateop ? evangelisation.dateop|date('d-m-Y') : '' }}</td>
+                                        <td>{{ evangelisation.lieu }}</td>
+                                        <td>{{ evangelisation.responsable1 }}</td>
+                                 
+                                     
+                                        <td>
+                                            <button type="button" id="btn-fideles-modal" class="btn btn-primary" data-target="{{ path('evangelisation_search_ames', {'id':evangelisation.id}) }}"> 
+                                                <i class="fas fa-users" title="Details"></i>
+                                            </button> 
+                                        </td>
+
+                                        <td>
+                                            <button type="button" id="btn-evangile-modal" class="btn btn-primary" data-target="{{ path('app_evangelisation_show', {'id':evangelisation.id}) }}"> 
+                                                <i class="fas fa-list" title="Details"></i>
+                                            </button> 
+
+                                        </td>
+                                  
+                                    </tr>
+
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+        </div>
+    </div>
+            <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-body">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="modal fade bd-example-modal-lg" id="evangileModal" tabindex="-1" aria-labelledby="evangileModalLabel" aria-hidden="true">
+
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-body">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block javascripts %}
+            {{ parent() }}
+            <script>
+                $(document).ready(function () {
+                    // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+                    $(document).on('click', 'button#btn-fideles-modal', function () {
+                        // créer le modal qui porte l'id fidelesModal
+                        let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                            keyboard: false
+                        });
+
+                        // recupere le div class="modal-body" du div id="fidelesModal"
+                        let container = $('#fidelesModal .modal-body');
+
+                        $.ajax({
+                            type: 'POST',
+                            url: $(this).attr('data-target'),
+                            async: true,
+                            beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                                container.empty();
+                            },
+                            success: function (html) {
+                                container.append(html); // une fois la réponse, on rempli le div.modal-body
+                                modal.show(); // on affiche la fenêtre modal
+                                //console.log(html);
+                            }
+                        });
+                    });
+                });
+            </script>
+
+            <script>
+                $(document).ready(function () {
+                    // quand on clic sur le button voir les evangile pour ouvrir la fenêtre modal
+                    $(document).on('click', 'button#btn-evangile-modal', function () {
+                        // créer le modal qui porte l'id evangileModal
+                        let modal = new bootstrap.Modal(document.getElementById('evangileModal'), {
+                            keyboard: false
+                        });
+
+                        // recupere le div class="modal-body" du div id="evangileModal"
+                        let container = $('#evangileModal .modal-body');
+
+                        $.ajax({
+                            type: 'POST',
+                            url: $(this).attr('data-target'),
+                            async: true,
+                            beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                                container.empty();
+                            },
+                            success: function (html) {
+                                container.append(html); // une fois la réponse, on rempli le div.modal-body
+                                modal.show(); // on affiche la fenêtre modal
+                                //console.log(html);
+                            }
+                        });
+                    });
+                });
+            </script>
+        {% endblock %}

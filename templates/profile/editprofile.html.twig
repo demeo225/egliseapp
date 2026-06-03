@@ -1,0 +1,59 @@
+{% extends "registration/index.html.twig" %}
+
+{% block title %} Profile de {{ app.user.nomuser}} {{ app.user.prenom}}
+{% endblock %}
+
+{% block body %}
+
+
+
+
+
+    <section class="content">
+        <center>  <h2><u>Modification du compte de {{ app.user.nomuser}} {{ app.user.prenom}}</u></h2></center>
+
+        {# If there are any errors on the form, display them #}
+        <div class="container">
+            <div class="row align-items-start">
+
+                {# Render the Form #}
+                {{ form_start(form)}}
+
+
+
+            </div>
+
+            <div>
+                {{ form_label(form.nomuser, "Nom") }}
+                {{ form_errors(form.nomuser) }}
+                <div>
+                    {{ form_widget(form.nomuser) }}
+                </div>
+            </div>
+
+            <div>
+                {{ form_label(form.prenom, "Prénoms") }}
+                {{ form_errors(form.prenom) }}
+                <div>
+                    {{ form_widget(form.prenom) }}
+                </div>
+            </div>
+
+            <div>
+                {{ form_label(form.photo, "photo") }}
+                {{ form_errors(form.photo) }}
+                <div>
+                    {{ form_widget(form.photo) }}
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Modifier</button>
+            </div>
+            {{ form_end(form) }}
+        </div>
+
+    </section>
+
+
+{% endblock %}

@@ -1,0 +1,49 @@
+
+
+<div class="container-fluid">
+    <table class="table" border="1">
+
+        <thead>
+
+        </thead>
+        <tbody>
+            <tr class="btn-success">
+         
+                <th>Nom & prénoms</th>
+                <th>Sexe</th>
+                <th>Contact</th>
+                <th>Lieu d'habitation</th>
+
+            </tr>
+
+            <tr>
+                <td>{{ ame.nom }}</td>
+                <td>{{ ame.sexe }}</td>
+                <td>{{ ame.contact }}</td>
+                <td>{{ ame.habitation }}</td>
+            </tr>
+
+            <tr class="btn-success">
+                <th>Rdv pris ?</th>
+                <th>Convertion ?</th>
+                <th>Invitation au culte ?</th>
+                <th>Date</th>
+            </tr>
+            <tr>
+
+                <td>{{ ame.rdv }}</td>
+                <td>{{ ame.converti }}</td>
+                <td>{{ ame.invitation }}</td>
+                <td> {% if ame.evangelisation is not empty %}  {{ date_format(ame.evangelisation.dateop) }} {% else %} {% endif %}</td>
+            </tr>
+            <tr>
+
+
+            </tr>
+
+         
+
+        </tbody>
+    </table>
+
+</div>

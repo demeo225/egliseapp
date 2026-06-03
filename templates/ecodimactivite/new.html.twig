@@ -1,0 +1,18 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Nouvelle activité{% endblock %}
+
+{% block body %}
+      <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Nouvel enregistrement</h3>
+        </div>
+            {% for message in app.flashes('ecodimactivite') %}
+            <div class="primary">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {{ include('ecodimactivite/_form.html.twig') }}
+
+    </div>
+{% endblock %}

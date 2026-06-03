@@ -1,0 +1,13 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Edit Nommination{% endblock %}
+
+{% block body %}
+    <h1>Edit Nommination</h1>
+
+    {{ include('nommination/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_nommination_index') }}">back to list</a>
+
+    {{ include('nommination/_delete_form.html.twig') }}
+{% endblock %}

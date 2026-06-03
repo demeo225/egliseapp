@@ -1,0 +1,95 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Resultats de la recherche {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('groupe_fidelegroupe') }}" method="POST">
+
+            <div class="row mb-4">
+
+                <div class="col-md-4">
+                    <select name="selGroupe" class="select2" required="true">
+                        <option value="">-- Sélectionner -- </option>
+                        {% for groupe in groupe %}
+                            <option value="{{ groupe.id }}">{{ groupe.nom }} </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <br />
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+     
+            </div>    
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and listefidele |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+
+            {% if listefidele |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Resultats de la recherche</h3>
+                    </div>
+                    <hr style="visibility: hidden" /> 
+                    <div class="card-body">
+                        <table  id="example1" class="table table-bordered table-striped">
+                            <thead> 
+                                <tr class="btn-success">
+                                    <th>Fidèle</th>
+                                    <th>Baptême</th>
+                                    <th>Statut matri.</th>
+                                    <th>Numéro</th>
+                                    <th>Sexe</th>
+                                    <th>Quartier</th>
+
+
+
+                                </tr></thead>
+                            <tbody>
+                                {% for liste in listefidele %}     
+                               
+                                    <tr>
+                                        <td>{{ liste.fidele.nomfidele }}</td> 
+                                        <td> {% set stutbapteme= liste.fidele.stutbapteme %}
+                                            {% set sexe= liste.fidele.sexe %}
+
+                                            {% if stutbapteme == 'Oui' and sexe == 'Homme' %}
+                                                Baptisé
+                                            {% elseif stutbapteme == 'Non' and sexe == 'Homme' %}
+                                                Non baptisé
+                                            {% elseif stutbapteme == 'Oui' and sexe == 'Femme' %}
+                                                Baptisée
+                                            {% else %}
+                                                Non Baptisée
+                                            {% endif %}
+
+
+                                        </td>
+
+
+
+                                        <td>{{ liste.fidele.statutmatri}}</td>
+                                        <td>{{ liste.fidele.contact1 }}</td>  
+                                        <td>{{ liste.fidele.sexe }}</td>  
+                                        <td>{{ liste.fidele.quartier.libelle }}</td>  
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5">aucune donnée trouvée</td>
+                                    </tr>
+
+                                
+                            {% endfor %} 
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endblock %}

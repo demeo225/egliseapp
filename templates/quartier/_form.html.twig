@@ -1,0 +1,31 @@
+
+
+{{ form_start(form) }}
+<div class="my-custom-class-for-errors">
+    {{ form_errors(form) }}
+ 
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        {{ form_row(form.donateur, {'label':'Donateur '}) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_row(form.nature, {'label':'Nature '}) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_row(form.valeurdon, {'label':' Valeur monétaire '}) }}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{ form_row(form.description, {'label':'Detail '}) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_row(form.datedon, {'label':'Date '}) }}
+    </div>
+
+</div>
+
+
+{{ form_end(form) }}

@@ -1,0 +1,80 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Séances par cellule {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('seancecellule_recherche') }}" method="POST">
+
+            <div class="row mb-4">
+
+                <div class="col-md-4">
+                    <select name="selCellule" class="select2" required="true">
+                        <option value="">-- Sélectionner -- </option>
+                        {% for cellule in cellule %}
+                            <option value="{{ cellule.id }}">{{ cellule.nom }} </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <br />
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+            </div>    
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and listed |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+            {% if listed |length >0 %}
+
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Resultats de la recherche</h3>
+                    </div>
+                    <hr style="visibility: hidden" /> 
+                    <div class="card-body">
+                        <table  id="example1" class="table table-bordered table-striped">
+                            <thead> 
+                                <tr class="btn-success">
+                                    <th>Cellule</th>
+                                    <th>Date</th>
+                                    <th>Lieu</th>
+                                    <th>Offrande</th>
+
+                                </tr></thead>
+                            <tbody>
+                                {% for liste in listed %}     
+                                <div class="col-md-12">
+                                    <tr>
+                                        <td>{{ liste.cellule.nom|upper }}</td>  
+                                        <td>{{ liste.datesuper|date('d-m-Y') }}</td>  
+                                        <td>{{ liste.lieu }}</td>  
+                                        <td>{{ liste.offrande }}</td>  
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5">Aucune donnée trouvée</td>
+                                    </tr>
+
+                                </div>
+                            {% endfor %} 
+                            <tr>
+                                <td colspan="3"><b>Total</b></td>
+                                <td> 
+                                    {% for liste in listed %}
+                                {% set sum = liste.offrande + sum ?? 0 %}
+                                {% if loop.last  %} <b> {{ sum }}F CFA</b>  {% endif %}
+                            {% endfor %}</td>
+                     
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endblock %}

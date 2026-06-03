@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Recherche d'église - Préinscription</title>
+    
+    {% block stylesheets %}
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/fontawesome.css">
+        <link rel="stylesheet" href="{{ asset('dist/css/adminlte.min.css') }}">
+        <style>
+            body {
+                background-color: #f4f6f9;
+                font-family: 'Source Sans Pro', sans-serif;
+            }
+            .search-container {
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .search-card {
+                max-width: 500px;
+                width: 90%;
+                border-radius: 10px;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+            .search-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-radius: 10px 10px 0 0;
+                padding: 20px;
+            }
+            .search-body {
+                padding: 30px;
+                background: white;
+                border-radius: 0 0 10px 10px;
+            }
+            .code-input {
+                font-size: 1.2rem;
+                text-align: center;
+                letter-spacing: 2px;
+                padding: 15px;
+                border: 2px solid #e0e0e0;
+                border-radius: 8px;
+                transition: all 0.3s;
+            }
+            .code-input:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.25);
+            }
+        </style>
+    {% endblock %}
+</head>
+<body>
+    <div class="search-container">
+        <div class="search-card">
+            <div class="search-header text-center">
+                <i class="fas fa-church fa-3x mb-3"></i>
+                <h2>Préinscription</h2>
+                <p class="mb-0">Recherchez votre église</p>
+            </div>
+            
+            <div class="search-body">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+                
+                <form method="post" action="{{ path('fidele_preinscription') }}" id="searchForm">
+                    <div class="form-group">
+                        <label for="recherchechurch" class="font-weight-bold">
+                            <i class="fas fa-qrcode"></i> Code de l'église
+                        </label>
+                        <input type="text" 
+                               class="form-control code-input" 
+                               id="recherchechurch" 
+                               name="recherchechurch" 
+                               placeholder="Entrez votre code ex: EGL001"
+                               required
+                               autofocus>
+                        <small class="form-text text-muted">
+                            Le code vous a été fourni par votre église
+                        </small>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                            <i class="fas fa-search"></i> Rechercher
+                        </button>
+                    </div>
+                </form>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <p class="mb-2">Vous n'avez pas de code ?</p>
+                    <a href="{{ path('accueil') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-envelope"></i> Retour 
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% block javascripts %}
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    {% endblock %}
+</body>
+</html>

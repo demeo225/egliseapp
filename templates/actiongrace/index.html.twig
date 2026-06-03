@@ -1,0 +1,112 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Actions de grâces{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des actions de grâces</h3>
+            </div>
+                  <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                {% if is_granted('ROLE_RESPONSABLE_FINANCE') %}
+                    <a href='{{ path('actiongrace_add') }}'>
+                        <button class="btn btn-primary">Nouveau</button>
+                    </a>
+                {% endif %}
+
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Code</th>
+                            {% if is_granted('ROLE_PASTEUR') %}  <th>Fidele</th>   {% endif %}
+                            <th>Contact </th>
+                            <th>Montant </th>
+                            <th>Detatil</th>
+                                {% if is_granted('ROLE_RESPONSABLE_FINANCE') %}
+                                <th>Modifier</th>
+                                <th>Supprimer</th>
+                                {% endif %}
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for diff in differences %}
+                            {% set sum = 0 %}
+                            {% for actiongrace in actiongraces %}
+                                {% if diff.dateactiongrace ==  actiongrace.dateactiongrace %}
+                                    {% set sum = actiongrace.montant + sum ?? 0 %}
+                                    {% if loop.last  %} <b hidden="hidden"> {{ sum }}</b>  {% endif %}
+                                <tr>
+                                    <td>{{ date_format(actiongrace.dateactiongrace)}}</td>
+                                    <td>{{ actiongrace.fidele.code|upper}}</td>
+                                    {% if is_granted('ROLE_PASTEUR') %}   <td>{{ actiongrace.fidele.nomfidele}}</td>  {% endif %}
+
+                                    <td>{{ actiongrace.fidele.contact1}}</td>
+                                    <td>{{ actiongrace.montant|number_format(0, '.', ' ')}}</td>
+
+                                    <td>
+                                        <a href="{{ path('actiongrace_detail', {'id': actiongrace.id}) }}">
+                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                <i class="fas fa-list" title="Voir les details"></i>
+                                            </span>
+                                        </a></td>
+                                        {% if is_granted('ROLE_RESPONSABLE_FINANCE') %}
+                                        <td>
+                                            <a href="{{ path('actiongrace_update', {'id': actiongrace.id}) }}">
+                                                <span style="font-size: 1em; color: Dodgerblue;">
+                                                    <i class="fas fa-edit" title="Modifier"></i>
+                                                </span>
+                                            </a>
+                                        </td>
+                                        <td>      <form method="post" action="{{ path('actiongrace_delete', {'id': actiongrace.id}) }}" onsubmit="return confirm('Voulez-vous supprimer cet enregistrement?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ actiongrace.id) }}">
+
+                                                <button class="btn">
+                                                    <span style="font-size: 1em; color: red;">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </span>
+                                                </button>
+                                            </form></td>
+                                        {% endif %}
+
+                                </tr>
+                                        {% endif %}
+
+                        {% else %}
+
+                        {% endfor %}
+                        {% if sum == 0  %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4"><b>Total</b> </td>
+                                <td colspan="4"><b>{{ sum|number_format(0, '.', ' ') }} </b> </td>
+
+
+
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des membres retirés{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-dark">
+        <div class="card-header">
+            <h3 class="card-title">Reinsertion fidèles dans les groupes</h3>
+        </div>
+
+        <!-- /.card-header -->
+        <div class="card-body">
+
+            {% for message in app.flashes('echec') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            
+            
+            <a href='{{ path('groupefidele') }}'>
+                <button class="btn btn-success">Retour à la liste</button>
+            </a>
+            <div class="btn btn-primary">Liste des membres rétirés</div>
+            <hr style="visibility: hidden" />  
+
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                <th>Code</th>
+                <th>Fidèle</th>
+                <th>Contact</th>
+                <th>Whatssap</th>
+                <th>baptème</th>
+                <th>Photo</th>
+                <th>Restaure</th>
+                </thead>
+                </tr>
+                <tbody>
+                    {% for groupefidele in groupefideles %}
+
+                        <tr>
+
+                            <td>{{ groupefidele.fidele.code|upper}}</td>
+                            <td>{{ groupefidele.fidele.nomfidele|upper}}</td>
+                            <td>{{ groupefidele.fidele.contact1}}</td>
+                            <td>{{ groupefidele.fidele.contactwhatssap}}</td>
+                            <td> {% set stutbapteme= groupefidele.fidele.stutbapteme %}
+                                {% if stutbapteme == 1 %}
+                                    Baptisé(e)
+                                {% else %}
+                                    Non baptisé()
+                                {% endif %}
+
+
+                            </td>
+                            <td>
+                                <img src="{{ asset('uploads/photos/'~groupefidele.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" />                                               
+
+
+                            </td>
+                            <td>
+                                <form method="post" action="{{ path('groupefidele_restaure', {'id': groupefidele.id}) }}" onsubmit="return confirm('Voulez-vous restaurer cet enfant dans cette classe?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('restaureg' ~ groupefidele.id) }}">
+
+                                    <button class="btn">
+                                        <span style="font-size: 1em; color: red;">
+                                            <i class="fas fa-address-book"></i>
+                                        </span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+
+                    {% else %}
+                        <tr>
+                            <td colspan="5">aucune donnée trouvée</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "home/index.html.twig" %}
+
+
+{% block title %}Modification  Seance{% endblock %}
+
+{% block body %}
+       <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title"> Modification</h3>
+        </div>
+
+    {{ include('seancezone/_form.html.twig', {'button_label': 'Modifier'}) }}
+           
+
+       </div>
+{% endblock %}

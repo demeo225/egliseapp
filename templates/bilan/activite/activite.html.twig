@@ -1,0 +1,492 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan global departements {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_activite') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <br />
+                    <div class="col-md-4">
+                        <input type="submit" value="Rechercher">
+                    </div>
+
+                </div>    
+            </div>
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and seancecellules |length==0 %}
+            Aucune activité de cellule
+
+        {% else %}
+
+            {% if seancecellules |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan cellules</h3>
+                    </div>
+
+
+                    <div style="align-content: center">
+                        {% for seancecellule in seancecellules %}
+                            {% set seance = (seancecellule|length)  + seance ?? 0 %}
+                            {% set nmbreseance = seance / 10 %}
+                            {% set sum = seancecellule.offrande + sum ?? 0 %}
+                            {% if loop.last  %} Total offrandes: <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} F CFA</b><br />
+                            {% endif %}  
+
+                            {% set total = seancecellule.nbrepresent + seancecellule.femme + seancecellule.enfant + total ?? 0 %}
+                            {% if loop.last  %}
+
+                                {% set moyene1 = total / nmbreseance  %}
+                                Nombre de séances:   {{ nmbreseance }} <br />
+
+                                Moyenne de présence :<b> {{ moyene1|number_format() }}</b> Personne(s) par séance
+
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                   
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Cellule</th>
+                                    <th>Lieu</th>
+                                    <th>Offrande</th>
+                                    <th>Total présents</th>
+                                    <th>Invités</th>
+                                    <th>Detail</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for diff in differencecs %}
+
+
+                                    {% for seancecellule in seancecellules %}
+                                        {% if diff.datesuper ==  seancecellule.datesuper %}
+                                            {% if is_granted("seancecellule_edit", seancecellule) %}
+                                                <tr>
+                                                    <td>{{ date_format(seancecellule.datesuper) }}</td>
+                                                    <td>{{ seancecellule.cellule.nom }}</td>
+                                                    <td>{{ seancecellule.lieu }}</td>
+                                                    <td>{{ seancecellule.offrande }}</td>
+                                                    <td>
+                                                        {% set nbrepresent =seancecellule.nbrepresent %}
+                                                        {% set femme =seancecellule.femme %}
+                                                        {% set enfant =seancecellule.enfant %}
+                                                        {% set total = enfant +nbrepresent + femme %}
+
+
+                                                        {{ total }}
+
+
+                                                    </td>
+                                                    <td>   
+                                                        <button type="button" id="btn-fideles-modal" data-target="{{ path('seancecellule_search_invitecellules', {'id':seancecellule.id}) }}"> 
+                                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                                <i class="fas fa-users" title="Voir invités"></i>
+                                                            </span>
+                                                        </button>
+
+                                                    </td>
+
+
+                                                    <td>
+                                                        <a href="{{ path('seancecellule_show', {'id': seancecellule.id}) }}"> <i class="fas fa-list" title="Details "></i></a>
+                                                    </td>
+
+                                                </tr>
+                                            {% endif %}
+                                        {% endif %}
+
+                                    {% endfor %}
+
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and seancedepartements |length==0 %}
+            Aucune activité de département trouvée
+
+        {% else %}
+
+            {% if seancedepartements |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan départements</h3>
+                    </div>
+                    <div style="align-content: center">
+                        {% for seancedepartement in seancedepartements %}
+                            {% set sum = seancedepartement.offrande + sum ?? 0 %}
+                            {% if loop.last  %} Total offrandes: <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} F CFA</b>  {% endif %}
+                            <br />
+                            {% set seance = (seancedepartement|length)  + seance ?? 0 %}
+                            {% set nmbreseance = seance / 10 %}
+                            {% set total = seancedepartement.nbrepresent + seancedepartement.femme + seancedepartement.enfant + total ?? 0 %}
+                            {% if loop.last  %}
+
+                                {% set moyene1 = total / nmbreseance  %}
+                                Nombre de séances:   {{ nmbreseance }} <br />
+                                Moyenne de présence :<b> {{ moyene1|number_format() }}</b> Personne(s) par séance
+
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                   
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Departement</th>
+                                    <th>Lieu</th>
+                                    <th>Offrande</th>
+                                    <th>Total présents</th>
+                                    <th>Invités</th>
+                                    <th>Detail</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for diff in differenceds %}
+
+
+                                    {% for seancedepartement in seancedepartements %}
+                                        {% if diff.datesuper ==  seancedepartement.datesuper %}
+                                            {% if is_granted("seancedepartement_edit", seancedepartement) %}
+                                                <tr>
+                                                    <td>{{ date_format(seancedepartement.datesuper) }}</td>
+                                                    <td>{{ seancedepartement.departement.nom }}</td>
+                                                    <td>{{ seancedepartement.lieu }}</td>
+                                                    <td>{{ seancedepartement.offrande }}</td>
+                                                    <td>
+                                                        {% set nbrepresent =seancedepartement.nbrepresent %}
+                                                        {% set femme =seancedepartement.femme %}
+                                                        {% set enfant =seancedepartement.enfant %}
+                                                        {% set total = enfant +nbrepresent + femme %}
+
+
+                                                        {{ total }}
+
+                                                    </td>
+                                                    <td>   
+                                                        <button type="button" id="btn-fideles-modal" data-target="{{ path('seancedepartement_search_invitedepartements', {'id':seancedepartement.id}) }}"> 
+                                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                                <i class="fas fa-users" title="Voir invités"></i>
+                                                            </span>
+                                                        </button>
+
+                                                    </td>
+
+
+                                                    <td>
+                                                        <a href="{{ path('seancedepartement_show', {'id': seancedepartement.id}) }}"> <i class="fas fa-list" title="Details "></i></a>
+                                                    </td>
+
+                                                </tr>
+                                            {% endif %}
+                                        {% endif %}
+
+                                    {% endfor %}
+
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and seancegroupes |length==0 %}
+            Aucune activité de groupe trouvée
+
+        {% else %}
+
+            {% if seancegroupes |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan des groupes</h3>
+                    </div>
+
+
+                    <div style="align-content: center">
+                        {% for seancegroupe in seancegroupes %}
+                            {% set sum = seancegroupe.offrande + sum ?? 0 %}
+                            {% if loop.last  %} Total offrandes: <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout') }} F CFA</b>  {% endif %}
+                            <br>
+                            {% set seance = (seancegroupe|length)  + seance ?? 0 %}
+                            {% set nmbreseance = seance / 10 %}
+                            {% set total = seancegroupe.nbrepresent + seancegroupe.femme + seancegroupe.enfant + total ?? 0 %}
+                            {% if loop.last  %}
+
+                                {% set moyene1 = total / nmbreseance  %}
+                                Nombre de séances:   {{ nmbreseance }} <br />
+                                Moyenne de présence :<b> {{ moyene1|number_format() }}</b> Personne(s) par séance
+
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                   
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Groupe</th>
+                                    <th>Lieu</th>
+                                    <th>Offrande</th>
+                                    <th>Total présents</th>
+                                    <th>Invités</th>
+                                    <th>Detail</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for diff in differencegs %}
+
+
+                                    {% for seancegroupe in seancegroupes %}
+                                        {% if diff.datesuper ==  seancegroupe.datesuper %}
+                                            {% if is_granted("seancegroupe_edit", seancegroupe) %}
+                                                <tr>
+                                                    <td>{{ date_format(seancegroupe.datesuper) }}</td>
+                                                    <td>{{ seancegroupe.groupe.nom }}</td>
+                                                    <td>{{ seancegroupe.lieu }}</td>
+                                                    <td>{{ seancegroupe.offrande }}</td>
+                                                    <td>
+                                                        {% set nbrepresent =seancegroupe.nbrepresent %}
+                                                        {% set femme =seancegroupe.femme %}
+                                                        {% set enfant =seancegroupe.enfant %}
+                                                        {% set total = enfant +nbrepresent + femme %}
+
+
+                                                        {{ total }}
+
+
+                                                    </td>
+                                                    <td>   
+                                                        <button type="button" id="btn-fideles-modal" data-target="{{ path('seancegroupe_search_invitegroupes', {'id':seancegroupe.id}) }}"> 
+                                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                                <i class="fas fa-users" title="Voir invités"></i>
+                                                            </span>
+                                                        </button>
+
+                                                    </td>
+
+
+                                                    <td>
+                                                        <a href="{{ path('seancegroupe_show', {'id': seancegroupe.id}) }}"> <i class="fas fa-list" title="Details "></i></a>
+                                                    </td>
+
+                                                </tr>
+                                            {% endif %}
+                                        {% endif %}
+
+                                    {% endfor %}
+
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+        </div>
+    </div>
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and seancezones |length==0 %}
+            Aucune activité de zone
+
+        {% else %}
+
+            {% if seancezones |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Bilan Zones</h3>
+                    </div>
+
+
+                    <div style="align-content: center">
+                        {% for seancezone in seancezones %}
+                            {% set sum = seancezone.offrande + sum ?? 0 %}
+                            {% if loop.last  %} Total offrandes: <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} F CFA</b>  {% endif %}
+                            <br />
+                            {% set seance = (seancezone|length)  + seance ?? 0 %}
+                            {% set nmbreseance = seance / 10 %}
+                            {% set total = seancezone.nbrepresent + seancezone.femme + seancezone.enfant + total ?? 0 %}
+                            {% if loop.last  %}
+
+                                {% set moyene1 = total / nmbreseance  %}
+                                Nombre de séances:   {{ nmbreseance }} <br />
+                                Moyenne de présence :<b> {{ moyene1|number_format() }}</b> Personne(s) par séance
+
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                   
+                    <div class="card-body">
+
+                        <table id="example1" class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Zone</th>
+                                    <th>Lieu</th>
+                                    <th>Offrande</th>
+                                    <th>Total présents</th>
+                                    <th>Invités</th>
+                                    <th>Detail</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for diff in differencezs %}
+
+
+                                    {% for seancezone in seancezones %}
+                                        {% if diff.datesuper ==  seancezone.datesuper %}
+                                            {% if is_granted("seancezone_edit", seancezone) %}
+                                                <tr>
+                                                    <td>{{ date_format(seancezone.datesuper) }}</td>
+                                                    <td>{{ seancezone.zone.nom }}</td>
+                                                    <td>{{ seancezone.lieu }}</td>
+                                                    <td>{{ seancezone.offrande }}</td>
+                                                    <td>
+                                                        {% set nbrepresent =seancezone.nbrepresent %}
+                                                        {% set femme =seancezone.femme %}
+                                                        {% set enfant =seancezone.enfant %}
+                                                        {% set total = enfant +nbrepresent + femme %}
+
+
+                                                        {{ total }}
+
+
+                                                    </td>
+                                                    <td>   
+                                                        <button type="button" id="btn-fideles-modal" data-target="{{ path('seancezone_search_invitezones', {'id':seancezone.id}) }}"> 
+                                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                                <i class="fas fa-users" title="Voir invités"></i>
+                                                            </span>
+                                                        </button>
+                                                    </td>
+
+                                                    <td>
+                                                        <a href="{{ path('app_seancezone_show', {'id': seancezone.id}) }}">
+                                                            <i class="fas fa-list" title="Details"></i></a>
+                                                    </td>
+
+                                                </tr>
+                                            {% endif %}
+                                        {% endif %}
+
+                                    {% endfor %}
+
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <!-- Modal des fidèles -->
+    <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+            $(document).on('click', 'button#btn-fideles-modal', function () {
+                // créer le modal qui porte l'id fidelesModal
+                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                    keyboard: false
+                });
+
+                // recupere le div class="modal-body" du div id="fidelesModal"
+                let container = $('#fidelesModal .modal-body');
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('data-target'),
+                    async: true,
+                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                        container.empty();
+                    },
+                    success: function (html) {
+                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                        modal.show(); // on affiche la fenêtre modal
+                        //console.log(html);
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+{% endblock %}

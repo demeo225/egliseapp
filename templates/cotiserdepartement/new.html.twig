@@ -1,0 +1,281 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Paiement cotisation département{% endblock %}
+
+{% block body %}
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">P {{ departement.nom|upper }}: Paiement cotisation </h3>
+    </div>
+    <div class="card card-body">
+        {{ form_start(form) }}
+        
+        <div class="offset-1 col-md-10 mt-2 mb-2">
+            {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} my-alert" role="alert">
+                        <h5 class="m-0 flash-text">{{ message }}</h5>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        
+        <div class="row">
+           
+            <div class="col-md-4">
+                {{ form_row(form.cotisationdepartement) }}
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Montant de la cotisation</label>
+                    <input type="text" id="montant_cotisation" class="form-control" readonly>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.fidele) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.montant_a_payer) }}
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Déjà payé par ce fidèle</label>
+                    <input type="text" id="deja_paye" class="form-control" readonly>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.montantpayer) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.reste) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.datecotiser) }}
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-md-2">
+                {{ form_row(form.save) }}
+            </div>
+            <div class="col-md-2">
+                {{ form_row(form.saveAndAdd) }}
+            </div>
+            <div class="col-md-2">
+                <a href="{{ path('cotiserdepartement_index') }}" class="btn btn-success">
+                    Afficher la liste
+                </a>
+            </div>
+        </div>
+        
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(document).ready(function() {
+    // Initialiser les select2
+    if ($.fn.select2) {
+        $('.select2').select2();
+    }
+    
+    // Variables globales
+    let montantCotisation = 0;
+    let dejaPaye = 0;
+    
+    // Fonction pour récupérer le montant de la cotisation
+    function getMontantCotisation() {
+        const cotisationId = $('#cotiserdepartement_cotisationdepartement').val();
+        console.log('Récupération cotisation ID:', cotisationId);
+        
+        if (cotisationId && cotisationId !== '') {
+            $.ajax({
+                url: '{{ path('get_montant_cotisation') }}',
+                type: 'POST',
+                data: { id: cotisationId },
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Réponse montant cotisation:', response);
+                    montantCotisation = parseInt(response.montant) || 0;
+                    $('#montant_cotisation').val(montantCotisation.toLocaleString() + ' FCFA');
+                    $('#cotiserdepartement_montant_a_payer').val(montantCotisation.toLocaleString() + ' FCFA');
+                    calculerReste();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erreur AJAX getMontantCotisation:', error);
+                    montantCotisation = 0;
+                    calculerReste();
+                }
+            });
+        } else {
+            montantCotisation = 0;
+            $('#montant_cotisation').val('');
+            $('#cotiserdepartement_montant_a_payer').val('');
+            calculerReste();
+        }
+    }
+    
+    // Fonction pour récupérer le déjà payé par le fidèle
+    function getDejaPaye() {
+        const cotisationId = $('#cotiserdepartement_cotisationdepartement').val();
+        const fideleId = $('#cotiserdepartement_fidele').val();
+        
+        console.log('Récupération déjà payé - Cotisation:', cotisationId, 'Fidèle:', fideleId);
+        
+        if (cotisationId && fideleId && cotisationId !== '' && fideleId !== '') {
+            $.ajax({
+                url: '{{ path('get_deja_paye_fidele') }}',
+                type: 'POST',
+                data: { 
+                    cotisation_id: cotisationId,
+                    fidele_id: fideleId
+                },
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Réponse déjà payé:', response);
+                    dejaPaye = parseInt(response.deja_paye) || 0;
+                    $('#deja_paye').val(dejaPaye.toLocaleString() + ' FCFA');
+                    calculerReste();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erreur AJAX getDejaPaye:', error);
+                    dejaPaye = 0;
+                    calculerReste();
+                }
+            });
+        } else {
+            dejaPaye = 0;
+            $('#deja_paye').val('');
+            calculerReste();
+        }
+    }
+    
+    // Fonction pour calculer le reste (définie globalement)
+    window.calculerReste = function() {
+        // Récupérer la valeur du montant payé
+        let montantPaye = $('#cotiserdepartement_montantpayer').val();
+        montantPaye = montantPaye ? parseInt(montantPaye) : 0;
+        
+        // Récupérer les valeurs globales
+        let totalDu = parseInt(montantCotisation) || 0;
+        let dejaPayeNombre = parseInt(dejaPaye) || 0;
+        
+        // Calculer le nouveau reste
+        let nouveauReste = totalDu - (dejaPayeNombre + montantPaye);
+        
+        console.log('=== CALCUL RESTE ===');
+        console.log('Total à payer:', totalDu);
+        console.log('Déjà payé:', dejaPayeNombre);
+        console.log('Montant payé maintenant:', montantPaye);
+        console.log('Nouveau reste:', nouveauReste);
+        console.log('===================');
+        
+        // Afficher le résultat
+        if (nouveauReste < 0) {
+            $('#cotiserdepartement_reste').val(
+                '0 FCFA (Trop-perçu de ' + 
+                Math.abs(nouveauReste).toLocaleString() + 
+                ' FCFA)'
+            );
+            $('#cotiserdepartement_reste').css('color', 'orange');
+        } else {
+            $('#cotiserdepartement_reste').val(
+                nouveauReste.toLocaleString() + ' FCFA'
+            );
+            $('#cotiserdepartement_reste').css(
+                'color',
+                nouveauReste === 0 ? 'green' : 'red'
+            );
+        }
+        
+        // Optionnel: Mettre à jour un champ caché pour soumettre la valeur
+        if ($('#reste_calcule').length === 0) {
+            $('<input>').attr({
+                type: 'hidden',
+                id: 'reste_calcule',
+                name: 'reste_calcule'
+            }).appendTo('form');
+        }
+        $('#reste_calcule').val(nouveauReste);
+    };
+    
+    // Forcer la mise à jour des variables globales
+    function updateGlobalVariables() {
+        const cotisationId = $('#cotiserdepartement_cotisationdepartement').val();
+        const fideleId = $('#cotiserdepartement_fidele').val();
+        
+        if (cotisationId && cotisationId !== '') {
+            // Récupérer à nouveau les valeurs
+            $.ajax({
+                url: '{{ path('get_montant_cotisation') }}',
+                type: 'POST',
+                data: { id: cotisationId },
+                async: false,
+                success: function(response) {
+                    montantCotisation = parseInt(response.montant) || 0;
+                }
+            });
+        }
+        
+        if (cotisationId && fideleId && cotisationId !== '' && fideleId !== '') {
+            $.ajax({
+                url: '{{ path('get_deja_paye_fidele') }}',
+                type: 'POST',
+                data: { 
+                    cotisation_id: cotisationId,
+                    fidele_id: fideleId
+                },
+                async: false,
+                success: function(response) {
+                    dejaPaye = parseInt(response.deja_paye) || 0;
+                }
+            });
+        }
+        
+        calculerReste();
+    }
+    
+    // Événements
+    $('#cotiserdepartement_cotisationdepartement').on('change', function() {
+        console.log('Événement: Changement de cotisation');
+        getMontantCotisation();
+        getDejaPaye();
+    });
+    
+    $('#cotiserdepartement_fidele').on('change', function() {
+        console.log('Événement: Changement de fidèle');
+        getDejaPaye();
+    });
+    
+    $('#cotiserdepartement_montantpayer').on('input', function() {
+        console.log('Événement: Saisie du montant payé');
+        calculerReste();
+    });
+    
+    $('#cotiserdepartement_montantpayer').on('change', function() {
+        console.log('Événement: Changement du montant payé');
+        calculerReste();
+    });
+    
+    // Initialisation
+    console.log('=== INITIALISATION ===');
+    getMontantCotisation();
+    getDejaPaye();
+    
+    // Forcer la vérification après un court délai
+    setTimeout(function() {
+        console.log('Forçage de la vérification après délai');
+        updateGlobalVariables();
+    }, 500);
+});
+</script>
+{% endblock %}

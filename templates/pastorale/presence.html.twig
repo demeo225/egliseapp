@@ -1,0 +1,70 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Présences & absences {% endblock %}
+
+{% block body %}
+
+     <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Enregistrrement de présence aux pastorales</h3>
+        </div>
+         <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <div class="card card-body">
+
+          
+
+                    <form action="{{ path('pastorale_presence') }}" method="post">
+                        <div class="row">
+                            <div class="md-col-5">
+                                <select name="pastorale" id="pastorale" class="select2" required="true">
+                                    <option value=""> -- Choix Date--</option>
+                                    {% for pastorale in pastorales %}
+                                        <option value="{{ pastorale.id }}"> {{ pastorale.datepastorale|date('d-m-Y')}} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+
+
+                        </div>
+
+                        <hr style="visibility: hidden" />  
+
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Fidèle</th>
+                                    <th>Photo</th>
+                                    <th>Présent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for fidele in fideles %}
+
+                                    <tr>
+                                        <td> {{fidele.nomfidele|upper }}</td>
+                                        <td> 
+                                            <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> 
+                                        </td>
+                                        <td><input type="checkbox" name ="tab[]" id="tab[]" value="{{ fidele.id }}" title="Présent(e)"> </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <button class="btn btn-primary">{{ button_label|default('Valider') }}</button>
+                        <a href="{{ path('pastorale_listepresence') }}" class="btn btn-success">Liste de présence</a>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+{% endblock %}

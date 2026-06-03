@@ -1,0 +1,71 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Nouvel enregistrement{% endblock %}
+
+{% block body %}
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Enregistrement des  projets</h3>
+        </div>
+         <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+          
+               <div class="card card-body">
+
+            <div class="container">
+                {{ form_start(form) }}
+         
+                    <div class="col-md-4">
+                        {{ form_row(form.libelle, {'label':'Projet '}) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.description, {'label':'Description '}) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.ouvrage, {'label':' Maitre d\'ouvrage '}) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_row(form.chefprojet, {'label':'Chef projet '}) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.montantdepense, {'label':'Montant depensé '}) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.devis, {'label':'Devis '}) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_row(form.debutprojet, {'label':'Date debut '}) }}
+                    </div>
+
+                    <div class="col-md-4">
+                        {{ form_row(form.finprojet, {'label':'Date de fin '}) }}
+                    </div>
+                </div>
+                <div class="row"> 
+                    <div class="btn btn-default">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div>
+
+                    <div class="btn btn-default"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                    <div class="btn btn-default"><a href="{{ path('projet_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+                </div>
+
+
+
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

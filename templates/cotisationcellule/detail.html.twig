@@ -1,0 +1,373 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Détail des paiements - {{ cotisationcellule.objet }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-hand-holding-usd"></i> 
+                        Paiements de la cotisation : <strong>{{ cotisationcellule.objet }}</strong>
+                    </h3>
+                    <div class="card-tools">
+                        <a href="{{ path('cotisationcellule_index') }}" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Cartes récapitulatives -->
+                    <div class="row mb-4">
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3>{{ nbMembres }}</h3>
+                                    <p>Membres de la cellule</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-primary">
+                                <div class="inner">
+                                    <h3>{{ montantUnitaire|number_format(0, ',', ' ') }} FCFA</h3>
+                                    <p>Montant par membre</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-file-invoice"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3>{{ montantTotalPrevu|number_format(0, ',', ' ') }} FCFA</h3>
+                                    <p>Montant total prévu</p>
+                                    <small>({{ nbMembres }} × {{ montantUnitaire|number_format(0, ',', ' ') }})</small>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-calculator"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3>{{ totalPaye|number_format(0, ',', ' ') }} FCFA</h3>
+                                    <p>Total payé</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-lg-4 col-6">
+                            <div class="small-box bg-warning">
+                                <div class="inner">
+                                    <h3>{{ totalReste|number_format(0, ',', ' ') }} FCFA</h3>
+                                    <p>Reste à payer</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-6">
+                            <div class="small-box bg-secondary">
+                                <div class="inner">
+                                    <h3>{{ nbPaiements }}</h3>
+                                    <p>Nombre de paiements</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-receipt"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-6">
+                            <div class="small-box bg-dark">
+                                <div class="inner">
+                                    <h3>{{ ((totalPaye / montantTotalPrevu) * 100)|round(1) }}%</h3>
+                                    <p>Taux de réalisation</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Barre de progression -->
+                    <div class="progress mb-4" style="height: 30px;">
+                        {% set taux = montantTotalPrevu > 0 ? (totalPaye / montantTotalPrevu * 100) : 0 %}
+                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: {{ taux }}%">
+                            {{ taux|round(1) }}% réalisé
+                        </div>
+                    </div>
+                    
+                    <!-- Tableau de situation par fidèle -->
+                    <div class="card card-warning mb-4">
+                        <div class="card-header">
+                            <h4 class="card-title">
+                                <i class="fas fa-users"></i> Situation par fidèle ({{ nbMembres }} membres)
+                            </h4>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped" id="fidelesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Fidèle</th>
+                                            <th>Contact</th>
+                                            <th>Montant à payer</th>
+                                            <th>Montant payé</th>
+                                            <th>Reste</th>
+                                            <th>Statut</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for stat in statsParFidele %}
+                                            {% set resteFidele = stat.reste %}
+                                            {% set statutClass = resteFidele <= 0 ? 'success' : (stat.montant_paye > 0 ? 'warning' : 'danger') %}
+                                            {% set statutText = resteFidele <= 0 ? 'Payé' : (stat.montant_paye > 0 ? 'Partiel' : 'Impayé') %}
+                                            <tr class="{% if statutClass == 'danger' %}table-danger{% elseif statutClass == 'warning' %}table-warning{% else %}table-success{% endif %}">
+                                                <td>{{ loop.index }}</td>
+                                                <td>
+                                                    <strong>{{ stat.fidele.nomfidele }}</strong>
+                                                </td>
+                                                <td>{{ stat.fidele.contact1|default('-') }}</td>
+                                                <td class="text-right">{{ montantUnitaire|number_format(0, ',', ' ') }} FCFA</td>
+                                                <td class="text-right text-success">{{ stat.montant_paye|number_format(0, ',', ' ') }} FCFA</td>
+                                                <td class="text-right">{{ resteFidele|number_format(0, ',', ' ') }} FCFA</td>
+                                                <td class="text-center">
+                                                    <span class="badge badge-{{ statutClass }}">{{ statutText }}</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    {% if resteFidele > 0 %}
+                                                        <a href="{{ path('cotisercellule_new', {'cotisation_id': cotisationcellule.id, 'fidele_id': stat.fidele.id}) }}" 
+                                                           class="btn btn-sm btn-primary">
+                                                            <i class="fas fa-plus"></i> Enregistrer paiement
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="badge badge-success">À jour</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="bg-light">
+                                            <th colspan="3" class="text-right">TOTAUX :</th>
+                                            <th class="text-right">{{ montantTotalPrevu|number_format(0, ',', ' ') }} FCFA</th>
+                                            <th class="text-right">{{ totalPaye|number_format(0, ',', ' ') }} FCFA</th>
+                                            <th class="text-right">{{ totalReste|number_format(0, ',', ' ') }} FCFA</th>
+                                            <th colspan="2"></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Liste des paiements effectués -->
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h4 class="card-title">
+                                <i class="fas fa-list"></i> Historique des paiements
+                            </h4>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if cotisercellules is empty %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> Aucun paiement enregistré pour cette cotisation
+                                </div>
+                            {% else %}
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped table-hover" id="paiementsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Fidèle</th>
+                                                <th>Montant payé</th>
+                                                <th>Reste après paiement</th>
+                                                <th>Date de paiement</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for paiement in cotisercellules %}
+                                            <tr>
+                                                <td>{{ loop.index }}</td>
+                                                <td>
+                                                    <strong>{{ paiement.fidele ? paiement.fidele.nomfidele  }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        {{ paiement.fidele ? paiement.fidele.contact1 : '' }}
+                                                    </small>
+                                                </td>
+                                                <td class="text-success text-right">
+                                                    <strong>{{ paiement.montantpayer|number_format(0, ',', ' ') }} FCFA</strong>
+                                                </td>
+                                                <td class="text-right">
+                                                {% set var = paiement.reste %}
+                                                {% if var > 0 %} {{ paiement.reste|number_format(0, ',', ' ') }} FCFA
+                                                {% elseif var == 0 %}
+                                                    Soldé
+                                                     {% else %}
+                                                      Trop perçu de {{ paiement.reste|abs|number_format(0, ',', ' ') }} FCFA  
+                                                
+                                                 {% endif %}
+                                                
+                                                    
+                                                </td>
+                                                <td>{{ paiement.datecotiser ? paiement.datecotiser|date('d/m/Y') : '-' }}</td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-sm btn-info btn-detail-paiement"
+                                                            data-fidele="{{ paiement.fidele ? paiement.fidele.nomfidele }}"
+                                                            data-montant="{{ paiement.montantpayer }}"
+                                                            data-reste="{{ paiement.reste }}"
+                                                            data-date="{{ paiement.datecotiser ? paiement.datecotiser|date('d/m/Y') : '-' }}">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="bg-light">
+                                                <th colspan="2" class="text-right">TOTAUX :</th>
+                                                <th class="text-right text-success">
+                                                    <strong>{{ totalPaye|number_format(0, ',', ' ') }} FCFA</strong>
+                                                </th>
+                                                <th class="text-right">
+                                                    <strong>{{ totalReste|number_format(0, ',', ' ') }} FCFA</strong>
+                                                </th>
+                                                <th colspan="2"></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="mt-3">
+                        <a href="{{ path('cotisercellule_new', {'cotisation_id': cotisationcellule.id}) }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Ajouter un paiement
+                        </a>
+                        <button type="button" class="btn btn-success" onclick="window.print()">
+                            <i class="fas fa-print"></i> Imprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Détail Paiement -->
+<div class="modal fade" id="detailPaiementModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle"></i> Détail du paiement
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <tr class="bg-light">
+                        <th width="40%">Fidèle :</th>
+                        <td id="detailFidele">-</td>
+                    </tr>
+                    <tr>
+                        <th>Montant payé :</th>
+                        <td id="detailMontant" class="text-success">-</td>
+                    </tr>
+                    <tr>
+                        <th>Reste à payer :</th>
+                        <td id="detailReste" class="text-warning">-</td>
+                    </tr>
+                    <tr>
+                        <th>Date de paiement :</th>
+                        <td id="detailDate">-</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(document).ready(function() {
+    // Initialisation de DataTables pour les fidèles
+    $('#fidelesTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
+        },
+        "pageLength": 10,
+        "order": [[0, "asc"]],
+        "columnDefs": [
+            { "orderable": false, "targets": [7] }
+        ]
+    });
+    
+    // Initialisation de DataTables pour les paiements
+    $('#paiementsTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
+        },
+        "pageLength": 10,
+        "order": [[4, "desc"]],
+        "columnDefs": [
+            { "orderable": false, "targets": [5] }
+        ]
+    });
+    
+    // Modal détail paiement
+    $('.btn-detail-paiement').click(function() {
+        let fidele = $(this).data('fidele');
+        let montant = $(this).data('montant');
+        let reste = $(this).data('reste');
+        let date = $(this).data('date');
+        
+        $('#detailFidele').text(fidele || '-');
+        $('#detailMontant').text((montant || 0).toLocaleString() + ' FCFA');
+        $('#detailReste').text((reste || 0).toLocaleString() + ' FCFA');
+        $('#detailDate').text(date || '-');
+        
+        $('#detailPaiementModal').modal('show');
+    });
+});
+</script>
+{% endblock %}

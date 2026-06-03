@@ -1,0 +1,13 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Modification Invité{% endblock %}
+
+{% block body %}
+      <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification</h3>
+        </div>
+
+    {{ include('invite/_form.html.twig') }}
+      </div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Présences & absences {% endblock %}
+
+{% block body %}
+
+     <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Enregistrrement de présence aux cultes</h3>
+        </div>
+        <div class="card card-body">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+                    {% for message in app.flashes('presentecodim') %}
+                        <div class="primary">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+     
+
+                    <form action="{{ path('app_presenceculteecodim_presence') }}" method="post">
+                        <div class="row">
+                            <div class="md-col-5">
+                                <select name="cultecodim" id="cultecodim" class="select2" required="true">
+                                    <option value=""> -- Choix du culte--</option>
+                                    {% for cultecodim in cultecodims %}
+                                        <option value="{{ cultecodim.id }}"> {{ cultecodim.dateculte|date('d-m-Y')}} </option>
+                                    {% endfor %}
+                                </select>
+                                
+                            
+                            </div>
+
+                                     <div class="md-col-5">
+                                <select name="classecodim" id="classecodim" class="select2" required="true">
+                                    <option value=""> -- Choix du culte--</option>
+                                    {% for classecodim in classecodims %}
+                                        <option value="{{ classecodim.id }}"> {{ classecodim.nom}} </option>
+                                    {% endfor %}
+                                </select>
+                                
+                            
+                            </div>
+
+
+                        </div>
+
+                        <hr style="visibility: hidden" />  
+
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Enfant</th>
+                                    <th>Photo</th>
+                                    <th>Présent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for enfant in enfants %}
+
+                                    <tr>
+                                        <td> {{enfant.code|upper }}</td>
+                                        <td> {{enfant.nom|upper }}</td>
+                                        <td> 
+                                            <img src="{{ asset('uploads/photos/'~enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> 
+                                        </td>
+                                        <td><input type="checkbox" name ="tab[]" id="tab[]" value="{{ enfant.id }}" title="Présent(e)"> </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <button class="btn btn-primary">{{ button_label|default('Valider') }}</button>
+                        <a href="{{ path('app_presenceculteecodim_listepresence') }}" class="btn btn-success">Liste de présence</a>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+{% endblock %}

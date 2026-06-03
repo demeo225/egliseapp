@@ -1,0 +1,61 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des membres{% endblock %}
+
+{% block body %}
+
+
+
+    <section class="content">
+         <h3><b>LISTE DES PARTICIPANTS A :{{ nomenfantactivite|upper }} </b></h3>
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    <a href='{{ path('enfantactivite') }}'>
+                        <button class="btn btn-success">Retour à la liste</button>
+                    </a>
+                             
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                        <tr>
+                        <th>Code</th>
+                        <th>Enfant</th>
+                        <th>Contact</th>
+                        <th>Contact Parents</th>
+                        <th>Age</th>
+                        <th>Photo</th>
+                        </tr>
+                        </thead>
+                        
+                        <tbody>
+                            {% for enfant in enfantactivite %}
+
+                                <tr>
+
+                                    <td>{{ enfant.code|upper}}</td>
+                                    <td>{{ enfant.nomenfant|upper}}</td>
+                                    <td>{{ enfant.contact1}}</td>
+                                    <td>{{ enfant.contactwhatssap}}</td>
+                                    
+                                    <td>    <a href="{{ path('enfant_detail', {'id': enfant.id}) }}">    <img src="{{ asset('uploads/photos/'~enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> </a>  </td>
+
+                                </tr>
+
+                          
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+{% endblock %}

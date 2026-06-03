@@ -1,0 +1,45 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Deces{% endblock %}
+
+{% block body %}
+    <h1>Deces</h1>
+
+    <table class="table">
+        <tbody>
+
+            <tr>
+                <th>Date du décès</th>
+                <td>{{ dece.datedeces ? dece.datedeces|date('d-m-Y') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Lieu du décès</th>
+                <td>{{ dece.lieudeces }}</td>
+            </tr>
+            <tr>
+                <th>Cause du décès</th>
+                <td>{{ dece.raisondeces }}</td>
+            </tr>
+            <tr>
+                <th>Enregistré par</th>
+               
+                {% if  dece.createdBy is not null %} {{ dece.createdBy.nomuser}}  {{ dece.createdBy.prenom}}{% else %} {% endif %}
+                </td>
+            </tr>
+            
+            
+                 <tr>
+                <th>Actions</th>
+               
+                <td>  <a href="{{ path('deces_index') }}" class="btn btn-success">Afficher la liste</a>
+
+
+
+        <a href="{{ path('deces_edit', {'id': dece.id}) }}"  class="btn btn-primary">Modifier</a>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+
+{% endblock %}

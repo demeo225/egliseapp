@@ -1,0 +1,28 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Details carte sociale{% endblock %}
+
+{% block body %}
+    <h1>Carte du social</h1>
+
+    <table class="table">
+        <tbody>
+          
+            <tr>
+                <th>Numero</th>
+                <td>{{ cartesocial.numero }}</td>
+            </tr>
+            <tr>
+                <th>Date d'expiration</th>
+                <td>{{ cartesocial.datesocial ? cartesocial.datesocial|date('d-m-Y') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Etat</th>
+                <td>{{ cartesocial.etat ? 'Yes' : 'No' }}</td>
+            </tr>
+         
+        </tbody>
+    </table>
+            <div class="col-md-3"><a href="{{ path('app_cartesocial_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+
+{% endblock %}

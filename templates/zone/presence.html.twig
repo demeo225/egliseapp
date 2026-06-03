@@ -1,0 +1,70 @@
+{% extends 'home/index.html.twig' %}
+{% block title %}{{ eglise.denomination }}  Liste de présence de : {{ nomzone|upper }} {% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">    
+                Liste de présence de : {{ nomzone|upper }}
+            </h3>
+        </div>
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    <a href='{{ path('zone') }}'>
+                        <button class="btn btn-success">Retour à la liste</button>
+                    </a>
+              
+                    <hr style="visibility: hidden" />
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                        <tr>
+                        <th>Date</th>
+                        <th>Objet</th>
+                        <th>Lieu</th>
+                        <th>Code</th>
+                        <th>Fidèle</th>
+                        <th>Photo</th>
+                        </tr>
+                        </thead>
+                   
+                        <tbody>
+                            {% for presencezone in presencezones %}
+
+                                <tr>
+                                    <td>{{ presencezone.seancezone.datesuper ? presencezone.seancezone.datesuper|date('d-m-Y') : '' }}</td>
+                                    <td>{{ presencezone.seancezone.objet}}</td>
+                                    <td>{{ presencezone.seancezone.lieu}}</td>
+                                    <td>{{ presencezone.fidele.code|upper}}</td>
+                                    <td>{{ presencezone.fidele.nomfidele|upper}}</td>
+
+
+                                    <td>    
+                                        <img src="{{ asset('uploads/photos/'~presencezone.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> 
+
+                                    </td>
+
+                                </tr>
+
+                          
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+{% endblock %}

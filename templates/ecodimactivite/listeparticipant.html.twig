@@ -1,0 +1,64 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des membres{% endblock %}
+
+{% block body %}
+
+
+
+    <section class="content">
+         <h3><b> </b></h3>
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    <a href='{{ path('enfantactivite_index') }}'>
+                        <button class="btn btn-success">Retour à la liste</button>
+                    </a>
+                  {#  <a href='{{ path('') }}'>
+                    <a href='enfantactivite/printmembre/on?id={{ id }}'  target='_blank'>#}
+                        
+                        <button class="btn btn-primary">Imprimer la liste des participants</button>
+                    </a>                    
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                        <th>Code</th>
+                        <th>Enfant</th>
+                        <th>Contact</th>
+                        <th>Contact Parents</th>
+                        <th>Age</th>
+                        <th>Photo</th>
+                        </thead>
+                        </tr>
+                        <tbody>
+                            {% for enfant in ecodimactivite %}
+
+                                <tr>
+
+                                    <td> {% if enfant in ecodimactivite.enfant is not empty %}{{ ecodimactivite.enfant.code|upper}} {% else %} {% endif %}</td>
+                                    <td>{% if enfant in ecodimactivite.enfant is not empty %}{{ ecodimactivite.enfant.nomenfant|upper}}{% else %} {% endif %}</td>
+                                    <td>{% if enfant in ecodimactivite.enfant is not empty %}{{ ecodimactivite.enfant.contact1}}{% else %} {% endif %}</td>
+                                    <td>{% if enfant in ecodimactivite.enfant is not empty %}{{ ecodimactivite.enfant.contactwhatssap}}{% else %} {% endif %}</td>
+                                    <td>{% if enfant in ecodimactivite.enfant is not empty %}{{ ecodimactivite.enfant.age}}{% else %} {% endif %}</td>
+                                    
+                                    <td>    <a href="{{ path('enfant_detail', {'id': enfant.id}) }}">    <img src="{{ asset('uploads/photos/'~enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> </a>  </td>
+
+                                </tr>
+
+    
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+{% endblock %}

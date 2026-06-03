@@ -1,0 +1,13 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification activité ECODIM{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification de l'activité</h3>
+        </div>
+        
+    {{ include('ecodimactivite/_form.html.twig', {'button_label': 'Modifier'}) }}
+        </div>
+{% endblock %}

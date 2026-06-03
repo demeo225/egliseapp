@@ -1,0 +1,109 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Participations{% endblock %}
+
+{% block body %}
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste des participants aux activités</h3>
+            </div>
+  <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('enfantactivite_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('presenceactivite') }}'>
+                    <button class="btn btn-success">Enregistrements Participants</button>
+                </a>
+                <a href='{{ path('enfantactivite_listeparticipant') }}'>
+                    <button class="btn btn-success">Liste de présence</button>
+                </a>
+
+                </a>
+                <a href='{{ path('ecodimactivite_index') }}'>
+                    <button class="btn btn-success">Liste des activités</button>
+                </a>
+
+                <a href='{{ path('enfantactivite_detailcotisation') }}'>
+                    <button class="btn btn-success">Details paiements</button>
+                </a>
+                <hr style="visibility: hidden" />  
+
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Code enfant</th>
+                            <th>Enfant</th>
+                            <th>Activité</th>
+                            <th>Droit de participation </th>
+                            <th>Montant payé </th>
+                            <th>Reste </th>
+                            <th>Modifier</th>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                <th>Supprimer</th>
+                                {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enfantactivite in enfantactivites %}
+                            <tr>
+                                <td>   {{ enfantactivite.enfant.code|upper }}</td>
+                                <td>   {{ enfantactivite.enfant.nom|upper }}</td>
+                                <td>   {{ enfantactivite.ecodimactivite.nomactivite|upper }}</td>
+                                <td>   {{ enfantactivite.ecodimactivite.participation|number_format(0, '.', ' ') }}</td>
+                                <td>   {{ enfantactivite.montantpayer|number_format(0, '.', ' ')}}</td>
+                                <td> 
+                                    {% if enfantactivite.reste == 0 %}
+                                        soldé 
+                                    {% elseif enfantactivite.montantpayer >= enfantactivite.ecodimactivite.participation  %} <b> soldé </b>  {% else %} {{ enfantactivite.reste}}{% endif %}
+
+                                </td>
+
+                                </td>
+
+                                <td>
+
+                                    <a href="{{ path('enfantactivite_edit', {'id': enfantactivite.id}) }}"> <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit" title="Modifier"></i>
+                                        </span></a>
+
+                                </td>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <td>
+
+                                        <form method="post" action="{{ path('enfantactivite_delete', {'id': enfantactivite.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ enfantactivite.id) }}">
+
+                                            <button class="btn">
+                                                <span style="font-size: 1em; color: red;">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+
+
+                                    </td>
+                                {% endif %}
+                            </tr>
+                      
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

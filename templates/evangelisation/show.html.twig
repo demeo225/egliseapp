@@ -1,0 +1,57 @@
+    
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Detais evangelisation du {{ evangelisation.dateop ? evangelisation.dateop|date('d-m-Y') : '' }} </h3>
+    </div>
+
+    <table class="table">
+        <tbody>
+
+            <tr>
+                <th>Date :</th>
+                <td>{{ evangelisation.dateop ? evangelisation.dateop|date('d-m-Y') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Lieu :</th>
+                <td>{{ evangelisation.lieu }}</td>
+            </tr>
+
+            <tr>
+                <th>Responsable principal :</th>
+                <td>{{ evangelisation.responsable1 }}</td>
+            </tr>
+            <tr>
+                <th>Responsable 2nd </th>
+                <td>{{ evangelisation.responsable2 }} </td>
+            </tr>
+            <tr>
+                <th>Nbre de personnes contactées : </th>
+                <td>{{ evangelisation.personnes1 }}</td>
+            </tr>
+            <tr>
+                <th>Nbre de personnes ayant donné RDV :</th>
+                <td>{{ evangelisation.personnes2 }}</td>
+            </tr>
+            <tr>
+                <th>Nbre de personnes ayant converties :</th>
+                <td>{{ evangelisation.personnes3 }}</td>
+            </tr>
+            <tr>
+                <th>Nbre de personnes ayant confirmé leur présence au culte :</th>
+                <td>{{ evangelisation.personnes4 }}</td>
+            </tr>
+
+        </tbody>
+     
+    </table>
+            <div> <form method="post" action="{{ path('app_evangelisation_delete', {'id': evangelisation.id}) }}" onsubmit="return confirm('Voulez-vous supprimer?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evangelisation.id) }}">
+            <button class="btn">
+                <span style="font-size: 1em; color: red;">
+                    <i class="fas fa-trash-alt" title="Suppression"></i>
+                </span>
+            </button>
+        </form> </div>
+</div>
+            
+

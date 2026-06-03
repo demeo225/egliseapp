@@ -1,0 +1,11 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}New Objetdepense{% endblock %}
+
+{% block body %}
+    <h1>Create new Objetdepense</h1>
+
+    {{ include('objetdepense/_form.html.twig') }}
+
+    <a href="{{ path('app_objetdepense_index') }}">back to list</a>
+{% endblock %}

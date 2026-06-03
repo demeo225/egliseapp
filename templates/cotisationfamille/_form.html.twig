@@ -1,0 +1,48 @@
+ <div class="card card-primary">
+       
+                <div class="card card-body">
+
+        {{ form_start(form) }}
+      <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+       
+                  <div class="row mb-4">
+
+                
+                <div class="col-md-3">
+                    {{ form_row(form.objet, {'label':'Objet ', 'attr':{'class':'form-control'}}) }}
+                </div>
+                
+                <div class="col-md-3">
+                    {{ form_row(form.datefin, {'label':'Date limite ', 'attr':{'class':'form-control'}}) }}
+                </div>
+                
+              
+             
+                
+                  <div class="col-md-3">
+                    {{ form_row(form.montant, {'label':'Montant ', 'attr':{'class':'form-control'}}) }}
+                  </div>
+            </div>
+
+          <div class="row"> 
+                <div class="col-md-1">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save'}}) }}</div></p>
+
+               <div class="col-md-2"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+                 <div class="col-md-3"><a href="{{ path('cotiserfamille_new') }}" class="btn btn-danger">Paiement de cotisation</a> </div>
+                <div class="col-md-2"><a href="{{ path('cotisationfamille_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div>  
+        <div>
+            {{ form_rest(form) }}
+        </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+

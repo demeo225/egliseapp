@@ -1,0 +1,87 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des cotisations {% endblock %}
+
+{% block body %}
+
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Paiements des cotisations de groupe</h3>
+            </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('cotisergroupe_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('cotisationgroupe_index') }}'>
+                    <button class="btn btn-success">Liste cotisations </button>
+                </a>
+                <a href={{ path('cotisergroupe_detailgroupe') }}>
+                    <button class="btn btn-success">Detail cotisation</button>
+                </a>
+                      <a href={{ path('app_depensegroupe_index') }}>
+                    <button class="btn btn-primary">Depenses</button>
+
+                </a>
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Code fidèle</th>
+                            <th>Membre </th>
+                            <th>Groupe</th>
+                            <th>Objet</th>
+                            <th>Montant</th>
+
+                            <th>Mont. payé</th>
+                            <th>Reste</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cotisergroupe in cotisergroupes %}
+                            {% if is_granted("cotisergroupe_edit", cotisergroupe) %}
+                                <tr>
+                                    <td>{{ cotisergroupe.fidele.code|upper }}</td>
+                                    <td>{{ cotisergroupe.fidele.nomfidele|upper }}</td>
+                                    <td> {% if cotisergroupe.groupe is not null  %} {{ cotisergroupe.groupe.nom|upper }}{% else %} {% endif %}</td>
+
+                                    <td> {% if cotisergroupe.groupe is not null  %} {{ cotisergroupe.cotisationgroupe.objet|upper }}{% else %} {% endif %}</td>
+
+                                    <td>{{ cotisergroupe.cotisationgroupe.montant|number_format(0, '.', ' ') }}</td>
+                                    <td>{{ cotisergroupe.montantpayer|number_format(0, '.', ' ') }}</td>
+                                    <td> {% if  cotisergroupe.reste ==0 %} <b>Soldé</b> 
+                                    {% elseif cotisergroupe.reste >0 %} {{ cotisergroupe.reste|number_format(0, '.', ' ') }} {% elseif cotisergroupe.reste < 0 %} 
+                                        <i class="btn btn-success"> Soldé </i> {% endif %}
+                                    </td>
+                                  {#  <td>
+                                        {% if cotisergroupe.reste <= 0 %} {% else %}
+                                            <a href="{{ path('cotisergroupe_edit', {'id': cotisergroupe.id}) }}">  
+                                                <span style="font-size: 1em; color: Dodgerblue;">
+                                                    <i class="fas fa-edit"></i>
+                                                </span></a>
+                                            {% endif %}
+                                    </td> #}
+                                </tr>
+                            {% endif %}
+                      
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

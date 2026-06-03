@@ -1,0 +1,159 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotisation groupe{% endblock %}
+
+{% block body %}
+
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des cotisations</h3>
+            </div>
+      <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('cotisationgroupe_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('cotisationgroupe_index') }}'>
+                    <button class="btn btn-success">Cotisations  </button>
+                </a>
+                <a href='{{ path('cotisergroupe_index') }}'>
+                    <button class="btn btn-success">Paiements cotisation </button>
+                </a>
+
+                 <a href={{ path('app_depensegroupe_index') }}>
+                    <button class="btn btn-primary">Depenses</button>
+
+                </a>
+                <b>Solde</b>
+                <button class="btn btn-info">
+                    {% for solde in soldes %}
+                        {{ solde.montant|number_format(0, '.', ' ') }}
+                    {% endfor %}
+                </button>
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Groupe</th>
+                            <th>Objet</th>
+                            <th>Montant</th>
+                            <th>Date limite</th>
+                            <th>Etat</th>
+                            <th>Statut</th>
+
+                            <th>Details</th>
+                            <th>Modifier</th>
+                            <th>Actions</th>
+                              
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cotisationgroupe in cotisationgroupes %}
+                            {% if is_granted("cotisationgroupe_edit", cotisationgroupe) %}
+                                <tr>
+                                <td>
+                                    {% if cotisationgroupe.groupe is not null %}
+                                        {{ cotisationgroupe.groupe.nom|upper }}
+                                    {% else %}
+                                        Non défini
+                                    {% endif %}
+                                </td>
+                                <td>{{ cotisationgroupe.objet }}</td>
+                                <td class="text-end">{{ cotisationgroupe.montant|number_format(0, '.', ' ') }} FCFA</td>
+                                <td class="text-center">{{ cotisationgroupe.datefin ? cotisationgroupe.datefin|date('d/m/Y') : 'Non définie' }}</td>
+                                
+                                {# Statut par rapport à la date #}
+                                <td>
+                                    {% set now = date() %}
+                                    {% set dateFin = cotisationgroupe.datefin %}
+                                    
+                                    {% if dateFin is not null %}
+                                        {% if now < dateFin %}
+                                            <span class="badge badge-success">En cours</span>
+                                        {% elseif now > dateFin %}
+                                            <span class="badge badge-danger">Dépassé</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">Dernier jour</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge badge-secondary">Non définie</span>
+                                    {% endif %}
+                                </td>
+                                
+                                {# État de la cotisation #}
+                                <td class="text-center">
+                                    {% if cotisationgroupe.etatcotiser == 1 %}
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-check-circle"></i> Active
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-danger">
+                                            <i class="fas fa-ban"></i> Clôturée
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                
+                                <td class="text-center">
+                                    <a href="{{ path('cotisationgroupe_cotiser', {'id': cotisationgroupe.id}) }}" title="Détails">
+                                        <span style="font-size: 1.2em; color: Dodgerblue;">
+                                            <i class="fas fa-list"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                
+                                <td class="text-center">
+                                    {% if cotisationgroupe.etatcotiser == 1 %}
+                                        <a href="{{ path('cotisationgroupe_edit', {'id': cotisationgroupe.id}) }}" title="Modifier">
+                                            <span style="font-size: 1.2em; color: orange;">
+                                                <i class="fas fa-edit"></i>
+                                            </span>
+                                        </a>
+                                    {% else %}
+                                        <span style="font-size: 1.2em; color: gray;" title="Non modifiable">
+                                            <i class="fas fa-edit"></i>
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                
+                                {# Bouton unique pour activer/clôturer #}
+                                <td class="text-center">
+                                    <form method="post" action="{{ path('cotisationgroupe_toggle', {'id': cotisationgroupe.id}) }}" 
+                                          onsubmit="return confirm('Voulez-vous vraiment {{ cotisationgroupe.etatcotiser == 1 ? 'clôturer' : 'réactiver' }} cette cotisation ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('toggle' ~ cotisationgroupe.id) }}">
+                                        
+                                        {% if cotisationgroupe.etatcotiser == 1 %}
+                                            <button class="btn btn-sm btn-warning" title="Clôturer la cotisation">
+                                                <i class="fas fa-lock"></i> Clôturer
+                                            </button>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-success" title="Réactiver la cotisation">
+                                                <i class="fas fa-unlock"></i> Activer
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                            
+                            </tr>
+                            {% endif %}
+                     
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

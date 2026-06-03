@@ -1,0 +1,86 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Inscrisption{% endblock %}
+
+{% block body %}
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste des inscriptions ECODIM</h3>
+            </div>
+            {% for message in app.flashes('inscriresucces') %}
+ <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+  </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('inscrire_inscription') }}'>
+                    <button class="btn btn-primary">Nouveau </button>
+                </a>
+
+
+                <hr style="visibility: hidden" />  
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Classe</th>
+                            <th>Enfant</th>
+                            <th>Age</th>
+                            <th>Photo</th>
+                            <th>Modifier</th>
+                            <th>Retirer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inscrire in inscrire %}
+                            <tr>
+                                <td>{{ inscrire.dateinscrire|date('d-m-Y')}}</td>
+                                <td>{{ inscrire.classecodim.nom|upper}}</td>
+                                <td>{{ inscrire.enfant.nom|upper}}</td>
+                                <td>{{ inscrire.enfant.age}}</td>
+                                <td>
+                                    <img src="{{ asset('uploads/photos/'~inscrire.enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> </td>                                              
+
+                                <td>
+                                    <a href="{{ path('inscrire_update', {'id': inscrire.id}) }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit" title="Modifier"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <form method="post" action="{{ path('inscrire_delete', {'id': inscrire.id}) }}" onsubmit="return confirm('Voulez-vous retirer ce fidèle du groupe?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ inscrire.id) }}">
+
+                                        <button class="btn">
+                                            <span style="font-size: 1em; color: red;">
+                                                <i class="fas fa-trash-alt" title="SUpprimer"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                </td>
+
+                            </tr>
+                      
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+{% endblock %}

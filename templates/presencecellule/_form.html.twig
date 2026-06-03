@@ -1,0 +1,42 @@
+
+<div class="card card-primary">
+
+    <div class="card card-body">
+        {{ form_start(form) }}
+        {% for message in app.flashes('success') %}
+            <div class="primary">
+                {{ message }}
+            </div>
+        {% endfor %}
+        <div class="my-custom-class-for-errors">
+            {{ form_errors(form) }}
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.cellule, {'label':'Cellule '}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.seancecellule, {'label':' Date '}) }}
+            </div>
+
+        </div>
+        <div class="row">
+
+
+            <div class="col-md-4">
+                {{ form_row(form.fidele, {'label':'Fidele'}) }}
+            </div>
+
+        </div>
+
+        <div class="col-md-2">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div>
+
+        <div class="btn btn-default"><a href="{{ path('app_presencecellule_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+
+
+
+        {{ form_end(form) }}
+    </div>
+</div>

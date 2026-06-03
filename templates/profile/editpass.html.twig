@@ -1,0 +1,67 @@
+{% extends "registration/index.html.twig" %}
+
+{% block title %} Profile de {{ app.user.nomuser}} {{ app.user.prenom}}
+{% endblock %}
+
+{% block body %}
+
+
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h4 class="card-title">Modification mot de passe</h4>
+        </div>
+        {# If there are any errors on the form, display them #}
+
+
+
+        <!-- /.card-header -->
+        <!-- form start -->
+        <form role="form" method="POST" id="new_edit_utilisateur">
+            <div>
+                {% for flashError in app.flashes('edit_pass') %}
+                {% endfor %}
+            
+                {% for flashError in app.flashes('error') %}
+                {% endfor %}
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="pass">Mot de passe</label>
+                    <input type="password" class="form-control" id="pass" name="pass" placeholder="Mot de passe" required="required">
+                </div>
+               
+                
+                <div class="form-group">
+                    <label for="pass2">Confirmaer mot de passe</label>
+                    <input type="password" class="form-control" id="pass2" name="pass2" placeholder="Confirmation mot de passe"  required="required">
+                </div>
+
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">Modifier</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        $("#new_edit_utilisateur").on('submit', function () {
+            if ($("#pass").val() !== $("#pass2").val()) {
+                //implémntez votre code
+                alert("Les deux mots de passe saisis sont différents");
+                alert("Merci de renouveler l'opération");
+                return false;
+            }
+        })
+    </script>
+{% endblock %}

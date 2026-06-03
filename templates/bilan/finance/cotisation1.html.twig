@@ -1,0 +1,95 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des cotisations {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_cotisation') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+    </div>
+</form>    
+</div> 
+
+<div class="rows">
+    {% if app.request.method == 'POST' and cotisations |length==0 %}
+        Aucune donnée trouvée
+
+    {% else %}
+
+        {% if cotisations |length >0 %}
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Resultats de la recherche</h3>
+                </div>
+
+
+                <hr style="visibility: hidden" /> 
+                <div class="card-body">
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Cotisation</th>
+                                <th>Date création</th>
+                                <th>Date fin</th>
+                                <th>Montant</th>
+
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for cotisation in cotisations %}
+
+                                <tr>
+                                    <td>{{ cotisation.objet }}</td>
+
+                                    <td>{{ date_format(cotisation.createAt) }}</td>
+                                    <td>{{ date_format(cotisation.periodecotisation) }}</td>
+
+                                    <td>{{ cotisation.montant }}</td>
+
+
+
+
+                                </tr>
+
+
+                            {% endfor %}
+
+
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <!-- Modal des fidèles -->
+ 
+    {% endblock %}
+
+   

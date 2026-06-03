@@ -1,0 +1,92 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Restauration enfant
+{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-danger">
+        <div class="card-header">
+            <h3 class="card-title">Restauration de participant</h3>
+        </div>
+        <div class="card-body">
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+            
+            
+               <div class="row mb-4">
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.createAt, "Date d'enregistrement")}}
+                        {{ form_errors(form.createAt)  }}
+                        <div>
+                            {{ form_widget(form.createAt) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.enfant, "Enfant") }}
+                        {{ form_errors(form.enfant)  }}
+                        <div>
+                            {{ form_widget(form.enfant) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.montantpayer, "Montant payé") }}
+                        {{ form_errors(form.montantpayer)  }}
+                        <div>
+                            {{ form_widget(form.montantpayer) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.reste, "Reste à payer") }}
+                        {{ form_errors(form.reste) }}
+                        <div>
+                            {{ form_widget(form.reste)  }}
+                        </div>
+                    </div>
+                </div>
+                        
+                        
+                           <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.updateAt, "Date de suppression") }}
+                        {{ form_errors(form.updateAt) }}
+                        <div>
+                            {{ form_widget(form.updateAt)  }}
+                        </div>
+                    </div>
+                </div>
+                        
+                        
+                           <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.ecodimactivite, "Activité") }}
+                        {{ form_errors(form.ecodimactivite) }}
+                        <div>
+                            {{ form_widget(form.ecodimactivite)  }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+{% endblock %}

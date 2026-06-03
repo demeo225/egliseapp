@@ -1,0 +1,87 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Membre groupe{% endblock %}
+
+{% block body %}
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Insertion fidèles dans les groupes</h3>
+            </div>
+     <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('groupefidele_add') }}'>
+                    <button class="btn btn-primary">Nouveau </button>
+                </a>
+
+
+                <hr style="visibility: hidden" />  
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Fidèle</th>
+                            <th>Contact</th>
+                            <th>Département</th>
+                            <th>Groupe</th>
+                            <th>Rôle</th>
+                            <th>Photo</th>
+                            <th>Modifier</th>
+                            <th>Retirer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for groupefidele in groupefidele %}
+                            <tr>
+                                <td>{{ groupefidele.fidele.nomfidele|upper}}</td>
+                                <td> {% if groupefidele.fidele.contactwhatssap is not empty %} {{ groupefidele.fidele.contactwhatssap}} {% else %} {{ groupefidele.fidele.contact1}} {% endif %}</td>
+                                <td>{{ groupefidele.groupe.departement.nom}}</td>
+                                <td>{{ groupefidele.groupe.nom}}</td>
+                                <td>{{ groupefidele.rolegroupe}}</td>
+
+                                <td>
+                                    <img src="{{ asset('uploads/photos/'~groupefidele.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> </td>                                              
+                                <td>
+                                    <a href="{{ path('groupefidele_update', {'id': groupefidele.id}) }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <form method="post" action="{{ path('groupefidele_delete', {'id': groupefidele.id}) }}" onsubmit="return confirm('Voulez-vous retirer ce fidèle du groupe?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ groupefidele.id) }}">
+
+                                        <button class="btn">
+                                            <span style="font-size: 1em; color: red;">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                </td>
+
+                            </tr>
+                       
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+{% endblock %}

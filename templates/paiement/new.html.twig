@@ -1,0 +1,14 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Nouveau Paiement{% endblock %}
+
+{% block body %}
+      <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Nouvel enregistrement</h3>
+        </div>
+
+    {{ include('paiement/_form.html.twig') }}
+      </div>
+
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Seance zone{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title"> Details activités du {{ seancezone.datesuper ? seancezone.datesuper|date('d-m-Y') : '' }} </h3>
+        </div>
+        <div class="card body">
+
+            <table class="table">
+                <tbody>
+
+                    <tr>
+                        <th>Date</th>
+                        <td>{{ seancezone.datesuper ? seancezone.datesuper|date('d-m-Y') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Lieu</th>
+                        <td>{{ seancezone.lieu }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Theme</th>
+                        <td>{{ seancezone.theme }}</td>
+                    </tr>
+                    <tr>
+                        <th>Homme</th>
+                        <td>{{ seancezone.nbrepresent }}</td>
+                    </tr>
+                    <tr>
+                        <th>Femmes</th>
+                        <td>{{ seancezone.femme }}</td>
+                    </tr>
+                    <tr>
+                        <th>Enfants</th>
+                        <td>{{ seancezone.enfant }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Total présents</th>
+                        <td>
+                            {% set nbrepresent =seancezone.nbrepresent %}
+                            {% set femme =seancezone.femme %}
+                            {% set enfant =seancezone.enfant %}
+                            {% set total = enfant +nbrepresent + femme %}
+
+                            {{ total }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Objet</th>
+                        <td>{{ seancezone.objet }}</td>
+                    </tr>
+                    <tr>
+                        <th>Versets bibliques</th>
+                        <td>{{ seancezone.versets }}</td>
+                    </tr>
+                    <tr>
+                        <th>Resume</th>
+                        <td>{{ seancezone.resume|raw }}</td>
+                    </tr>
+                    <tr>
+                        <th>Offrande</th>
+                        <td>{{ seancezone.offrande }}</td>
+                    </tr>
+                    <tr>
+                        <th>Heure debut</th>
+                        <td>{{ seancezone.heuredebut ? seancezone.heuredebut|date('H:i:s')}}</td>
+                    </tr>
+                    <tr>
+                        <th>Heure fin</th>
+                        <td>{{ seancezone.heurefin ? seancezone.heurefin|date('H:i:s')}}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Temps mis</th>
+                        <td>
+                            {% set difference = date(seancezone.heuredebut).diff(seancezone.heurefin) %}
+                            {{ difference.format('%H:%I:%S') }}
+                      
+
+
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Intervenant</th>
+                        <td> {% if seancezone.fidele is not null  %}  {{ seancezone.fidele.nomfidele }} {% else %}{{ seancezone.typeofficiant }} {% endif %}</td>
+                    </tr>
+
+
+                    <tr>
+                    <th>Type activité</th>
+                    <td>
+            
+
+                {{ seancezone.typeactivite }}
+
+                    </td>
+                </tr>
+                    <tr>
+                    <th>Fiche rapport</th>
+                    <td>
+                        {% if seancezone.photo is not empty %} <a href="{{ asset('uploads/photos/' ~ seancezone.photo) }}" target="_blank">
+                        Afficher rapport</a> {% else %} Fiche rapport indisponible {% endif %}
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col-md-3"><a href="{{ path('app_seancezone_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+
+                <div class="col-md-3">   <a href="{{ path('app_seancezone_edit', {'id': seancezone.id}) }}" class="btn btn-primary">Modifier</a></div>
+
+                <div class="col-md-3">
+
+                    <form method="post" action="{{ path('app_seancezone_delete', {'id': seancezone.id}) }}" onsubmit="return confirm('Voulez-vous supprimer?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ seancezone.id) }}">
+                        <button class="btn">
+                            <span style="font-size: 1em; color: red;">
+                                <i class="fas fa-trash-alt" title="Supprimer"></i>
+                            </span>
+                        </button>
+                    </form> 
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}

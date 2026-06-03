@@ -1,0 +1,64 @@
+
+
+      <div class="card-body">
+
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title"> {{ cultecodim.classecodim.nom|upper}}: details du culte de  {{ cultecodim.dateculte|date('d-m-Y')}}</h3>
+            </div>
+
+    <table class="table">
+
+        <tbody>
+      
+            <tr>
+                <th>Moniteur principal</th>
+                <td>{{ cultecodim.moniteur1|upper}}</td>
+            </tr>
+            <tr>
+                <th>2nd Moniteur</th>
+                <td>{{ cultecodim.moniteur2|upper}}</td>
+
+            </tr>
+            <tr>
+                <th>Versets bibiques</th>
+                <td>{{ cultecodim.versets}}</td>
+            </tr>
+            <tr>
+                <th>Verset à retenir</th>
+                <td>{{ cultecodim.versetretenir}}</td>
+            </tr>
+            <tr>
+                <th>Offrande</th>
+                <td>{{ cultecodim.offrande}}</td>
+            </tr>
+            <tr>
+                <th>Nbre Garçons</th>
+                <td>{{ cultecodim.nbregarcon}}</td>
+            </tr>
+            <tr>
+                <th>Nbre filles</th>
+                <td>{{ cultecodim.nbrefille}}</td>
+            </tr>
+            <tr>
+                <th>Total enfants</th>
+                    {% set nmbrehomme =cultecodim.nbregarcon%}
+                    {% set nobrefemme = cultecodim.nbrefille %}
+                <td> <b>{{ nmbrehomme + nobrefemme}}</b></td>    
+            </tr>
+
+            <tr>
+                <th>Message</th>
+                <td>{{ cultecodim.note|raw}}</td>
+            </tr>
+
+        </tbody>
+
+
+
+
+    </table>
+
+        </div>
+      </div>

@@ -1,0 +1,92 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotisation departement{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification paie de cotisation</h3>
+        </div>
+        <div class="card card-body">
+            {{ form_start(form) }}
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            <div class="row">
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.departement, "Departement", {'label_attr':{'class':'col-form-label'}})}}
+                        {{ form_errors(form.departement)  }}
+                        <div>
+                            {{ form_widget(form.departement,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>  
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.cotisationdepartement, "Cotisation", {'label_attr':{'class':'col-form-label'}})}}
+                        {{ form_errors(form.cotisationdepartement)  }}
+                        <div>
+                            {{ form_widget(form.cotisationdepartement,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.fidele, "Choix du fidèle", {'label_attr':{'class':'col-form-label'}})}}
+                        {{ form_errors(form.fidele)  }}
+                        <div>
+                            {{ form_widget(form.fidele,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.montantpayer, "Montant versé", {'label_attr':{'class':'col-form-label'}})}}
+                        {{ form_errors(form.montantpayer)  }}
+                        <div>
+                            {{ form_widget(form.montantpayer,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+                <div class="col-md-4">
+                    {{ form_row(form.datecotiser, {'label':'Date :','attr':{'class':'form-control'}}) }}
+                </div>
+
+            </div>
+
+            <div class="row"> 
+                <p><div class="btn btn-default">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div></p>
+
+                <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                <div class="btn btn-default"><a href="{{ path('cotiserdepartement_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+
+
+
+{% endblock %}

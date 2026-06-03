@@ -1,0 +1,66 @@
+{% extends 'home/index.html.twig' %}
+{% block title %}{{ eglise.denomination }} : Activités de: {{ nomdepartement|upper }} {% endblock %}
+
+{% block body %}
+
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    <a href='{{ path('departement') }}'>
+                        <button class="btn btn-success">Liste departements</button>
+                    </a>
+                    <div class="btn btn-primary">
+                        Activités de : {{ nomdepartement|upper }} </div>
+                    <hr style="visibility: hidden" />
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Departement</th>
+                                <th>Activité</th>
+                                <th>Lieu</th>
+                                <th>Thème</th>
+                                <th>Intervenant</th>
+                                <th>Présents</th>
+                                <th>Date </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activitedepartement in activitedepartements %}
+                                <tr>
+
+                                    <td> {% if activitedepartement.departement is not null  %} {{ activitedepartement.departement.nom|upper }}{% else %} {% endif %}</td>
+                                    <td>{{ activitedepartement.objet }}</td>
+                                    <td>{{ activitedepartement.lieu }}</td>
+                                    <td>{{ activitedepartement.theme }}</td>
+
+                                    <td>
+                                        {% if activitedepartement.fidele is not null  %}  {{ activitedepartement.fidele.nomfidele }} {% else %}{{ activitedepartement.typeofficiant }} {% endif %}
+                                    </td>
+                                    <td>{{ activitedepartement.nbrepresent }}</td>
+                                    <td>{{ activitedepartement.datesuper ? activitedepartement.datesuper|date('d-m-Y') : '' }}</td>
+
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="16">Aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+{% endblock %}

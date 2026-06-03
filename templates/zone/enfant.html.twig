@@ -1,0 +1,45 @@
+<div class="card card-primary">
+
+    <div class="card-header">
+        <h3 class="card-title">Liste des enfants  </h3>
+    </div>
+
+
+    <table id="example1" class="table table-bordered table-striped">
+
+        <thead>
+            <tr>
+                <th>Enfant</th>
+                <th>Contact</th>
+                <th>Contact parent</th>
+                <th>Sexe</th>
+                <th>Age</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for enfant in enfants %}
+                <tr>
+                    <td>{{ enfant.nom|upper}}</td>
+                    <td>{{ enfant.contact}}</td>
+                    <td>{{ enfant.contactwhatssap}}</td>
+                    <td>{{ enfant.sexe}}</td>
+                    <td>
+                        {% set naissance = enfant.datenaiss|date('Y') %}
+                        {% set today = "now"|date('Y') %}
+                        {% set difference = today - naissance %}
+
+                        {{ difference }}</td>
+                </tr>
+            {% else %}
+                
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</div>
+
+
+</div>
+
+

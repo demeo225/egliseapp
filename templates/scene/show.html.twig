@@ -1,0 +1,57 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Scene{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title"> Details Sainte Cène du {{ scene.datescene ? scene.datescene|date('d-m-Y') : '' }} </h3>
+        </div>
+        <div class="card body">
+
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Date </th>
+                        <td>{{ scene.datescene ? scene.datescene|date('d-m-Y  ') : '' }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Pasteur officiant</th>
+                        <td> {% if scene.pasteur1 is not empty %} {{ scene.pasteur1.nomfidele }} {% else %} {% endif %}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Pasteur second</th>
+                        <td> {% if scene.pasteur2 is not empty %} {{ scene.pasteur2.nomfidele }} {% else %} {% endif %}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Detail</th>
+                        <td>{{ scene.detail|raw }}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-md-3"><a href="{{ path('app_scene_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+
+                <div class="col-md-3">   <a href="{{ path('app_scene_edit', {'id': scene.id}) }}" class="btn btn-primary">Modifier</a></div>
+
+                <div class="col-md-3">
+
+                    <form method="post" action="{{ path('app_scene_delete', {'id': scene.id}) }}" onsubmit="return confirm('Voulez-vous supprimer?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ scene.id) }}">
+                        <button class="btn">
+                            <span style="font-size: 1em; color: red;">
+                                <i class="fas fa-trash-alt" title="Supprimer"></i>
+                            </span>
+                        </button>
+                    </form> 
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

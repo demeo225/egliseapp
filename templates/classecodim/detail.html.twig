@@ -1,0 +1,72 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Detail de {{ classecodim.nom}}
+{% endblock %}
+
+{% block body %}
+
+    <h3>
+        <u>
+            <strong>GESTION DES CLASSES ECODIM</strong>
+        </u>
+    </h3>
+
+    <table class="table">
+
+        <thead>
+            <tr>
+                <th>Classe</th>
+                <th>Description</th>
+                <th>Responsable premier</th>
+                <th>Responsable second</th>
+                <th>Nombre d'enfants</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+
+                <td>{{ classecodim.nom}}</td>
+                <td>{{ classecodim.description}}</td>
+                <td>{{ classecodim.responsable1}}</td>
+                <td>{{ classecodim.responsable2}}</td>
+                <td> 
+                   
+                     {{ (classecodim.inscrires|length) }}
+                  
+
+                </td>
+                <td>
+                    <a href="{{ path('classecodim_update', {'id': classecodim.id}) }}">
+                        <span style="font-size: 2em; color: Dodgerblue;">
+
+                            <i class="fas fa-edit"></i>
+
+                        </span>
+                    </a>
+
+
+                </td>
+            </tr>
+        </tbody>
+    </td>
+</tr></tbody><tfooter>
+    <tr>
+        <td>
+            <a href='{{ path('classecodim') }}'>
+                <button class="btn btn-primary">Retour</button>
+            </a>
+        </td>
+        <td>
+            <form method="post" action="{{ path('classecodim_delete', {'id': classecodim.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ classecodim.id) }}">
+                <button class="btn btn-danger">
+                    Delete
+                </button>
+            </form>
+
+        </td>
+
+    </tr></tfooter></form></table></i>
+
+{% endblock %}

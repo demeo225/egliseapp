@@ -1,0 +1,16 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification cotisation zone{% endblock %}
+
+{% block body %}
+       <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification de cotisation</h3>
+        </div>
+
+    {{ include('cotiserzone/_form.html.twig', {'button_label': 'Modifier'}) }}
+
+       </div>
+{% endblock %}
+
+    

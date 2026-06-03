@@ -1,0 +1,56 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Visite{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title"> Details de la visite du {{ visite.datevisite ? visite.datevisite|date('d-m-Y') : '' }} </h3>
+        </div>
+        <div class="card body">
+            <table class="table">
+                <tbody>
+
+                    <tr>
+                        <th>Visiteur</th>
+                        <td>{{ visite.visiteur }}</td>
+                    </tr>
+                    <tr>
+                        <th>Sexe</th>
+                        <td>{{ visite.sexe }}</td>
+                    </tr>
+                    <tr>
+                        <th>Contact</th>
+                        <td>{{ visite.contact1 }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date visite</th>
+                        <td>{{ visite.datevisite ? visite.datevisite|date('d-m-Y') : '' }}</td>
+                    </tr>
+
+
+                </tbody>
+            </table>
+         <div class="row">
+                <div class="col-md-3"><a href="{{ path('app_visite_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+
+                <div class="col-md-3">   <a href="{{ path('app_visite_edit', {'id': visite.id}) }}" class="btn btn-primary">Modifier</a></div>
+
+                <div class="col-md-3">
+
+                    <form method="post" action="{{ path('app_visite_delete', {'id': visite.id}) }}" onsubmit="return confirm('êtes-vous sûr de vouloir supprimer?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ visite.id) }}">
+                        <button class="btn">
+                            <span style="font-size: 1em; color: red;">
+                                <i class="fas fa-trash-alt" title="Supprimer"></i>
+                            </span>
+                        </button>
+                    </form> 
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+        {% endblock %}

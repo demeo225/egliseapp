@@ -1,0 +1,63 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification projets{% endblock %}
+
+{% block body %}
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification des  projets</h3>
+        </div>
+        <div class="card card-body">
+
+            {{ form_start(form) }}
+            <div class="my-custom-class-for-errors">
+                {{ form_errors(form) }}
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.libelle, {'label':'Projet '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.description, {'label':'Description '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.ouvrage, {'label':' Maitre d\'ouvrage '}) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.chefprojet, {'label':'Chef projet '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.montantdepense, {'label':'Montant depensé '}) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.devis, {'label':'Devis '}) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.debutprojet, {'label':'Date debut '}) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_row(form.finprojet, {'label':'Date de fin '}) }}
+                </div>
+            </div>
+            <div class="row"> 
+                <div class="btn btn-default">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+
+                <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                <div class="btn btn-default"><a href="{{ path('projet_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div>
+
+
+
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+{% endblock %}

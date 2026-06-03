@@ -1,0 +1,63 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Carte de {{ cartemembre.fidele.nomfidele|upper }}{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Detail carte {{ cartemembre.numero }} appartenant à {{ cartemembre.fidele.nomfidele }} </h3>
+        </div>
+        <table class="table">
+            <tbody>
+
+                <tr>
+                    <th>Expire le:</th>
+                    <td>{{ cartemembre.datecarte ? cartemembre.datecarte|date('d-m-Y') : '' }}</td>
+                </tr>
+                <tr>
+                    <th>Numero</th>
+                    <td>{{ cartemembre.numero }}</td>
+                </tr>
+                <tr>
+                    <th>Enregistrement le</th>
+                    <td>{{ cartemembre.createdAt ? cartemembre.createdAt|date('d-m-Y') : '' }}</td>
+                </tr>
+                
+                  <tr>
+                    <th>Enregistré par</th>
+                    <td>{{ cartemembre.createdBy.nomuser|upper }}</td>
+                </tr>
+
+            </tbody>
+        </table>
+        <table class="table">
+
+            <tr>
+            <td>
+                
+                <a href="{{ path('app_cartemembre_index') }}" class="btn btn-success">Afficher la liste</a>
+            </td>
+                <td>  <a href="{{ path('app_cartemembre_edit', {'id': cartemembre.id}) }}"> 
+                        <span style="font-size: 1em; color: Dodgerblue;">
+                            <i class="fas fa-edit" title="Modifier"></i>
+                        </span></a>
+                </td>
+                <td>        
+                    <form method="post" action="{{ path('app_cartemembre_delete', {'id': cartemembre.id}) }}" onsubmit="return confirm('êtes-vous sûr de vouloir supprimer?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ cartemembre.id) }}">
+
+                        <button class="btn">
+                            <span style="font-size: 1em; color: red;">
+                                <i class="fas fa-trash-alt" title="Supprimer"></i>
+                            </span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+
+
+
+        </table>
+
+    </div>
+{% endblock %}

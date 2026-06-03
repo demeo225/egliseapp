@@ -1,0 +1,251 @@
+    <style>
+
+            #footer {
+                text-align:center;
+                font-style: italic;
+                clear:both;
+                width: 100%;
+                position: absolute;
+                bottom: 0;
+                padding-top: 50px;
+                height: 20px;
+            }
+
+
+            .centrage {
+                text-align: center;
+                position: sticky;
+                top: 40px;
+                margin-left: 70px;
+            }
+
+            .communaute {
+                position: absolute;
+                top: 10px;
+                left: auto;
+                clear: both;
+                border-radius: 4px;
+                padding: 5px;
+                font-size:smaller ;
+                z-index: 5;
+                text-align: left;
+                justify-content: space-between;
+                height: 10px;
+                width: 300px;
+
+            }
+
+            .agrement {
+                font-size:smaller ;
+               z-index: -1;
+            }
+
+            .eglise {
+                position: absolute;
+                top: 10px;
+                right:  5px;
+                clear: both;
+                border-radius: 4px;
+                padding: 5px;
+                font-size:smaller ;
+            }
+
+            .global  {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                justify-content: space-between;
+
+            }
+            .verset{
+                text-align: center;
+                border: 3px solid;
+                font-size:smaller ;
+
+            }
+        </style>
+{% block body %}
+
+
+<div class="global">
+    <div class="communaute">
+
+        {{ eglise.sigle }} <b>-</b> {{ eglise.communaute.libelle }}
+        <hr />
+        <div class="agrement"> Agrement: {{ eglise.communaute.agrement }} </div>
+
+    </div>
+    <div class="centrage">
+        <img src="{{ base64(absolute_url(asset('uploads/photos/'~eglise.logo ))) }}"  style="img {
+                 border: 1px solid #ddd;
+                 border-radius: 4px;
+                 padding: 5px;
+                 width: 100px;
+             }"  alt="logo">  
+    </div>
+    <div  class="eglise">
+        {{ eglise.denomination }} <strong>-</strong> {{ eglise.quartier }}
+        <hr />
+        {{ eglise.contact1 }} /
+        {{ eglise.adresse }}
+    </div>
+    <div class="verset">Siège social: {{ eglise.communaute.siege }} / {{ eglise.communaute.adresse }} / Email: {{ eglise.communaute.email }} / {{ eglise.communaute.verset }} :<b> {{ eglise.communaute.texte }}</b> </div>
+</div>
+
+
+<hr style="visibility: hidden" />
+
+    <div class="intro-header"><br><br>
+        <!-- /.card-header -->
+        <center>
+            <h3><u><b>FICHE INDIVIDUELLE DE {{ fidele.nomfidele|upper }} 
+                        <div id="watermark">
+
+                            <img width="80px;" src="{{absolute_url(asset('uploads/photos/'~fidele.photoFile )) }}" alt="Photo" style="position: fixed; right: 10 ">
+
+                        </div>
+                    </b></u></h3>
+            <table class="table">
+
+                <thead>
+
+                </thead>
+                <tbody>
+                    <tr>
+
+                        <td>Le fidèle Code</td>
+                        <td>Catégorie</td>
+                        <td>Nom & prénoms</td>
+                        <td>Contact</td>
+                        <td>Whatssap</td>
+                        <td>email</td>
+                        <td>Genre</td>
+                    </tr>
+                    <tr>
+
+                        <td>{{ fidele.code}}</td>
+                        <td>{% set typefidele = fidele.typefidele %}
+                            {% if  typefidele == 1 %}
+                                Fidèle
+                            {% else %}
+
+                                Serviteur
+                            {% endif %}
+
+                        </td>
+                        <td>{{ fidele.nomfidele|upper}}</td>
+                        <td>{{ fidele.contact1}}</td>
+                        <td>{{ fidele.contactwhatssap}}</td>
+                        <td>{{ fidele.email}}</td>
+                        <td>{{ fidele.sexe}}</td>
+
+                    </tr>   
+                    <tr class="btn-success">
+
+                        <td>Né(e) le</td>
+                        <td>Nbre. Enfants</td>
+                        <td>Statut matri.</td>
+                        <td>Type Pièce</td>
+                        <td>N° pièce</td>
+                        <td>Domaie d'activité</td>
+                        <td>Profession</td>
+                    </tr>
+                    <tr>
+                        <td>{{ fidele.datenaiss|date(' d-m-Y')}}</td>
+                        <td>{{ fidele.nbrenfant}}</td>
+                        <td>{{ fidele.statutmatri}}</td>
+                        <td>{{ fidele.typepiece}}</td>
+                        <td>{{ fidele.numpiece}}</td>
+                        <td>{{ fidele.domaineactivite}}</td>
+                        <td>{{ fidele.profession }}</td>
+
+                    </tr>
+
+
+                    <tr class="btn-success">
+                        <td>Nationalité</td>
+                        <td>Commune</td>
+                        <td>Date enreg.</td>
+                        <td>Enregistré par</td>
+                        <td>Facebook</td>
+                        <td>Famille Eglise</td>
+                        <td>Zone</td>
+
+                    </tr>
+
+                    <tr>
+                        <td>{{ fidele.nationalite|country_name}}</td>
+                        <td>{% if fidele.quartier.commune is not empty %}{{ fidele.quartier.commune.nom|upper}}{% else %}  {% endif %}</td>
+                        <td>{{ fidele.createAt|date(' d-m-Y à H:i:s ')}}</td>
+                        <td>{{ fidele.createdBy.nomuser}}</td>
+                        <td>{{ fidele.comptefacebook}}</td>
+                        <td>{% if fidele.famille is not null %} {{ fidele.famille.nom}} {% else %} {% endif %}</td>
+                        <td>{{ fidele.cellule.zone.nom}}</td>
+
+                    </tr>
+
+
+
+                    <tr class="btn-success">
+                        <td>Groupe sanguin</td>
+                        <td>Statut baptème</td>
+                        <td>Date de conversion</td>
+                        <td>Fonction Eglise</td>
+                        <td>Enregistré par</td>
+                        <td>Ethnie</td>
+                        <td>Cellule</td>
+
+                    </tr>
+
+                    <tr>
+                        <td>{{ fidele.groupesang}}</td>
+                        <td> {% set stutbapteme= fidele.stutbapteme %}
+                            {% set sexe= fidele.sexe %}
+
+                            {% if stutbapteme == 'Oui' and sexe == 'Homme' %}
+                                Baptisé
+                            {% elseif stutbapteme == 'Non' and sexe == 'Homme' %}
+                                Non baptisé
+                            {% elseif stutbapteme == 'Oui' and sexe == 'Femme' %}
+                                Baptisée
+                            {% else %}
+                                Non Baptisée
+                            {% endif %}
+
+
+                        </td>
+                        <td>{{ fidele.createAt|date('d-m-Y')}}</td>
+                        <td>{{ fidele.createdBy.nomuser}}</td>
+                        <td>{{ fidele.comptefacebook}}</td>
+                        <td>{{ fidele.famille.nom}}</td>
+                        <td>{{ fidele.cellule.nom}}</td>
+
+                    </tr>
+
+                    <tr class="btn-success">
+
+                        <td>Date baptème</td>
+                        <td>Lieu baptème</td>
+                        <td>Pasteur officient</td>
+                        <td>Ancienne communauté</td>
+                        <td>Rôle à l'eglise</td>
+                        <td>Date de conversion</td>
+                    </tr>
+                    <tr>
+                        <td>{{ fidele.datebapteme|date(' d-m-Y')}}</td>
+                        <td>{{ fidele.lieubapteme }}</td>
+                        <td>{{ fidele.pasteurbapteme}}</td>
+                        <td>{{ fidele.anciennecommunaute}}</td>
+                        <td>{{ fidele.numpiece}}</td>
+                        <td>{{ fidele.dateconversion|date('d-m-Y')}}</td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </center>
+    </div>
+
+{% endblock %}

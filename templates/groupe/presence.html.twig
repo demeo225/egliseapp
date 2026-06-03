@@ -1,0 +1,69 @@
+{% extends 'home/index.html.twig' %}
+{% block title %}{{ eglise.denomination }}  Liste de présence de : {{ nomgroupe|upper }} {% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">    
+                Liste de présence de : {{ nomgroupe|upper }}
+            </h3>
+        </div>
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    <a href='{{ path('groupe') }}'>
+                        <button class="btn btn-success">Retour à la liste</button>
+                    </a>
+
+                    <hr style="visibility: hidden" />
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                        <th>Date</th>
+                        <th>Objet</th>
+                        <th>Lieu</th>
+                        <th>Fidèle</th>
+                        <th>Contact</th>
+                        <th>Photo</th>
+                        </thead>
+                        </tr>
+                        <tbody>
+                            {% for presencegroupe in presencegroupes %}
+
+                                <tr>
+                                    <td>{{ presencegroupe.seancegroupe.datesuper ? presencegroupe.seancegroupe.datesuper|date('d-m-Y') : '' }}</td>
+                                    <td>{{ presencegroupe.seancegroupe.objet}}</td>
+                                    <td>{{ presencegroupe.seancegroupe.lieu}}</td>
+                                    <td>{{ presencegroupe.fidele.nomfidele|upper}}</td>
+                                    <td> {% if presencegroupe.fidele.contactwhatssap is not empty %} {{ presencegroupe.fidele.contactwhatssap}} {% else %} {{ presencegroupe.fidele.contact1}} {% endif %}</td>
+                                    <td>    
+                                        <img src="{{ asset('uploads/photos/'~presencegroupe.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> 
+
+                                    </td>
+
+                                </tr>
+
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+{% endblock %}

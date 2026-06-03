@@ -1,0 +1,36 @@
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h4 class="card-title">Modification de zone</h4>
+        </div>
+        <div class="card card-body">
+      
+        {{ form_start(form, {'attr': {'action': path('zone_update', {'id': zone.id}) }}) }}
+            {{ form_errors(form) }}
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        {{ form_row(form.nom, {'label':'Zone ', 'attr':{'class':'form-control'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.description, {'label':'Description ', 'attr':{'class':'form-control'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.responsable1, {'label':'Responsable ', 'attr':{'class':'form-control'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.responsable2, {'label':'Responsable 2nd ', 'attr':{'class':'form-control'}}) }}
+                    </div>
+                </div>
+                <div class="row"> 
+                    <div class="col-md-1">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+                    <div class="col-md-2" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+                </div> 
+                <div>
+                    {{ form_rest(form) }}
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>

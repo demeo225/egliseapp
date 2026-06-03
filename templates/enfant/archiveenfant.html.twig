@@ -1,0 +1,86 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Archive enfants{% endblock %}
+
+{% block body %}
+
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+
+
+
+
+                    <table id="example1" class="table table-bordered table-striped table-danger">
+
+                        <thead>
+                            <tr >
+                                <th>Code</th>
+                                <th>Enfant</th>
+                                <th>Contact Parent</th>
+                                <th>Suppression par</th>
+                                <th>Age</th>
+                                <th>Date suppression</th>
+                                <th>Photo</th>
+                                <th>Restaurer</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for enfant in enfant %}
+                                <tr>
+                                    <td>{{ enfant.code|upper}}</td>
+                                    <td>{{ enfant.nom|upper}}</td>
+                                    <td>{{ enfant.contact}}</td>
+                                    <td>{{ enfant.deletedBy}}</td>
+                                    <td>   {% set naissance = enfant.datenaiss|date('Y') %}
+                                        {% set today = "now"|date('Y') %}
+                                        {% set difference = today - naissance %}
+
+                                        {{ difference }}</td>
+                                    <td>{{ enfant.deletedAt|date('d-m-Y')}}</td>
+
+                                    <td>
+                                        <img src="{{ asset('uploads/photos/'~enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/>                                               
+
+
+                                    </td>
+
+
+
+
+                                    <td>
+                                        <a href="{{ path('enfant_restaure', {'id': enfant.id}) }}">
+                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                <i class="fas fa-edit"></i>
+                                            </span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+{% endblock %}
+{# empty Twig template #}

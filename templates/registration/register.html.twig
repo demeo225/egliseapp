@@ -1,0 +1,53 @@
+{# /app/templates/registration/register.html.twig #}
+{% extends "home/index.html.twig" %}
+
+{% block title %}Administration{% endblock %}
+
+{% block body %}
+
+    {# If there are any errors on the form, display them #}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h4 class="card-title">Gestion utilisateurs</h4>
+        </div>
+        <div class="card card-body">
+            {# Render the Form #}
+            {{ form_start(form)}}
+
+
+
+            <div class="row">
+                <div class="col-md-3">
+                    {{ form_row(form.email, {'label':'Email :','attr':{'class':'form-control'}}) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_row(form.roles, {'label':'Role :'}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.nomuser, {'label':'Nom :','attr':{'class':'form-control'}}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.prenom, {'label':'Prenoms :','attr':{'class':'form-control'}}) }}
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    {{ form_row(form.photo, {'label':'Photo :','attr':{'class':'form-control'}}) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.plainPassword) }}
+                </div>
+         
+
+            </div>
+
+            <div class="col-4">
+             
+                {{ form_end(form) }} 
+            </div>
+        </div>
+    </div>
+
+{% endblock %}{# empty Twig template #}

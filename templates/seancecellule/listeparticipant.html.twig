@@ -1,0 +1,116 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste de presence Cellule{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Liste de présence des cellules</h3>
+        </div>
+               <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <div class="container-fluid">
+         
+
+                <!-- /.card-header -->
+                <div class="card-body">
+                   
+                    <a href='{{ path('seancecellule_presence') }}'>
+                        <button class="btn btn-primary">Nouveau</button>
+                    </a>
+                    <a href='{{ path('seancecellule_index') }}'>
+                        <button class="btn btn-success">Liste des activités </button>
+                    </a>
+                    <a href='{{ path('cotisationcellule_index') }}'>
+                        <button class="btn btn-success">Cotisations </button>
+                    </a>
+                    <hr style="visibility: hidden" />
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                        <th>Cellule</th>
+                        <th>Date</th>
+                        <th>Objet</th>
+                        <th>Lieu</th>
+                        <th>Fidèle</th>
+                        <th>Contact</th>
+                        <th>Photo</th>
+                        <th>Retirer</th>
+                        </thead>
+                        </tr>
+                        <tbody>
+                            
+                            {% for diff in differences %}
+                                {% set presence = 0 %}
+                                {% set presencecellule = 0 %}
+                                {% for presencecellule in presencecellules %}
+                                    {% if is_granted("seancecellule_presence", presencecellule) %}
+                                    {% if diff.datesuper ==  presencecellule.seancecellule.datesuper %}
+                                        {% set presence = (presencecellule|length) + presence ?? 0 %}
+
+                                        <tr>
+
+                                            <td> {% if presencecellule.cellule is  not empty %}  {{ presencecellule.cellule.nom|upper}} {% else %} {% endif %}</td>
+                                            <td> {% if presencecellule.seancecellule is not empty %} 
+                                                {{ presencecellule.seancecellule.datesuper ? date_format(presencecellule.seancecellule.datesuper) }} {% else %} {% endif %}</td>
+                                            <td>{% if presencecellule.seancecellule is not empty %}{{ presencecellule.seancecellule.objet}} {% else %} {% endif %}</td>
+                                            <td>{% if presencecellule.seancecellule is not empty %}{{ presencecellule.seancecellule.lieu}} {% else %} {% endif %}</td>
+                                            <td>{% if presencecellule.seancecellule is not empty %}{{ presencecellule.fidele.nomfidele|upper}} {% else %} {% endif %}</td>
+                                            <td> {% if presencecellule.fidele.contactwhatssap is not empty %} {{ presencecellule.fidele.contactwhatssap}} {% else %} {{ presencecellule.fidele.contact1}} {% endif %}</td>
+
+                                            <td>    
+                                                <img src="{{ asset('uploads/photos/'~presencecellule.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> 
+
+                                            </td>
+                                            <td>
+                                                <form method="post" action="{{ path('presencecellule_delete', {'id': presencecellule.id}) }}" onsubmit="return confirm('etes vous-sûr de vouloir supprimer?');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ presencecellule.id) }}">
+
+                                                    <button class="btn">
+                                                        <span style="font-size: 1em; color: red;">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </span>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                    {% endif %}
+
+                                        {% endfor %}
+                                            {% if presence == 0 %}
+
+                                            {% elseif presence != 0  %}
+                                                
+                                                <tr>
+                                                    <td colspan="6"><b>Total fidèles</b> </td>
+
+                                                    <td colspan="2"><b> {{ presence }} </b> </td>
+                                                </tr>
+
+                                            {% endif %}
+                                            {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+
+
+                            {% endblock %}

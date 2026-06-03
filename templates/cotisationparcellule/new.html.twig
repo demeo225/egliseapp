@@ -1,0 +1,14 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}New Cotisationparcellule{% endblock %}
+
+{% block body %}
+  <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Nouvel enregistrement</h3>
+        </div>
+
+    {{ include('cotisationparcellule/_form.html.twig') }}
+
+  </div>
+{% endblock %}

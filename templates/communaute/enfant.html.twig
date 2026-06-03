@@ -1,0 +1,79 @@
+{% extends 'home/index.html.twig' %}
+
+
+{% block title %}Liste des enfants du quartier : {{ nomquartier|upper }} {% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title">LISTE DES ENFANTS DU QUARTIER :{{ nomquartier|upper }} </h3>
+        </div>
+        <h3><b> </b></h3>
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                    <a href='{{ path('quartier') }}'>
+                        <button class="btn btn-success">Liste des quartiers</button>
+                    </a>
+                    <hr style="visibility: hidden" />
+
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Enfant</th>
+                                <th>Teléphone</th>
+                                <th>Age</th>
+                                <th>Photo</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for enfant in enfants %}
+                                <tr>
+                                    <td>{{ enfant.code|upper}}</td>
+                                    <td>{{ enfant.nom|upper}}</td>
+                                    <td>{{ enfant.contact}}</td>
+
+
+                                    <td>
+
+
+                                        {% set naissance = enfant.datenaiss|date('Y') %}
+                                        {% set today = "now"|date('Y') %}
+                                        {% set difference = today - naissance %}
+
+                                        {{ difference }}
+                                    </td>
+
+
+                                    <td>
+                                        <a href="{{ path('enfant_detail', {'id': enfant.id}) }}">
+                                            <img src="{{ asset('uploads/photos/'~enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare" />                                               
+
+                                        </a>
+                                    </td>
+
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+{% endblock %}

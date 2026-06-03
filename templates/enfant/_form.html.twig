@@ -1,0 +1,653 @@
+
+
+
+<style>
+
+    body {
+        background: #f4f6f9;
+    }
+
+    .multi-step-form {
+        background: #fff;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .step {
+        display: none;
+        animation: fadeIn .4s ease-in-out;
+    }
+
+    .step.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+        min-height: 45px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #344767;
+        margin-bottom: 6px;
+    }
+
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .step-item {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: #dee2e6;
+        color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    .step-item.active {
+        background: #0d6efd;
+        color: #fff;
+    }
+
+    .btn-step {
+        min-width: 140px;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 25px;
+    }
+
+    .camera-box {
+        border: 2px dashed #ced4da;
+        border-radius: 10px;
+        padding: 10px;
+        background: #f8f9fa;
+        text-align: center;
+    }
+
+    .card-title {
+        font-weight: bold;
+    }
+
+    .flash-text {
+        font-size: 18px;
+    }
+
+</style>
+
+
+
+
+<div class="container mt-4 mb-5">
+
+    <div class="card card-primary border-0 shadow">
+
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0">
+                Enregistrement enfant
+            </h3>
+        </div>
+
+        <div class="card-body multi-step-form">
+
+            {{ form_start(form) }}
+
+           
+
+            <div class="offset-md-1 col-md-10 mb-3">
+
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }}">
+                            <span class="flash-text">{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+            </div>
+
+            {# ================= ETAPES ================= #}
+
+            <div class="step-indicator">
+                <div class="step-item active">1</div>
+                <div class="step-item">2</div>
+                <div class="step-item">3</div>
+            </div>
+
+            {# ================= ETAPE 1 ================= #}
+
+            <div class="step active">
+
+                <div class="row g-4">
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.nom, {
+                            'label':'Nom & prénoms',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.contact, {
+                            'label':'Contact',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.contactwhatssap, {
+                            'label':'Contact parent',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.sexe, {
+                            'label':'Sexe',
+                            'attr':{'class':'form-select'}
+                        }) }}
+                    </div>
+
+                </div>
+
+                <div class="row g-4 mt-1">
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.datenaiss, {
+                            'label':'Date de naissance',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.comptefacebook, {
+                            'label':'Compte Facebook',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.email, {
+                            'label':'Email',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.niveauetude, {
+                            'label':'Niveau d\'étude',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                </div>
+
+                <div class="row g-4 mt-1">
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.numpiece, {
+                            'label':'N° pièce',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.lieunaiss, {
+                            'label':'Lieu de naissance',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.classenfant, {
+                            'label':'Classe',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.ethnie, {
+                            'label':'Ethnie'
+                        }) }}
+                    </div>
+
+                </div>
+
+                <div class="action-buttons justify-content-end">
+
+                    <button type="button"
+                            class="btn btn-primary btn-step next-btn">
+                        Suivant
+                    </button>
+
+                </div>
+
+            </div>
+
+            {# ================= ETAPE 2 ================= #}
+
+            <div class="step">
+
+                <div class="row g-4">
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.pere, {
+                            'label':'Père non fidèle',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.mere, {
+                            'label':'Mère non fidèle',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.peremembre, {
+                            'label':'Choix du père'
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.merembre, {
+                            'label':'Choix de la mère'
+                        }) }}
+                    </div>
+
+                </div>
+
+                <div class="row g-4 mt-1">
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.lieuvivre, {
+                            'label':'Situation sociale',
+                            'attr':{'class':'form-select'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.situationparent, {
+                            'label':'Parents en vie ?',
+                            'attr':{'class':'form-select'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.vieparent, {
+                            'label':'Si non, préciser',
+                            'attr':{'class':'form-select'}
+                        }) }}
+                    </div>
+
+                </div>
+
+                <div class="row g-4 mt-1">
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.situation, {
+                            'label':'Handicapé(e)',
+                            'attr':{'class':'form-select'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.handicap, {
+                            'label':'Si oui choisir',
+                            'attr':{'class':'form-select'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.maladie, {
+                            'label':'Maladie éventuelle',
+                            'attr':{'class':'form-select'}
+                        }) }}
+                    </div>
+
+                </div>
+
+                <div class="action-buttons justify-content-between">
+
+                    <button type="button"
+                            class="btn btn-secondary btn-step previous-btn">
+                        Précédent
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-primary btn-step next-btn">
+                        Suivant
+                    </button>
+
+                </div>
+
+            </div>
+
+            {# ================= ETAPE 3 ================= #}
+
+            <div class="step">
+
+                <div class="row g-4">
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.commune, {
+                            'label':'Commune'
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.quartier, {
+                            'label':'Quartier'
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.zone, {
+                            'label':'Zone'
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.cellule, {
+                            'label':'Cellule'
+                        }) }}
+                    </div>
+
+                </div>
+
+                <div class="row g-4 mt-1">
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.groupesang, {
+                            'label':'Groupe sanguin',
+                            'attr':{'class':'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.famille, {
+                            'label':'Famille / Tribu'
+                        }) }}
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        {{ form_row(form.nationalite, {
+                            'label':'Nationalité'
+                        }) }}
+                    </div>
+
+                </div>
+
+                <div class="row g-4 mt-3">
+
+                    <div class="col-md-4">
+
+                        <div class="camera-box">
+                            <div id="camera"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-center">
+
+                        <input
+                                type="button"
+                                value="Capturer photo"
+                                id="btPic"
+                                onclick="takeSnapShot()"
+                                class="btn btn-primary w-100"
+                        />
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        {{ form_row(form.photo, {
+                            'label':'Télécharger photo',
+                            'attr':{'class':'form-control'}
+                        }) }}
+
+                    </div>
+
+                </div>
+
+                <div class="action-buttons justify-content-between">
+
+                    <button type="button"
+                            class="btn btn-secondary btn-step previous-btn">
+                        Précédent
+                    </button>
+
+                    {{ form_widget(form.save, {
+                        'label': 'Valider',
+                        'attr': {
+                            'class': 'btn btn-success btn-step'
+                        }
+                    }) }}
+
+                    {{ form_widget(form.saveAndAdd, {
+                        'label': 'Valider ++',
+                        'attr': {
+                            'class': 'btn btn-warning btn-step'
+                        }
+                    }) }}
+
+                    <a href="{{ path('enfant') }}"
+                       class="btn btn-info text-white btn-step">
+                        Afficher la liste
+                    </a>
+
+                </div>
+
+            </div>
+
+            {{ form_end(form) }}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+<script>
+
+    const steps = Array.from(document.querySelectorAll(".step"));
+    const nextBtns = document.querySelectorAll(".next-btn");
+    const prevBtns = document.querySelectorAll(".previous-btn");
+    const indicators = document.querySelectorAll(".step-item");
+
+    nextBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            changeStep(1);
+        });
+    });
+
+    prevBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            changeStep(-1);
+        });
+    });
+
+    function changeStep(direction)
+    {
+        let currentStep = steps.findIndex(step =>
+            step.classList.contains("active")
+        );
+
+        steps[currentStep].classList.remove("active");
+        indicators[currentStep].classList.remove("active");
+
+        currentStep += direction;
+
+        steps[currentStep].classList.add("active");
+        indicators[currentStep].classList.add("active");
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+</script>
+
+<script
+        type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.25/webcam.js">
+</script>
+
+<script>
+
+    Webcam.set({
+        width: 220,
+        height: 190,
+        image_format: 'jpeg',
+        jpeg_quality: 100
+    });
+
+    Webcam.attach('#camera');
+
+    takeSnapShot = function () {
+
+        Webcam.snap(function (data_uri) {
+            downloadImage('photo_enfant', data_uri);
+        });
+
+    }
+
+    downloadImage = function (name, datauri) {
+
+        let a = document.createElement('a');
+
+        a.setAttribute('download', name + '.png');
+        a.setAttribute('href', datauri);
+
+        a.click();
+
+    }
+
+</script>
+
+        <script>
+document.getElementById('enfant_commune').addEventListener('change', function() {
+    const communesId = this.value;
+
+    if (communesId === '') return;
+
+    fetch(`/fidele/quartiers/${communesId}`)
+        .then(response => response.json())
+        .then(data => {
+            const quartierSelect = document.getElementById('enfant_quartier');
+            quartierSelect.innerHTML = '<option value="">-- Choisissez un quartier --</option>';
+
+            data.forEach(quartier => {
+                const option = document.createElement('option');
+                option.value = quartier.id;
+                option.textContent = quartier.libelle;
+                quartierSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Erreur lors du chargement des quartiers:', error));
+});
+</script>
+
+    
+        <script>
+document.getElementById('enfant_zone').addEventListener('change', function() {
+    const zonesId = this.value;
+
+    if (zonesId === '') return;
+
+    fetch(`/fidele/cellules/${zonesId}`)
+        .then(response => response.json())
+        .then(data => {
+            const celluleSelect = document.getElementById('enfant_cellule');
+            celluleSelect.innerHTML = '<option value="">-- Choisissez une cellule --</option>';
+
+            data.forEach(cellule => {
+                const option = document.createElement('option');
+                option.value = cellule.id;
+                option.textContent = cellule.nom;
+                celluleSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Erreur lors du chargement des cellules:', error));
+});
+</script>
+
+<script>
+
+document.getElementById('enfant_commune')
+    .addEventListener('change', function() {
+
+    const communeId = this.value;
+
+    if (communeId === '') {
+        return;
+    }
+
+    fetch(`/fidele/quartiers/${communeId}`)
+        .then(response => response.json())
+        .then(data => {
+
+            const quartierSelect =
+                document.getElementById('enfant_quartier');
+
+            quartierSelect.innerHTML =
+                '<option value="">-- Choisissez un quartier --</option>';
+
+            data.forEach(quartier => {
+
+                const option = document.createElement('option');
+
+                option.value = quartier.id;
+                option.textContent = quartier.libelle;
+
+                quartierSelect.appendChild(option);
+
+            });
+
+        })
+        .catch(error => {
+            console.error(
+                'Erreur lors du chargement des quartiers:',
+                error
+            );
+        });
+
+});
+
+</script>
+

@@ -1,0 +1,15 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}New Recette{% endblock %}
+
+{% block body %}
+  	<div class="card card-primary">
+		<div class="card-header">
+			<h3 class="card-title">Enregistrement recette</h3>
+		</div>
+		<div class="card card-body">
+
+			{{ include('recette/_form.html.twig') }}
+
+		</div>
+{% endblock %}

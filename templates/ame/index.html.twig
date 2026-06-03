@@ -1,0 +1,119 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Suivi d'âmes {% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Liste des nouvellles âmes</h3>
+        </div>
+      <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    
+        {% if is_granted('ROLE_RESPONSABLE_EVANGELISATION') %}
+            <div class="card-body">
+                <a href="{{ path('app_ame_new') }}">
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href="{{ path('app_evangelisation_index') }}">
+                    <button class="btn btn-success">Evangelisation</button>
+                </a>
+
+            {% endif %}
+            <hr style="visibility: hidden" />
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+
+                        <th>Sexe</th>
+                        <th>Contact</th>
+                        <th>Habitation</th>
+ 
+
+                        <th>actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ame in ames %}
+                        <tr>
+                            <td>{{ ame.nom }}</td>
+
+                            <td>{{ ame.sexe }}</td>
+                            <td>{{ ame.contact }}</td>
+                            <td>{{ ame.habitation }}</td>
+
+
+                            <td>
+                                 <button type="button" id="btn-fideles-modal" class="btn btn-primary" data-target="{{ path('ame_show', {'id':ame.id}) }}"> 
+                                            <i class="fas fa-list" title="Details"></i>
+                                        </button> 
+                                <a href="{{ path('app_ame_edit', {'id': ame.id}) }}"> <i class="fas fa-edit"></i></a>
+                            </td>
+                        </tr>
+                   
+                       
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+            $(document).on('click', 'button#btn-fideles-modal', function () {
+                // créer le modal qui porte l'id fidelesModal
+                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                    keyboard: false
+                });
+
+                // recupere le div class="modal-body" du div id="fidelesModal"
+                let container = $('#fidelesModal .modal-body');
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('data-target'),
+                    async: true,
+                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                        container.empty();
+                    },
+                    success: function (html) {
+                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                        modal.show(); // on affiche la fenêtre modal
+                        //console.log(html);
+                    }
+                });
+            });
+        });
+    </script>
+
+
+{% endblock %}
+

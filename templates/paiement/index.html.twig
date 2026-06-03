@@ -1,0 +1,59 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Paiement index{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Facturation</h3>
+        </div>
+ <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <div class="card-body">
+
+            <a href="{{ path('app_paiement_new') }}">
+                <button class="btn btn-primary">Nouveau Paiment</button>
+            </a>
+            <hr style="visibility: hidden" />
+            <table  id="example1" class="table table-bordered table-striped">
+                   <thead>
+                <tr>
+                    <th>Eglise</th>
+                    <th>Date d'inscription</th>
+                    <th>Date paiement</th>
+                    <th>Contact</th>
+                    <th>Montant</th>
+                    <th>Date echeance</th>
+
+                 
+                </tr>
+                </thead>
+                <tbody>
+                    {% for paiement in paiements %}
+                        <tr>
+                            <td>{{ paiement.eglise.denomination }}</td>
+                            <td>{{ paiement.eglise.createAt ? paiement.eglise.createAt|date('Y-m-d H:i:s') : '' }}</td>
+                            <td>{{ paiement.datepaiement ? paiement.datepaiement|date('d-m-Y') : '' }}</td>
+                            <td>{{ paiement.eglise.contact1 }}</td>
+                            <td>{{ paiement.montant }}</td>
+                            <td>{{ paiement.dateecheance ? paiement.dateecheance|date('d-m-Y') : '' }}</td>
+
+                            {# <td>
+                               <a href="{{ path('app_paiement_show', {'id': paiement.id}) }}">    <i class="fas fa-list" title="Details"></i></a>
+                                <a href="{{ path('app_paiement_edit', {'id': paiement.id}) }}">    <i class="fas fa-edit" title="Modifier"></i></a>
+                            </td>  #}
+                        </tr>
+                 
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

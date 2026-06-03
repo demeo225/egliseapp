@@ -1,0 +1,13 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Edit Presenceculteecodim{% endblock %}
+
+{% block body %}
+    <h1>Edit Presenceculteecodim</h1>
+
+    {{ include('presenceculteecodim/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_presenceculteecodim_index') }}">back to list</a>
+
+    {{ include('presenceculteecodim/_delete_form.html.twig') }}
+{% endblock %}

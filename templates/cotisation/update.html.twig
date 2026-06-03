@@ -1,0 +1,78 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotisation  {% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Cotisations </h3>
+        </div>
+        <div class="card card-body">
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+
+            <div class="row mb-6">
+
+                <div class="col-6">
+                    <div class="form-group">
+                        {{ form_label(form.typecotisation, "Type") }}
+                        {{ form_errors(form.typecotisation) }}
+                        <div>
+                            {{ form_widget(form.typecotisation)  }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="form-group">
+                        {{ form_label(form.objet, "Objet")}}
+                        {{ form_errors(form.objet)  }}
+                        <div>
+                            {{ form_widget(form.objet) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-6">
+
+                <div class="col-6">
+                    <div class="form-group">
+                        {{ form_label(form.montant, "Montant") }}
+                        {{ form_errors(form.montant)  }}
+                        <div>
+                            {{ form_widget(form.montant) }}
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="col-6">
+                    <div class="form-group">
+                        {{ form_label(form.periodecotisation, "Date limite") }}
+                        {{ form_errors(form.periodecotisation) }}
+                        <div>
+                            {{ form_widget(form.periodecotisation)  }}
+                        </div>
+                    </div></div>
+            </div>
+            <div class="row"> 
+                <div class="col-md-2">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+                <div class="col-md-2"><a href="{{ path('cotisation') }}" class="btn btn-success">Afficher la liste</a> </div>
+                <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+            </div> 
+        </div>
+
+        <div>
+            {{ form_rest(form) }}
+        </div>
+        {{ form_end(form) }}
+    </div>
+
+
+
+
+
+{% endblock %}

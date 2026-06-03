@@ -1,0 +1,12 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Modification carte sociale{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification</h3>
+        </div>
+        {{ include('cartesocial/_form.html.twig', {'button_label': 'Modifier'}) }}
+    </div>
+{% endblock %}

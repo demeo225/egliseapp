@@ -1,0 +1,88 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Depenses zone index{% endblock %}
+
+{% block body %}
+    <!-- /.card-header -->
+    <div class="card-body">
+
+
+
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Depense des Zones</h3>
+            </div>
+ <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+            {% if is_granted('ROLE_RESPONSABLE_ZONE') %}
+                <div class="card-body">
+                    <a href='{{ path('app_depensezone_new') }}'>
+                        <button class="btn btn-primary">Nouveau</button>
+                    </a>
+                    <a href='{{ path('app_cotisationzone_index') }}'>
+                        <button class="btn btn-success">Cotisations </button>
+                    </a>
+
+                    <a href={{ path('app_cotiserzone_index') }}>
+                        <button class="btn btn-success">Paiements de cotisation</button>
+                    </a>
+
+                    <a href={{ path('app_seancezone_listeparticipant') }}>
+                        <button class="btn btn-success">Liste de présence</button>
+
+                    </a>
+                {% endif %} 
+
+                <b>Solde</b>
+                <button class="btn btn-info">
+                    {% for solde in soldes %}
+                        {{ solde.montant|number_format(0, '.', ' ') }}
+                    {% endfor %}
+                </button>
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Zone</th>
+                            <th>Datede</th>
+                            <th>Objet</th>
+                            <th>Montant</th>
+
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for depensezone in depensezones %}
+                            <tr>
+                                <td> {% if depensezone.zone is not empty %}  {{ depensezone.zone.nom }} {% else %} {% endif %}</td>
+                                <td>{{ depensezone.datedepense ? depensezone.datedepense|date('d-m-Y') : '' }}</td>
+                                <td>{{ depensezone.objet }}</td>
+                                <td>{{ depensezone.montant|number_format(0, '.', ' ')  }}</td>
+
+                                <td>
+                                    <a href="{{ path('app_depensezone_show', {'id': depensezone.id}) }}">      <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-list" title="Details"></i>
+                                        </span></a>
+                                    <a href="{{ path('app_depensezone_edit', {'id': depensezone.id}) }}">          <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit" title="Modification"></i>
+                                        </span></a>
+                                </td>
+                            </tr>
+                    
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    {% endblock %}

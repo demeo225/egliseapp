@@ -1,0 +1,73 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Liste paiements  des cotisations pour le social{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Paiement des actions sociales</h3>
+        </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune', 'suppcommune']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <div class="card-body">
+            <a href="{{ path('app_cotisersociale_new') }}">
+                <button class="btn btn-primary">Nouveau</button></a>
+            <a href="{{ path('app_cotisationsociale_index') }}">
+                <button class="btn btn-success">Liste Cotisations</button>
+            </a>
+            <a href="{{ path('app_activitesociale_adultesociaux') }}">
+                <button class="btn btn-success">Cas sociaux</button>
+            </a>
+            <a href={{ path('app_cotisersociale_detailsociale') }}>
+                <button class="btn btn-danger">Detail cotisation</button>
+            </a>
+            <hr style="visibility: hidden" />
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+
+                        <th>Fidèle</th>
+                        <th>Contact</th>
+                        <th>Objet</th>
+                        <th>Montant</th>
+                        <th>Montant payé </th>
+                        <th>Reste</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cotisersociale in cotisersociales %}
+                        <tr>
+                            <td>{{ cotisersociale.fidele.nomfidele }}</td>
+                             <td> {% if cotisersociale.fidele.contactwhatssap is not empty %} {{ cotisersociale.fidele.contactwhatssap}} {% else %} {{ cotisersociale.fidele.contact1}} {% endif %}</td>
+                            <td>{{ cotisersociale.cotisationsociale.objet }}</td>
+                            <td>{{ cotisersociale.cotisationsociale.montant|number_format(0, '.', ' ') }}</td>
+                            <td>{{ cotisersociale.montantpayer|number_format(0, '.', ' ') }}</td>
+                            <td>{% if  cotisersociale.reste ==0 %} <b>Soldé</b> 
+                                {% elseif cotisersociale.reste >0 %} {{ cotisersociale.reste }} {% elseif cotisersociale.reste <= 0 %} 
+                                        <i class="btn btn-success"> Soldé </i> {% endif %}</td>
+
+                                  {#  <td>
+                                        
+                                        <a href="{{ path('app_cotisersociale_edit', {'id': cotisersociale.id}) }}"> 
+                                            <span style="font-size: 1em; color: Dodgerblue;">
+                                                <i class="fas fa-edit"></i>
+                                            </span></a>
+                                        
+                                 
+                                    </td> #}
+                                </tr>
+                                
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {% endblock %}

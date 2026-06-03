@@ -1,0 +1,102 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Liste préinscription{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Liste des inscrits</h3>
+            </div>
+
+
+            <hr style="visibility: hidden" />  
+
+
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Fidèle</th>
+                        <th>Teléphone</th>
+                        <th>Baptisé(e)</th>
+                        <th>Photo</th>
+                        <th>Valider</th>
+                        <th>Rejeter</th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fidele in inscrit %}
+                        <tr>
+                            <td>{{ fidele.code|upper}}</td>
+                            <td>{{ fidele.nomfidele|upper}}</td>
+                            <td>{{ fidele.contact1}}</td>
+                            <td> {% set stutbapteme= fidele.stutbapteme %}
+                                {% set sexe= fidele.sexe %}
+
+                                {% if stutbapteme == 'Oui' and sexe == 'Homme' %}
+                                    Baptisé
+                                {% elseif stutbapteme == 'Non' and sexe == 'Homme' %}
+                                    Non baptisé
+                                {% elseif stutbapteme == 'Oui' and sexe == 'Femme' %}
+                                    Baptisée
+                                {% else %}
+                                    Non Baptisée
+                                {% endif %}
+
+
+                            </td>
+
+
+
+
+
+                            <td>
+                                <a href="{{ path('fidele_detailpreinscription', {'id': fidele.id}) }}">
+                                    <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" />                                               
+
+                                </a>
+                            </td>
+
+                            <td>
+                                <a href="{{ path('fidele_validation', {'id': fidele.id}) }}">
+                                    <span style="font-size: 1em; color: Dodgerblue;">
+                                        <i class="fas fa-edit" title="Valider"></i>
+                                    </span>
+                                </a>
+                            </td>
+                            <td>
+
+                                <form method="post" action="{{ path('fidele_rejet', {'id': fidele.id}) }}" onsubmit="return confirm('etes-vous sûr de vouloir rejeter?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ fidele.id) }}">
+                                    <button class="btn">
+                                        <span style="font-size: 1em; color: red;">
+                                            <i class="fas fa-trash-alt" title="Rejeter"></i>
+                                        </span>
+                                    </button>
+                                </form>
+
+                            </td>
+
+                        </tr>
+                
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+
+
+
+
+
+{% endblock %}

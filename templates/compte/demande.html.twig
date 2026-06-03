@@ -1,0 +1,69 @@
+
+{% extends "home/index.html.twig" %}
+
+{% block title %}Création de compte Eglise{% endblock %}
+
+{% block body %}
+{{ form_start(form) }}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Ouverture de compte</h3>
+        </div>
+    {{ form_errors(form) }}
+</div>
+<div class="row">
+    
+    <div class="col-md-4">
+        {{ form_row(form.congregation, {'label':'Communauté '}) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_row(form.denomination, {'label':'Temple '}) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_row(form.contact1, {'label':'Contact '}) }}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{ form_row(form.contact2, {'label':'Fixe '}) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_row(form.adresse, {'label':'Adresse '}) }}
+    </div>
+ <div class="col-md-4">
+        {{ form_row(form.photo, {'label':'Logo '}) }}
+    </div>
+     <div class="col-md-4">
+        {{ form_row(form.quartier, {'label':'Quartier '}) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_row(form.longitude, {'label':'Longitude '}) }}
+    </div>
+     <div class="col-md-4">
+        {{ form_row(form.latitude, {'label':'Latitude '}) }}
+    </div>
+      <div class="col-md-4">
+        {{ form_row(form.sigle, {'label':'Sigle '}) }}
+    </div>
+      <div class="col-md-4">
+        {{ form_row(form.facebook, {'label':'Cpte Facebook '}) }}
+    </div>
+      <div class="col-md-4">
+        {{ form_row(form.youtube, {'label':'Cpte Youtube '}) }}
+    </div>
+       <div class="col-md-4">
+        {{ form_row(form.arrete, {'label':'Agréée par arrêté N° '}) }}
+    </div>
+      <div class="col-md-4">
+        {{ form_row(form.commune) }}
+    </div>
+    
+
+</div>
+
+<button class="btn btn-success">{{ button_label|default('Valider') }}</button>
+{{ form_end(form) }}
+
+{% endblock %}

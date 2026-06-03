@@ -1,0 +1,67 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des membres{% endblock %}
+
+{% block body %}
+
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+
+                 {#   <a href='{{ path('fonction') }}'>
+                        <button class="btn btn-success">Retour à la liste</button>
+                    </a>
+                    <a href='{{ path('fonction_printmembre',{'id':id}) }}'>
+                      <a href='quartier/printmembre/on?id={{ id }}'  target='_blank'>#}
+                        
+                        <button class="btn btn-primary">Imprimer la liste des membres</button>
+                    </a>                   
+                    <table id="example1" class="table table-bordered table-striped">
+
+                        <thead>
+                        <th>Code</th>
+                        <th>Fidèle</th>
+                        <th>Contact</th>
+                        <th>Whatssap</th>
+                        <th>Fonction</th>
+                        <th>Cellule</th>
+                        <th>Photo</th>
+                        </thead>
+                        </tr>
+                        <tbody>
+                            {% for fidele in fidele %}
+
+                                <tr>
+
+                                    <td>{{ fidele.code|upper}}</td>
+                                    <td>{{ fidele.nomfidele|upper}}</td>
+                                    <td>{{ fidele.contact1}}</td>
+                                    <td>{{ fidele.contactwhatssap}}</td>
+                                    <td> {% if fidele.fonction is not null %} {{ fidele.fonction.libelle}} {% else %}  {% endif %}</td>
+                                    <td> {% if fidele.cellule is not null %} {{ fidele.cellule.nom}} {% else %}  {% endif %}</td>
+                                    <td>    <a href="{{ path('fidele_detail', {'id': fidele.id}) }}">    <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> </a>  </td>
+
+                                </tr>
+
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnée trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+
+{% endblock %}

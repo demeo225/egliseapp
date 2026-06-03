@@ -1,0 +1,85 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Modification{% endblock %}
+
+{% block body %}
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion des dons</h3>
+        </div>
+        <div class="card card-body">
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+            {% for message in app.flashes('success') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <div class="row">
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.donateur, "Donnateur", {'label_attr':{'class':'col-form-label'}})}}
+                        {{ form_errors(form.donateur)  }}
+                        <div>
+                            {{ form_widget(form.donateur,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>  
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.nature, "Nature du don", {'label_attr':{'class':'col-form-label'}})}}
+                        {{ form_errors(form.nature)  }}
+                        <div>
+                            {{ form_widget(form.nature,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.valeurdon, "Valeur monnétaire", {'label_attr':{'class':'col-form-label'}})}}
+                        {{ form_errors(form.valeurdon)  }}
+                        <div>
+                            {{ form_widget(form.valeurdon,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.datedon, "Date", {'label_attr':{'class':'col-form-label'}})}}
+                        {{ form_errors(form.datedon)  }}
+                        <div>
+                            {{ form_widget(form.datedon,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        {{ form_label(form.description, "Description", {'label_attr':{'class':'col-form-label'}})}}
+                        {{ form_errors(form.description)  }}
+                        <div>
+                            {{ form_widget(form.description,{'label_attr':{'class':'foo'}}) }}
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="row"> 
+                <div class="col-md-1">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+                <div class="col-md-2"><a href="{{ path('don_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+                <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+            </div> 
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+{% endblock %}

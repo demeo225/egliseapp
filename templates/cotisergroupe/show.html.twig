@@ -1,0 +1,38 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Cotisergroupe{% endblock %}
+
+{% block body %}
+    <h1>Cotisergroupe</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ cotisergroupe.id }}</td>
+            </tr>
+            <tr>
+                <th>Montantpayer</th>
+                <td>{{ cotisergroupe.montantpayer }}</td>
+            </tr>
+            <tr>
+                <th>Reste</th>
+                <td>{{ cotisergroupe.reste }}</td>
+            </tr>
+            <tr>
+                <th>CreateAt</th>
+                <td>{{ cotisergroupe.createAt ? cotisergroupe.createAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdateAt</th>
+                <td>{{ cotisergroupe.updateAt ? cotisergroupe.updateAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('cotisergroupe_index') }}">back to list</a>
+
+    <a href="{{ path('cotisergroupe_edit', {'id': cotisergroupe.id}) }}">edit</a>
+
+    {{ include('cotisergroupe/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,310 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des séances{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Activités des familles</h3>
+        </div>
+  <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+           
+        <!-- /.card-header -->
+        <div class="card-body">
+            {% if is_granted('ROLE_RESPONSABLE_FAMILLE') %}
+                <a href='{{ path('seancefamille_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href={{ path('app_invitefamille_index') }}>
+                    <button class="btn btn-success">Invités</button>
+                </a>
+                <a href={{ path('cotisationfamille_index') }}>
+                    <button class="btn btn-success">Cotisations</button>
+                </a>  
+                <a href={{ path('cotiserfamille_index') }}>
+                    <button class="btn btn-success">Paiements cotisation</button>
+                </a>
+
+                <a href={{ path('seancefamille_listeparticipant') }}>
+                    <button class="btn btn-success">Liste de présence</button>
+
+                </a>
+                    
+                       <a href={{ path('app_bilan_famille2') }}>
+                        <button class="btn btn-danger">Bilan</button>
+
+                    </a>
+                <a href={{ path('app_depensefamille_index') }}>
+                    <button class="btn btn-primary">Depenses</button>
+
+                </a>
+            {% endif %} 
+            <hr style="visibility: hidden" />
+
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Famille</th>
+                        <th>Lieu</th>
+                        <th>Theme</th>
+                        <th>Invités</th>
+                        <th>Présents</th>
+                        <th>Absents</th>
+                        <th>Details</th>
+
+                    </tr>
+                </thead>
+                  <tbody>
+                {% if is_granted('ROLE_RESPONSABLE_ZONE') %}
+                    {% for diff in differences %}
+                        {% set totaux = 0 %}
+                        {% for seancefamille in seancefamilles %}
+                            {% if diff.datesuper == seancefamille.datesuper %}
+                                {% if is_granted("seancefamille_edit", seancefamille) %}
+                                    <tr>
+                                        <td>{{ seancefamille.datesuper|format_datetime('full', 'none', locale='fr') }}</td>
+                                        <td>{{ seancefamille.famille.nom }}</td>
+                                        <td>{{ seancefamille.lieu }}</td>
+                                        <td>
+                                            {% set nbrepresent = seancefamille.nbrepresent|default(0) %}
+                                            {% set femme = seancefamille.femme|default(0) %}
+                                            {% set enfant = seancefamille.enfant|default(0) %}
+                                            {% set total = enfant + nbrepresent + femme %}
+                                            {% set totaux = total + totaux %}
+                                            {{ total }}
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-info btn-invites" 
+                                                    data-target="{{ path('seancefamille_search_invitefamilles', {'id': seancefamille.id}) }}">
+                                                <i class="fas fa-users"></i> {{ seancefamille.invitefamilles|length }}
+                                            </button>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-success btn-present" 
+                                                    data-id="{{ seancefamille.id }}"
+                                                    data-famille="{{ seancefamille.famille.id }}">
+                                                <i class="fas fa-check-circle"></i> Présents
+                                            </button>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-danger btn-absent" 
+                                                    data-id="{{ seancefamille.id }}"
+                                                    data-famille="{{ seancefamille.famille.id }}">
+                                                <i class="fas fa-times-circle"></i> Absents
+                                            </button>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ path('seancefamille_show', {'id': seancefamille.id}) }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-list"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if totaux > 0 %}
+                            <tr class="bg-light">
+                                <td colspan="3"><strong>Totaux</strong></td>
+                                <td><strong>{{ totaux }}</strong></td>
+                                <td colspan="4"></td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    {% for seancefamille in seancefamilles %}
+                        {% if is_granted("seancefamille_edit", seancefamille) %}
+                            <tr>
+                                <td>{{ seancefamille.datesuper ? seancefamille.datesuper|date('d-m-Y') : '' }}</td>
+                                <td>{{ seancefamille.famille.nom }}</td>
+                                <td>{{ seancefamille.lieu }}</td>
+                                <td>
+                                    {% set nbrepresent = seancefamille.nbrepresent|default(0) %}
+                                    {% set femme = seancefamille.femme|default(0) %}
+                                    {% set enfant = seancefamille.enfant|default(0) %}
+                                    {{ enfant + nbrepresent + femme }}
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-info btn-invites" 
+                                            data-target="{{ path('seancefamille_search_invitefamilles', {'id': seancefamille.id}) }}">
+                                        <i class="fas fa-users"></i> {{ seancefamille.invitefamilles|length }}
+                                    </button>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-success btn-present" 
+                                            data-id="{{ seancefamille.id }}"
+                                            data-famille="{{ seancefamille.famille.id }}">
+                                        <i class="fas fa-check-circle"></i> Présents
+                                    </button>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-danger btn-absent" 
+                                            data-id="{{ seancefamille.id }}"
+                                            data-famille="{{ seancefamille.famille.id }}">
+                                        <i class="fas fa-times-circle"></i> Absents
+                                    </button>
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ path('seancefamille_show', {'id': seancefamille.id}) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-list"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# Modal pour les présents #}
+<div class="modal fade" id="presentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle"></i> Liste des présents
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Modal pour les absents #}
+<div class="modal fade" id="absentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title">
+                    <i class="fas fa-times-circle"></i> Liste des absents
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Modal pour les invités (existant) #}
+<div class="modal fade" id="fidelesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title">
+                    <i class="fas fa-users"></i> Liste des invités
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+  
+    
+<script>
+$(document).ready(function() {
+    // Modal pour les invités
+    $(document).on('click', 'button.btn-invites', function() {
+        let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), { keyboard: false });
+        let container = $('#fidelesModal .modal-body');
+        
+        container.html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Chargement...</p></div>');
+        
+        $.ajax({
+            type: 'POST',
+            url: $(this).data('target'),
+            success: function(html) {
+                container.html(html);
+                modal.show();
+            },
+            error: function() {
+                container.html('<div class="alert alert-danger">Erreur lors du chargement</div>');
+                modal.show();
+            }
+        });
+    });
+    
+    // Modal pour les présents
+    $(document).on('click', 'button.btn-present', function() {
+        let modal = new bootstrap.Modal(document.getElementById('presentModal'), { keyboard: false });
+        let container = $('#presentModal .modal-body');
+        let seanceId = $(this).data('id');
+        let familleId = $(this).data('famille');
+        
+        container.html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Chargement de la liste des présents...</p></div>');
+        
+        $.ajax({
+            type: 'POST',
+            url: '{{ path('seancefamille_presents') }}',
+            data: {
+                seance_id: seanceId,
+                famille_id: familleId
+            },
+            success: function(html) {
+                container.html(html);
+                modal.show();
+            },
+            error: function() {
+                container.html('<div class="alert alert-danger">Erreur lors du chargement de la liste des présents</div>');
+                modal.show();
+            }
+        });
+    });
+    
+    // Modal pour les absents
+    $(document).on('click', 'button.btn-absent', function() {
+        let modal = new bootstrap.Modal(document.getElementById('absentModal'), { keyboard: false });
+        let container = $('#absentModal .modal-body');
+        let seanceId = $(this).data('id');
+        let familleId = $(this).data('famille');
+        
+        container.html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Chargement de la liste des absents...</p></div>');
+        
+        $.ajax({
+            type: 'POST',
+            url: '{{ path('seancefamille_absents') }}',
+            data: {
+                seance_id: seanceId,
+                famille_id: familleId
+            },
+            success: function(html) {
+                container.html(html);
+                modal.show();
+            },
+            error: function() {
+                container.html('<div class="alert alert-danger">Erreur lors du chargement de la liste des absents</div>');
+                modal.show();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

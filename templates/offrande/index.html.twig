@@ -1,0 +1,95 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion des offrandes{% endblock %}
+
+{% block body %}
+
+
+    <div class="card-body">
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Offrandes </h3>
+            </div>
+         <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('offrande_add') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+                <a href='{{ path('dimeglobale_index') }}'>
+                    <button class="btn btn-success">Dime Anonymes</button>
+                </a>
+                <a href='{{ path('dime') }}'>
+                    <button class="btn btn-success">Dîme individuelle</button>
+                </a>
+
+                <b>Solde</b>
+                <button class="btn btn-success">
+                    {% for solde in soldes %}
+                        {{ solde.montant|number_format(0, '.', ' ') }}F CFA -- {{ solde.montant|format_number(style='spellout') }} F CFA
+                    {% endfor %}
+                </button>
+
+
+                <hr style="visibility: hidden" />
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Offrande</th>
+                            <th>En Lettre</th>
+                            <th>Modifier</th>
+                            <th>Supprimer</th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        {% for offrande in offrandes %}
+                            <tr>
+                                <td>{{ offrande.dateoff|date('d-m-Y')}}</td>
+                                <td>{{ offrande.montant|number_format(0, '.', ' ')}}</td>
+                                <td>{{ offrande.montant|format_number(style='spellout') }}</td>
+                                <td>
+                                    <a href="{{ path('offrande_update', {'id': offrande.id}) }}">
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-edit"></i>
+                                        </span>
+                                    </a>
+                                </td>
+
+                                <td>
+                                    <form method="post" action="{{ path('offrande_delete', {'id': offrande.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ offrande.id) }}">
+
+                                        <button class="btn">
+                                            <span style="font-size: 1em; color: red;">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                       
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+{% endblock %}

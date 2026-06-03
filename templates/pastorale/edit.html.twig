@@ -1,0 +1,13 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Edit Pastorale{% endblock %}
+
+{% block body %}
+    <h1>Edit Pastorale</h1>
+
+    {{ include('pastorale/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_pastorale_index') }}">back to list</a>
+
+    {{ include('pastorale/_delete_form.html.twig') }}
+{% endblock %}

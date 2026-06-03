@@ -1,0 +1,14 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}SMS{% endblock %}
+
+{% block body %}
+      <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Envoi sms</h3>
+        </div>
+
+    {{ include('sms/_form.html.twig') }}
+
+    </div>
+{% endblock %}

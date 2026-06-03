@@ -1,0 +1,49 @@
+
+{% block body %}
+
+
+
+    <div class="intro-header" style="background-image: url('/images/logo.jpg');"><br><br>
+        <!-- /.card-header -->
+        <center>
+            <h2><u><b>LISTE DES FIDELES</b></u></h2>
+            <table id="example1" class="table table-bordered">
+
+                <thead>
+                    <tr>
+                        <th>Fidele</th>
+                        <th>Fonction</th>
+                        <th>Téléphone</th>
+                        <th>Quartier</th>
+
+
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fidele in fidele %}
+                        <tr>
+                            <td>{{ fidele.nomfidele|upper}}</td>
+                            <td>{{ fidele.profession}}</td>
+                            <td>{{ fidele.contact1}}</td>
+                            <td>{{ fidele.quartier}}</td>
+
+                            
+
+
+
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5">aucune donnée trouvée</td>
+                        </tr>                                    {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </center>
+        </div>
+
+        {% endblock %}

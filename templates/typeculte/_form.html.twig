@@ -1,0 +1,158 @@
+<div class="card card-primary">
+    <div class="card card-body">
+        {{ form_start(form) }}
+        
+        <div class="offset-1 col-md-10 mt-2 mb-2">
+            {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} my-alert" role="alert">
+                        <h1 class="m-0 flash-text">{{ message }}</h1>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.libelle, {'label':'Categorie * :','attr':{'class':'form-control'}}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.heuredebut, {
+                    'label':'Heure debut * :'
+                   
+                }) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.heurefin, {
+                    'label':'Heure fin * :'
+                  
+                }) }}
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-md-2">
+                {{ form_row(form.save, {
+                    'label':'Valider',
+                    'attr': {
+                        'value':'save',
+                        'class': 'btn btn-primary',
+                        'onclick': 'return compareDates()'
+                    }
+                }) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.saveAndAdd, {
+                    'label':'Valider et continuer',
+                    'attr': {
+                        'value':'save-and-add',
+                        'class': 'btn btn-secondary',
+                        'onclick': 'return compareDates()'
+                    }
+                }) }}
+            </div>
+            <div class="col-md-4">
+                <a href="{{ path('app_typeculte_index') }}" class="btn btn-success">Afficher la liste</a>
+            </div>
+        </div>
+        
+        {{ form_end(form) }}
+    </div>
+</div>
+
+<script>
+// Version simplifiée qui fonctionne avec TimeType
+document.addEventListener('DOMContentLoaded', function() {
+    // Fonction pour obtenir l'heure formatée
+    function getFormattedTime(prefix) {
+        const hour = document.querySelector(`#${prefix}_hour`)?.value;
+        const minute = document.querySelector(`#${prefix}_minute`)?.value;
+        if (hour && minute) {
+            return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+        }
+        return document.querySelector(`[name="typeculte[${prefix}]"]`)?.value || '';
+    }
+    
+    // Fonction de validation
+    function validateTimes() {
+        const debut = getFormattedTime('typeculte_heuredebut');
+        const fin = getFormattedTime('typeculte_heurefin');
+        
+        // Supprimer l'erreur existante
+        const existingError = document.getElementById('time-error');
+        if (existingError) existingError.remove();
+        
+        if (debut && fin && debut !== ':' && fin !== ':') {
+            if (debut >= fin) {
+                // Créer l'erreur
+                const errorDiv = document.createElement('div');
+                errorDiv.id = 'time-error';
+                errorDiv.className = 'alert alert-danger mt-3';
+                errorDiv.innerHTML = `
+                    <i class="fas fa-exclamation-circle"></i>
+                    <strong>Erreur :</strong> L'heure de début (${debut}) doit être inférieure à l'heure de fin (${fin})
+                `;
+                
+                const container = document.querySelector('#typeculte_heurefin')?.parentNode ||
+                                 document.querySelector('[name="typeculte[heurefin]"]')?.parentNode;
+                if (container) {
+                    container.insertAdjacentElement('afterend', errorDiv);
+                } else {
+                    document.querySelector('.card-body').appendChild(errorDiv);
+                }
+                
+                // Désactiver les boutons
+                document.querySelectorAll('button[type="submit"]').forEach(btn => btn.disabled = true);
+                return false;
+            }
+        }
+        
+        // Réactiver les boutons
+        document.querySelectorAll('button[type="submit"]').forEach(btn => btn.disabled = false);
+        return true;
+    }
+    
+    // Ajouter les écouteurs d'événements
+    const timeInputs = document.querySelectorAll('[id$="_hour"], [id$="_minute"], [name$="[heuredebut]"], [name$="[heurefin]"]');
+    timeInputs.forEach(input => {
+        input.addEventListener('change', validateTimes);
+        input.addEventListener('input', validateTimes);
+    });
+    
+    // Validation avant soumission
+    document.querySelector('form')?.addEventListener('submit', function(e) {
+        if (!validateTimes()) {
+            e.preventDefault();
+            alert('Veuillez corriger l\'erreur : L\'heure de début doit être inférieure à l\'heure de fin');
+        }
+    });
+    
+    validateTimes();
+});
+
+// Fonction pour l'onclick
+function compareDates() {
+    let debut = '', fin = '';
+    
+    // Essayer de récupérer les heures des selects
+    const debutHour = document.querySelector('#typeculte_heuredebut_hour')?.value;
+    const debutMinute = document.querySelector('#typeculte_heuredebut_minute')?.value;
+    const finHour = document.querySelector('#typeculte_heurefin_hour')?.value;
+    const finMinute = document.querySelector('#typeculte_heurefin_minute')?.value;
+    
+    if (debutHour && debutMinute) {
+        debut = `${debutHour.padStart(2, '0')}:${debutMinute.padStart(2, '0')}`;
+    }
+    
+    if (finHour && finMinute) {
+        fin = `${finHour.padStart(2, '0')}:${finMinute.padStart(2, '0')}`;
+    }
+    
+    if (debut && fin && debut >= fin) {
+        alert('❌ L\'heure de début doit être inférieure à l\'heure de fin !');
+        return false;
+    }
+    
+    return true;
+}
+</script>

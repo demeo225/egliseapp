@@ -1,0 +1,58 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}Edit Visite{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification</h3>
+        </div>
+
+        <div class="card card-primary">
+
+            <div class="card card-body">
+                {{ form_start(form) }}
+                <div class="my-custom-class-for-errors">
+                    {{ form_errors(form) }}
+                    {% for message in app.flashes('succesvisite') %}
+                        <div class="primary">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_row(form.visiteur, {'label':'Visiteur '}) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.datevisite, {'label':'Date '}) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.sexe, {'label':'Genre  '}) }}
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-4">
+                        {{ form_row(form.contact1, {'label':'Contact '}) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.receptionpar, {'label':'Reçu par '}) }}
+                    </div>
+
+                </div>
+
+
+                <div class="row"> 
+                    <div class="col-md-2">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+                    <div class="col-md-3"><a href="{{ path('app_visite_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+                </div> 
+                    <div class="col-md-2" hidden="hidded">{{ form_row(form.saveAndAdd, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div>
+
+                {{ form_end(form) }}
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

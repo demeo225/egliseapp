@@ -1,0 +1,13 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion Depense de cellule{% endblock %}
+
+{% block body %}
+       <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">{{ cellule.nom|upper }} : Enregistrement de depenses </h3>
+        </div>
+
+    {{ include('depensecellule/_form.html.twig') }}
+       </div>
+{% endblock %}

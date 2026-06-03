@@ -1,0 +1,380 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan de ma cellule - {{ cellule.nom }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-chart-line"></i> 
+                Bilan de la cellule : <strong>{{ cellule.nom }}</strong>
+            </h3>
+        </div>
+        
+        <div class="card-body">
+            <!-- Formulaire de recherche -->
+            <div class="card card-info">
+                <div class="card-header">
+                    <h4 class="card-title">Période de recherche</h4>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form_recherche) }}
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{ form_row(form_recherche.dateDebut) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form_recherche.dateFin) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form_recherche.rechercher) }}
+                        </div>
+                    </div>
+                    {{ form_end(form_recherche) }}
+                </div>
+            </div>
+            
+            <!-- Messages flash -->
+            <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            
+            <!-- Cartes récapitulatives -->
+           <div class="row mt-4">
+    <div class="col-lg-2 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>{{ nbMembres }}</h3>
+                <p>Membres</p>
+            </div>
+            <div class="icon"><i class="fas fa-users"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>{{ nbSeances }}</h3>
+                <p>Séances</p>
+            </div>
+            <div class="icon"><i class="fas fa-church"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>{{ totalPresences|number_format }}</h3>
+                <p>Présences</p>
+            </div>
+            <div class="icon"><i class="fas fa-user-check"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-6">
+        <div class="small-box bg-secondary">
+            <div class="inner">
+                <h3>{{ nbInvites|number_format }}</h3>
+                <p>Invités</p>
+            </div>
+            <div class="icon"><i class="fas fa-user-plus"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-6">
+        <div class="small-box bg-dark">
+            <div class="inner">
+                <h3>{{ nbDetailCotisations }}</h3>
+                <p>Transactions</p>
+            </div>
+            <div class="icon"><i class="fas fa-exchange-alt"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-6">
+        <div class="small-box bg-primary">
+            <div class="inner">
+                <h3>{{ soldeTotal|number_format(0, ',', ' ') }} FCFA</h3>
+                <p>Solde</p>
+            </div>
+            <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
+        </div>
+    </div>
+</div>
+ 
+            <!-- Section Séances -->
+            {% if seancecellules is not empty %}
+            <div class="card card-primary mt-4">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        <i class="fas fa-calendar-alt"></i> Séances
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Lieu</th>
+                                    <th class="text-right">Offrande</th>
+                                    <th class="text-right">Hommes</th>
+                                    <th class="text-right">Femmes</th>
+                                    <th class="text-right">Enfants</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for seance in seancecellules %}
+                                <tr>
+                                    <td>{{ seance.datesuper ? seance.datesuper|date('d/m/Y') : '-' }}</td>
+                                    <td>{{ seance.lieu|default('-') }}</td>
+                                    <td class="text-right">{{ seance.offrande|number_format(0, ',', ' ') }} FCFA</td>
+                                    <td class="text-right">{{ seance.nbrepresent|default(0) }}</td>
+                                    <td class="text-right">{{ seance.femme|default(0) }}</td>
+                                    <td class="text-right">{{ seance.enfant|default(0) }}</td>
+                                    <td class="text-right">
+                                        <strong>{{ seance.nbrepresent|default(0) + seance.femme|default(0) + seance.enfant|default(0) }}</strong>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <!-- Section Cotisations -->
+            {% if cotisations is not empty %}
+            <div class="card card-success mt-4">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        <i class="fas fa-hand-holding-usd"></i> Cotisations
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Objet</th>
+                                    <th class="text-right">Montant</th>
+                                    <th>Date limite</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cotisation in cotisations %}
+                                <tr>
+                                    <td>{{ cotisation.createAt ? cotisation.createAt|date('d/m/Y') : '-' }}</td>
+                                    <td>{{ cotisation.objet }}</td>
+                                    <td class="text-right">{{ cotisation.montant|number_format(0, ',', ' ') }} FCFA</td>
+                                    <td>{{ cotisation.datefin ? cotisation.datefin|date('d/m/Y') : '-' }}</td>
+                                    <td>
+                                        {% set now = date() %}
+                                        {% if now > cotisation.datefin %}
+                                            <span class="badge badge-danger">Expirée</span>
+                                        {% else %}
+                                            <span class="badge badge-success">Active</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-light">
+                                    <th colspan="2" class="text-right">TOTAL :</th>
+                                    <th class="text-right">{{ totalCotisations|number_format(0, ',', ' ') }} FCFA</th>
+                                    <th colspan="2"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            
+{# Section Détails des cotisations (Detailcotisationcellule) #}
+{% if detailcotisations is not empty %}
+<div class="card card-dark mt-4">
+    <div class="card-header">
+        <h4 class="card-title">
+            <i class="fas fa-exchange-alt"></i> Historique des transactions
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="alert alert-info">
+                    <strong>Montant total prévu :</strong>
+                    {{ totalDetailCotisations|number_format(0, ',', ' ') }} FCFA
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert alert-success">
+                    <strong>Total payé :</strong>
+                    {{ totalMontantPayeDetails|number_format(0, ',', ' ') }} FCFA
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert alert-warning">
+                    <strong>Reste total :</strong>
+                    {{ (totalDetailCotisations - totalMontantPayeDetails)|number_format(0, ',', ' ') }} FCFA
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover" id="detailTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Fidèle</th>
+                        <th>Montant prévu</th>
+                        <th>Montant payé</th>
+                        <th>Reste</th>
+                        <th>Cotisation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detail in detailcotisations %}
+                    <tr>
+                        <td>{{ detail.datedetail ? detail.datedetail|date('d/m/Y') : '-' }}</td>
+                        <td>{{ detail.fidele ? detail.fidele.nomfidele ~ ' ' ~ detail.fidele.contact1 : '-' }}</strong></td>
+                        <td class="text-right">{{ detail.montant|number_format(0, ',', ' ') }} FCFA</strong></td>
+                        <td class="text-right text-success">{{ detail.montantpayer|number_format(0, ',', ' ') }} FCFA</strong></td>
+                        <td class="text-right">{{ detail.reste|number_format(0, ',', ' ') }} FCFA</strong></td>
+                        <td>{{ detail.cotisationcellule ? detail.cotisationcellule.objet : '-' }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="bg-light">
+                        <th colspan="2" class="text-right">TOTAUX :</th>
+                        <th class="text-right">{{ totalDetailCotisations|number_format(0, ',', ' ') }} FCFA</th>
+                        <th class="text-right">{{ totalMontantPayeDetails|number_format(0, ',', ' ') }} FCFA</th>
+                        <th class="text-right">{{ (totalDetailCotisations - totalMontantPayeDetails)|number_format(0, ',', ' ') }} FCFA</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+            <!-- Section Dépenses -->
+            {% if depenses is not empty %}
+            <div class="card card-danger mt-4">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        <i class="fas fa-shopping-cart"></i> Dépenses
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Objet</th>
+                                    <th class="text-right">Montant</th>
+                                    <th>Détail</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for depense in depenses %}
+                                <tr>
+                                    <td>{{ depense.datedepense ? depense.datedepense|date('d/m/Y') : '-' }}</td>
+                                    <td>{{ depense.objet }}</td>
+                                    <td class="text-right">{{ depense.montant|number_format(0, ',', ' ') }} FCFA</td>
+                                    <td>{{ depense.detail|default('-') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-light">
+                                    <th colspan="2" class="text-right">TOTAL :</th>
+                                    <th class="text-right">{{ totalDepenses|number_format(0, ',', ' ') }} FCFA</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+           
+            
+   
+
+
+{# Section Invités #}
+{% if invitecellules is not empty %}
+<div class="card card-secondary mt-4">
+    <div class="card-header">
+        <h4 class="card-title">
+            <i class="fas fa-user-plus"></i> Invités
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Contact</th>
+                        <th>Séance</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invite in invitecellules %}
+                    <tr>
+                        <td>{{ invite.nom|default('-') }}</strong></td>
+                        <td>{{ invite.contact|default('-') }}</strong></td>
+                        <td>{{ invite.seancecellule ? invite.seancecellule.lieu : '-' }}</strong></td>
+                        <td>{{ invite.seancecellule ? invite.seancecellule.datesuper|date('d/m/Y') : '-' }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="bg-light">
+                        <th colspan="3" class="text-right">TOTAL :</th>
+                        <th class="text-right">{{ nbInvites }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+            <!-- Message si aucune donnée -->
+            {% if seancecellules is empty and cotisations is empty and depenses is empty %}
+            <div class="alert alert-info mt-4">
+                <i class="fas fa-info-circle"></i> 
+                Aucune donnée trouvée pour la période sélectionnée.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(document).ready(function() {
+    $('table').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
+        },
+        "pageLength": 10,
+        "order": [[0, "desc"]]
+    });
+});
+</script>
+{% endblock %}

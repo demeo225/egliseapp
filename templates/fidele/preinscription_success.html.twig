@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Préinscription réussie{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Préinscription réussie !</h4>
+                </div>
+                
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 80px;"></i>
+                    </div>
+                    
+                    <h3>Merci {{ fidele.nomfidele }} !</h3>
+                    
+                    <p class="lead">Votre préinscription a été enregistrée avec succès.</p>
+                    
+                    <div class="alert alert-info mt-4">
+                        <h5>Votre code fidèle :</h5>
+                        <p class="display-4">{{ fidele.code }}</p>
+                        <p class="text-muted">Veuillez conserver ce code précieusement. Il vous servira pour vos prochaines connexions.</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>Informations de l'église :</h5>
+                        <p>
+                            <strong>{{ fidele.eglise.denomination }}</strong><br>
+                            {% if fidele.eglise.contact1 %}Tél: {{ fidele.eglise.contact1 }}<br>{% endif %}
+                            {% if fidele.eglise.adresse %}Adresse: {{ fidele.eglise.adresse }}{% endif %}
+                        </p>
+                    </div>
+                    
+                    <hr>
+                    
+                    <p>Votre inscription sera validée par l'administrateur de l'église. </p>
+                    
+                    <div class="mt-4">
+                        <a href="{{ path('fidele_preinscription') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Nouvelle inscription
+                        </a>
+                        <a href="{{ path('home') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-home"></i> Retour à l'accueil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %} {{ operation.objet}}
+{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Details depense</h3>
+        </div>
+
+        <table class="table">
+
+            <tbody>
+                <tr>
+                    <th>Date</th>
+
+                    <td>{{ operation.dateop|date('d-m-Y')}}</td>
+                </tr>
+                <tr>
+                    <th>Bénéficiaire</th>
+
+                    <td>{{ operation.beneficiaire|upper}}</td>
+                </tr>
+                <tr>
+                    <th>Montant</th>
+
+                    <td><b> {{ operation.montant|number_format(0, '.', ' ')}} F CFA  -- {{ operation.montant|format_number(style='spellout')}} F CFA </b></td>
+                </tr>
+
+                <tr>
+                    <th>Objet</th>
+
+                    <td>{{ operation.objet}}</td>
+                </tr>
+                <tr>
+                    <th>N° bon</th>
+
+                    <td>{{ operation.numrecu}}</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+
+                    <td>{{ operation.description}}</td>
+                </tr>
+                <tr>
+                    <th>Enregistrée le</th>
+
+                    <td>{{ operation.createAt|date('d-m-Y à H:m:s')}}</td>
+                </tr>
+                <tr>
+                    <th>Enregistrée par</th>
+
+                    <td>{{ operation.createdBy.nomuser|raw}}</td>
+                </tr>
+
+
+
+                <tr>
+                    <th>Image du reçu</th>
+
+                    <td>
+                        {% if operation.photoFile is not empty %}  <a href="{{ asset('uploads/photos/'~operation.photoFile )}}">Afficher reçu</a>
+
+                        {% else %} Photo non disponible{% endif %}
+                    </td>
+                </tr>
+            </tbody>
+
+            <tfooter>
+                <tr>
+                    <td>
+
+              
+
+                        <a href='{{ path('operation') }}'>
+                            <button class="btn btn-success">Retour</button>
+                        </a>
+                    </td>
+
+
+                </tr>
+            </tfooter>
+        </table>
+    </div>
+{% endblock %}

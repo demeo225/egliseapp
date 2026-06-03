@@ -1,0 +1,56 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Nécrologies{% endblock %}
+
+{% block body %}
+
+
+    <div class="danger">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">NECROLOGIE</h3>
+            </div>
+            {% for message in app.flashes('success') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href="{{ path('deces_new') }}">
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+
+                            <th>Date</th>
+                            <th>Code fidèle</th>
+                            <th>Fidèle</th>
+                            <th>Lieu</th>
+                            <th>Cause du décès</th>
+                            <th>Image</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for deces in deces %}
+                            <tr class=" text-danger">
+                                <td>{{ deces.datedeces ? date_format(deces.datedeces) }}</td>
+                                <td>{{ deces.fidele.code|upper}}</td>
+                                <td>{{ deces.fidele.nomfidele }}</td>
+                                <td>{{ deces.lieudeces }}</td>
+                                <td>{{ deces.raisondeces }}</td>
+                                <td>
+                                    <a href="{{ path('deces_edit', {'id': deces.id}) }}"><img src="{{ asset('uploads/photos/'~deces.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" title="Modifier" /> </a>
+                                </td>
+                            </tr>
+                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div></div></div>
+
+{% endblock %}

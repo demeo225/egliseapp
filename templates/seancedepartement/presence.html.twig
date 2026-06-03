@@ -1,0 +1,184 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Présences & absences - {{ departement.nom|upper }}{% endblock %}
+
+{% block body %}
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Gestion présence de : {{ departement.nom|upper }}</h3>
+    </div>
+    
+    <div class="card-body">
+        <form action="{{ path('seancedepartement_presence') }}" method="post" id="presenceForm">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="seancedepartement">Sélectionnez la séance <span class="text-danger">*</span></label>
+                    <select name="seancedepartement" id="seancedepartement" class="form-control select2" required>
+                        <option value="">-- Choisir une séance --</option>
+                        {% for seance in seancedepartements %}
+                            <option value="{{ seance.id }}">
+                                {{ seance.datesuper|date('d-m-Y') }} - {{ seance.theme|default('Sans thème') }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                {% if seancedepartements|length == 0 %}
+                <div class="col-md-12">
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Aucune séance disponible pour ce département. Veuillez d'abord créer une séance.
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <hr/>
+
+            <div class="table-responsive">
+                <table id="example1" class="table table-bordered table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th width="50">
+                                <input type="checkbox" id="checkAll" title="Tout cocher/Décocher">
+                            </th>
+                            <th>Fidèle</th>
+                            <th>Contact</th>
+                            <th>Département</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fidele-table-body">
+                        {% for fidele in fideles %}
+                            <tr class="fidele-row" data-fidele-id="{{ fidele.id }}">
+                                <td class="text-center">
+                                    <input type="checkbox" name="tab[]" class="fidele-checkbox" value="{{ fidele.id }}" title="Présent(e)">
+                                </td>
+                                <td>{{ fidele.nomfidele|upper }} {{ fidele.postnomfidele|default('')|upper }}</td>
+                                <td>
+                                    {% if fidele.contactwhatssap is not empty %}
+                                        <i class="fab fa-whatsapp text-success"></i> {{ fidele.contactwhatssap }}
+                                    {% elseif fidele.contact1 is not empty %}
+                                        <i class="fas fa-phone text-primary"></i> {{ fidele.contact1 }}
+                                    {% else %}
+                                        <span class="text-muted">Non renseigné</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ departement.nom|upper }}
+                                </td>
+                                <td>
+                                    <span class="status-badge badge badge-secondary">
+                                        <i class="fas fa-clock"></i> Non vérifié
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary" {% if seancedepartements|length == 0 %}disabled{% endif %}>
+                    <i class="fas fa-save"></i> {{ button_label|default('Valider') }}
+                </button>
+                <a href="{{ path('seancedepartement_listeparticipant') }}" class="btn btn-success">
+                    <i class="fas fa-list"></i> Liste de présence
+                </a>
+                <button type="button" id="resetBtn" class="btn btn-secondary">
+                    <i class="fas fa-undo"></i> Réinitialiser
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    $(document).ready(function() {
+        $('#checkAll').on('change', function() {
+            $('.fidele-checkbox:not(:disabled)').prop('checked', $(this).prop('checked'));
+        });
+        
+        $(document).on('change', '.fidele-checkbox', function() {
+            var total = $('.fidele-checkbox:not(:disabled)').length;
+            var checked = $('.fidele-checkbox:checked:not(:disabled)').length;
+            $('#checkAll').prop('checked', checked === total && total > 0);
+        });
+        
+        $('#resetBtn').on('click', function() {
+            $('.fidele-checkbox:not(:disabled)').prop('checked', false);
+            $('#checkAll').prop('checked', false);
+        });
+        
+        $('#seancedepartement').on('change', function() {
+            var seanceId = $(this).val();
+            
+            if (!seanceId) {
+                $('.fidele-checkbox').prop('disabled', false).prop('checked', false);
+                $('.fidele-row').removeClass('table-success');
+                $('.status-badge').removeClass('badge-success badge-info').addClass('badge-secondary').html('<i class="fas fa-clock"></i> Non vérifié');
+                $('#checkAll').prop('checked', false);
+                return;
+            }
+            
+            $('.status-badge').removeClass('badge-secondary').addClass('badge-info').html('<i class="fas fa-spinner fa-spin"></i> Chargement...');
+            
+            $.ajax({
+                url: '{{ path("seancedepartement_get_presences") }}',
+                type: 'POST',
+                data: { seanceId: seanceId },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        $('.fidele-checkbox').each(function() {
+                            var fideleId = parseInt($(this).val());
+                            var $row = $(this).closest('.fidele-row');
+                            var $statusBadge = $row.find('.status-badge');
+                            
+                            if (response.presences.includes(fideleId)) {
+                                $(this).prop('disabled', true).prop('checked', true);
+                                $row.addClass('table-success');
+                                $statusBadge.removeClass('badge-secondary badge-info').addClass('badge-success').html('<i class="fas fa-check-circle"></i> Déjà présent');
+                            } else {
+                                $(this).prop('disabled', false).prop('checked', false);
+                                $row.removeClass('table-success');
+                                $statusBadge.removeClass('badge-success badge-info').addClass('badge-secondary').html('<i class="fas fa-circle"></i> Non présent');
+                            }
+                        });
+                        $('#checkAll').prop('checked', false);
+                    } else {
+                        $('.status-badge').removeClass('badge-info').addClass('badge-danger').html('<i class="fas fa-exclamation-triangle"></i> Erreur');
+                    }
+                },
+                error: function() {
+                    $('.status-badge').removeClass('badge-info').addClass('badge-danger').html('<i class="fas fa-exclamation-triangle"></i> Erreur chargement');
+                }
+            });
+        });
+        
+        $('#presenceForm').on('submit', function(e) {
+            var seancedepartement = $('#seancedepartement').val();
+            var checked = $('.fidele-checkbox:checked:not(:disabled)').length;
+            
+            if (!seancedepartement) {
+                e.preventDefault();
+                alert('Veuillez sélectionner une séance.');
+                return false;
+            }
+            if (checked === 0) {
+                e.preventDefault();
+                alert('Veuillez sélectionner au moins un fidèle présent.');
+                return false;
+            }
+            return true;
+        });
+        
+        if ($('#seancedepartement').val()) {
+            $('#seancedepartement').trigger('change');
+        }
+    });
+</script>
+{% endblock %}

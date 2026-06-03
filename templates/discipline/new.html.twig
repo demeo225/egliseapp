@@ -1,0 +1,18 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}New Discipline{% endblock %}
+
+{% block body %}
+     
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestions des sous-disciplines</h3>
+        </div>
+        <div class="card card-body">
+
+
+    {{ include('discipline/_form.html.twig') }}
+
+        </div>
+    </div>
+{% endblock %}

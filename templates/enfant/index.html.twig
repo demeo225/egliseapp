@@ -1,0 +1,92 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion des enfants{% endblock %}
+
+{% block body %}
+
+    <div class="card-body">
+
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des enfants</h3>
+            </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+            
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('enfant_add') }}'>
+                    <button class="btn btn-primary">Nouveau </button>
+                </a>
+
+                <hr style="visibility: hidden" />
+
+
+                <table id="example1" class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Enfant</th>
+                            <th>Contact</th>
+                            <th>Zone</th>
+                            <th>Quartier</th>
+                            <th>Famille</th>
+                            <th>Cellule</th>
+                            <th>Age</th>
+                            <th>Photo</th>
+                         </tr>
+                    </thead>
+                    <tbody>
+                        {% for enfant in enfant %}
+                            <tr>
+                                <td>{{ enfant.code|upper}}</td>
+                                <td>{{ enfant.nom|upper}}</td>
+                                <td>{{ enfant.contact}}</td>
+
+                                <td>{% if enfant.zone is not null %} {{ enfant.zone.nom}} {% else %} Non renseigné {% endif %} </td>
+                                <td>{% if enfant.quartier is not null %} {{ enfant.quartier.libelle}} {% else %} Non renseigné {% endif %} </td>
+                                <td>{% if enfant.famille is not null %} {{ enfant.famille.nom}} {% else %} Non renseigné {% endif %} </td>
+                                <td>{% if enfant.cellule is not null %} {{ enfant.cellule.nom}} {% else %} Non renseigné {% endif %} </td>
+                                <td>
+
+
+                                    {% set naissance = enfant.datenaiss|date('Y') %}
+                                    {% set today = "now"|date('Y') %}
+                                    {% set difference = today - naissance %}
+
+                                    {{ difference }}
+                                </td>
+                                <td>
+                                    {% if enfant.photoFile is not empty %}
+                                    <a href="{{ path('enfant_detail', {'id': enfant.id}) }}">
+                                        <img src="{{ asset('uploads/photos/'~enfant.photoFile )}}"  class="img-size-50 mr-3 img-suqare" title="Voir details"/>
+
+                                    </a>
+                                    {% else %}    <a href="{{ path('enfant_detail', {'id': enfant.id}) }}">Modifier</a> {% endif %}
+                                </td>
+
+
+                            </tr>
+                   
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+{% endblock %}

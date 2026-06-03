@@ -1,0 +1,50 @@
+<div class="card card-body">
+
+{{ form_start(form) }}
+
+<div class="my-custom-class-for-errors">
+    {{ form_errors(form) }}
+</div>
+<div class="offset-1 col-md-10 mt-2 mb-2">
+    {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} my-alert" role="alert">
+                <h5 class="m-0 flash-text">{{ message }}</h5>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{ form_row(form.promotion, {'label':'Promotion '}) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_row(form.datebapteme, {'label':'Date '}) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_row(form.lieubapteme, {'label':' Lieu '}) }}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{ form_row(form.pasteurofficient, {'label':'Pasteur officiant '}) }}
+    </div>
+        <div class="col-md-4">
+        {{ form_row(form.parrain, {'label':'Parrain '}) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_row(form.fidele, {'label':'Choix des candidats '}) }}
+    </div>
+
+</div>
+   
+
+   <div class="row"> 
+               <div class="col-md-2">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save'}}) }}</div></p>
+
+                <div class="col-md-3">{{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+                <div class="col-md-2"><a href="{{ path('bapteme_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+{{ form_end(form) }}
+</div>

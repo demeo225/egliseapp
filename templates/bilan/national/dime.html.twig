@@ -1,0 +1,118 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Bilan des dimes {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('app_bilan_dimen') }}" method="POST" >
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Critères</h3>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateDebut, {'label':'Date debut'}) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form_row(form_recherche.dateFin , {'label':'Date fin'}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+
+
+            </div>    
+    </div>
+</form>    
+</div> 
+
+<div class="rows">
+    {% if app.request.method == 'POST' and dimes |length==0 %}
+        Aucune donnée trouvée
+
+    {% else %}
+
+        {% if dimes |length >0 %}
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Resultats de la recherche</h3>
+                </div>
+
+
+                <div style="align-content: center">
+                    {% for dime in dimes %}
+                        {% set seance = dimes|length %}
+
+
+                        {% set sum = dime.montant + sum ?? 0 %}
+                        {% if loop.last  %}
+                            {% set moyenne = sum/seance %}
+                            Moyenne : <b> {{ moyenne|number_format(0, '.', ' ') }} F CFA </b> par séance <br>
+                            Montant total :  <b> {{ sum|number_format(0, '.', ' ')}}F CFA -- {{ sum|format_number(style='spellout')}} F CFA</b>  {% endif %}
+                            {% endfor %}
+                            </div>
+
+                            <hr style="visibility: hidden" /> 
+                            <div class="card-body">
+
+                                <table id="example1" class="table table-bordered table-striped">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Region</th>
+                                            <th>Region pastorale</th>
+                                            <th>Eglise</th>
+                                            <th>Date </th>
+                                            <th>Fidèle</th>
+                                            <th>Contact</th>
+                                            <th>Montant</th>
+
+
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for dime in dimes %}
+
+                                            <tr>
+
+                                                <td> {% if dime.eglise.region is not empty %} {{ dime.eglise.region }}{% else %} Non rensigné {% endif %}</td>
+                                                <td> {% if dime.eglise.regionpastorale is not empty %} {{ dime.eglise.regionpastorale }}{% else %} Non renseignée {% endif %}</td>
+                                                <td> {% if dime.eglise is not empty %} {{ dime.eglise }}{% else %} {% endif %}</td>
+                                                <td>{{ date_format(dime.datedime) }}</td>
+                                                <td>
+
+                                                    {{ dime.fidele.nomfidele}}
+
+                                                </td> 
+                                                <td>
+
+                                                    {{ dime.fidele.contact1}}
+
+                                                </td> 
+
+                                                <td>{{ dime.montant }}</td>
+
+
+                                            </tr>
+
+
+                                        {% endfor %}
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% endif %}
+                                {% endif %}
+
+
+                                    {% endblock %}
+

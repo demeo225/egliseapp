@@ -1,0 +1,99 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Bienvenue sur EKKLLESIA{% endblock %}
+{% block stylesheets %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ asset('youde/fonts/icomoon/style.css')}}">
+
+    <link rel="stylesheet" href="{{ asset('youde/css/owl.carousel.min.css')}}">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ asset('youde/css/bootstrap.min.css')}}">
+
+    <!-- Style -->
+    <link rel="stylesheet" href="{{ asset('youde/css/style.css')}}">
+
+    <link href="{{ asset('test.css')}}"  rel="stylesheet" />
+    <link href="{{ asset('assets/styles/app.scss')}}"  rel="stylesheet" />
+
+
+{% endblock %}
+{% block body %}
+
+
+
+
+    <div class="d-lg-flex half">
+        <div class="bg order-1 order-md-2" style="background-image: url('youde/images/lynova1.jpg');"></div>
+        <div class="contents order-2 order-md-1">
+
+            <div class="container">
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-md-9">
+                        <div class="mb-4">
+                            <h3>EKKLLESIA </h3>
+                            <p class="mb-4">Application Web de gestion d'Eglise.</p>
+                        </div>
+                        <form action="#" method="post">
+                            {% if error %}
+                                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                            {% endif %}
+
+                            {% if app.user %}
+                                <div class="mb-3">
+                                    You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Deconnexion</a>
+                                </div>
+                            {% endif %}
+                            <div class="form-group first">
+                                <label for="username">Email</label>
+                                <input type="text" class="form-control" name="email" id="username" value="{{ last_username }}"  autocomplete="email" required autofocus>
+
+                            </div>
+                            <div class="form-group last mb-3">
+                                <label for="password">Password</label>
+                                <input type="password" name="password" class="form-control" id="password"  autocomplete="current-password" required>
+
+                            </div>
+
+
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" >
+
+                            <input type="submit" value="Connexion" class="btn btn-block btn-primary">
+
+                            <span class="d-block text-center my-4 text-muted">&mdash; or &mdash;</span>
+                            <br>
+                            <div class="social-login">
+                            
+                                <a href="{{ path('eglise_demande') }}"  class="facebook btn d-flex justify-content-center align-items-center">
+                                     <span class="icon-account mr-3"></span> Ouverture de Compte
+                                </a>
+                                     <a href="{{ path('fidele_preinscription') }}"  class="facebook btn d-flex justify-content-center align-items-center">
+                                     <span class="icon-account mr-3"></span> Préinscription
+                                </a>
+                                <a href="https://www.facebook.com/Lynova-tech-110818217280444" class="twitter btn d-flex justify-content-center align-items-center">
+                                    <span class="icon-facebook mr-3"></span> Nous decouvrir
+                                </a>
+                        
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    {% block javascripts %}
+        <script src="{{asset('youde/js/jquery-3.3.1.min.js')}}"></script>
+        <script src="{{asset('youde/js/popper.min.js')}}"></script>
+        <script src="{{asset('youde/js/bootstrap.min.js')}}"></script>
+        <script src="{{asset('youde/js/main.js')}}"></script>
+    {% endblock %}
+    <!-- Horizontal Form -->
+
+
+{% endblock %}

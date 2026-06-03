@@ -1,0 +1,182 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Details de {{ fidele.nomfidele}}
+{% endblock %}
+
+{% block body %}
+
+    <h3>
+        <u class="center">
+            {{ fidele.nomfidele|upper }}</u> <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-circle"/>            </u>
+</h3>
+<div class="container-fluid">
+    <table class="table" border="1">
+
+        <thead>
+
+        </thead>
+        <tbody>
+            <tr class="btn-success">
+
+        <b><td>Code</td>
+            <td>Catégorie</td>
+            <td>Nom & prénoms</td>
+            <td>Contact</td>
+            <td>Whatssap</td>
+            <td>email</td>
+            <td>Genre</td>
+            </tr>
+            <tr>
+
+                <td>{{ fidele.code |upper}}</td>
+                <td>{% set typefidele = fidele.typefidele %}
+                    {% if  typefidele == 1 %}
+                        Fidèle
+                    {% else %}
+
+                        Serviteur
+                    {% endif %}
+
+                </td>
+                <td>{{ fidele.nomfidele|upper}}</td>
+                <td>{{ fidele.contact1}}</td>
+                <td>{{ fidele.contactwhatssap}}</td>
+                <td>{{ fidele.email}}</td>
+                <td>{{ fidele.sexe}}</td>
+
+            </tr>   
+            <tr class="btn-success">
+
+                <td>Né(e) le</td>
+                <td>Nbre. Enfants</td>
+                <td>Statut matri.</td>
+                <td>Type Pièce</td>
+                <td>N° pièce</td>
+                <td>Domaie d'activité</td>
+                <td>Profession</td>
+            </tr>
+            <tr>
+                <td>{{ fidele.datenaiss|date(' d-m-Y')}}</td>
+                <td>{{ fidele.nbrenfant}}</td>
+                <td>{{ fidele.statutmatri}}</td>
+                <td>{{ fidele.typepiece}}</td>
+                <td>{{ fidele.numpiece}}</td>
+                <td>{{ fidele.domaineactivite}}</td>
+                <td>{{ fidele.profession }}</td>
+
+            </tr>
+
+
+            <tr class="btn-success">
+                <td>Nationalité</td>
+                <td>Commune</td>
+                <td>Date enreg.</td>
+                <td>Enregistré par</td>
+                <td>Facebook</td>
+                <td>Famille Eglise</td>
+                <td>Zone</td>
+
+            </tr>
+
+            <tr>
+                <td> {% if  fidele.nationalite is not null %} {{ fidele.nationalite.libelle|upper}} {% else %} {% endif %}</td>
+                <td> {% if fidele.quartier.commune is not null %} {{ fidele.quartier.commune.nom|upper}} {% else %} {% endif %}</td>
+                <td>{{ fidele.createAt|date(' d-m-Y à H:i:s ')}}</td>
+                <td>{% if  fidele.createdBy is not null %} {{ fidele.createdBy.nomuser}}  {{ fidele.createdBy.prenom}}{% else %} {% endif %}</td>
+                <td>{{ fidele.comptefacebook}}</td>
+                <td>{% if  fidele.famille is not null %}{{ fidele.famille.nom}}{% else %} {% endif %}</td>
+
+            </tr>
+
+
+
+            <tr class="btn-success">
+                <td>Groupe sanguin</td>
+                <td>Statut baptème</td>
+                <td>Date de baptème</td>
+                <td>Fonction Eglise</td>
+                <td>Ethnie</td>
+                <td>Cellule</td>
+
+            </tr>
+
+            <tr>
+                <td>{{ fidele.groupesang}}</td>
+                <td> {% set stutbapteme= fidele.stutbapteme %}
+                    {% set sexe= fidele.sexe %}
+
+                    {% if stutbapteme == 'Oui' and sexe == 'Homme' %}
+                        Baptisé
+                    {% elseif stutbapteme == 'Non' and sexe == 'Homme' %}
+                        Non baptisé
+                    {% elseif stutbapteme == 'Oui' and sexe == 'Femme' %}
+                        Baptisée
+                    {% else %}
+                        Non Baptisée
+                    {% endif %}
+
+
+                </td>
+                <td>{{ fidele.datebapteme|date('d-m-Y')}}</td>
+                <td>{% if fidele.fonction is not null %}{{ fidele.fonction.libelle}}{% else %} {% endif %}</td>
+                <td> {% if fidele.ethnie is not null %}  {{ fidele.ethnie.libelle}} {% else %} {% endif %}</td>
+                <td> {% if fidele.cellule is not null  %} {{ fidele.cellule.nom}} {% else %} {% endif %}</td>
+
+            </tr>
+
+            <tr class="btn-success">
+
+                <td>Quartier</td>
+                <td>Lieu baptème</td>
+                <td>Pasteur officient</td>
+                <td>Ancienne communauté</td>
+                <td>Date de conversion</td>
+                <td>Age</td>
+            </tr>
+            <tr>
+                <td>{% if fidele.quartier is not null %} {{ fidele.quartier.libelle }}{% else %} {% endif %}</td>
+                <td>{{ fidele.lieubapteme }}</td>
+                <td>{{ fidele.pasteurbapteme}}</td>
+                <td>{{ fidele.anciennecommunaute}}</td>
+                <td>{{ fidele.dateconversion|date('d-m-Y')}}</td>
+                <td>{{ fidele.age}}</td>
+
+            </tr>
+
+            </tbody>
+            </td>
+            </tr></tbody><tfooter>
+                <tr>
+                    <td>
+                        <a href='{{ path('listepreinscription') }}'>
+                            <button class="btn btn-success">Retour à la liste</button>
+                        </a>
+                    </td>
+
+                    <td>
+                        <a href="{{ path('fidele_validation', {'id': fidele.id}) }}">
+                            <span style="font-size: 1em; color: Dodgerblue;">
+                                <i class="fas fa-edit" title="Valider"></i>
+                            </span>
+                        </a>
+                    </td>
+
+
+                    <td>
+                        <a href="{{ path('fidele_supp', {'id': fidele.id}) }}">
+                            <span style="font-size: 1em; color: red;">
+                                <i class="fas fa-trash-alt" title="Rejeter"></i>
+                            </span>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ path('fidele_printbyid', {'id': fidele.id}) }}">
+                            <span style="font-size: 1em; color: Dodgerblue;">
+                                <i class="fa fa-print" title="Imprimer la fiche"></i>
+                            </span>
+                        </a>
+                    </td>
+
+                </tr></tfooter></form></table></i>
+</div>
+{% endblock %}

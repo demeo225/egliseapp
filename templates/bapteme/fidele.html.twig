@@ -1,0 +1,76 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Promotion :{{ nombapteme|upper }}{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+
+        <div class="card-header">
+            <h3 class="card-title">Promotion :{{ nombapteme|upper }} </h3>
+        </div>
+
+        <!-- /.card-header -->
+        <div class="card-body">
+
+            <a href='{{ path('bapteme_printmembre',{'id':id}) }}'>
+
+                <button class="btn btn-primary">Impression avancée</button>
+            </a>
+            <a href="{{ path('bapteme_index') }}" class="btn btn-success">Baptêmes</a>
+
+            <hr style="visibility: hidden" />
+
+            <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Fidèle</th>
+                        <th>Teléphone</th>
+                        <th>Situation matrimoniale</th>
+                        <th>Fonction</th>
+                        <th>Photo</th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fidele in fideles %}
+                        <tr>
+                            <td>{{ fidele.nomfidele|upper}}</td>
+                            <td>{{ fidele.contact1}}</td>
+                            <td>{{ fidele.statutmatri }}
+
+
+                            </td>
+
+
+                            <td> {% if  fidele.fonction is not empty %} {{ fidele.fonction.libelle}} {% else %} {% endif %}</td>
+
+                            <td>
+
+                                <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" />                                               
+
+
+                            </td>
+
+                        </tr>
+                    {% else %}
+                     
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+{% endblock %}

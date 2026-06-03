@@ -1,0 +1,53 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Fiancaille{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <table class="table">
+
+            <thead>
+
+            </thead>
+            <tbody>
+                <tr class="btn-success">
+
+                    <td>Date</td>
+                    <td>Fiancée</td>
+                    <td>Fiancé</td>
+                    <td>Pasteur officient</td>
+                </tr>
+                <tr>
+
+                    <td>{{ fiancaille.datefiancaille|date('d-m-Y')}}</td>
+                    <td>{% if fiancaille.fianceemembre is not empty %} {{ fiancaille.fianceemembre.nomfidele}} {% else %}{{ fiancaille.fiance}}{% endif %}</td>
+                    <td>{% if fiancaille.fiancemembre is not empty %} {{ fiancaille.fiancemembre.nomfidele}} {% else %}{{ fiancaille.fiancee}}{% endif %}</td>
+
+                    <td>{{ fiancaille.pasteurfiancaille|upper}}</td>
+
+                </tr>   
+
+
+
+
+            </tbody>
+            </td>
+            </tr></tbody><tfooter>
+                <tr>
+                    <td>
+                        <a href='{{ path('fiancaille_index') }}'>
+                            <button class="btn btn-primary">Retour</button>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ path('fiancaille_edit', {'id': fiancaille.id}) }}">
+                            <span style="font-size: 1em; color: Dodgerblue;">
+                                <i class="fas fa-edit"></i>
+                            </span>
+                        </a>
+                    </td>
+
+                </tr></table>
+    </div>
+
+{% endblock %}

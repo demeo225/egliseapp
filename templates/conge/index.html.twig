@@ -1,0 +1,139 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Congé index{% endblock %}
+
+{% block body %}
+    <div class="card-body">
+
+
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Gestion des CONGES</h3>
+            </div>
+      <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h5 class="m-0 flash-text">{{ message }}</h5>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <a href='{{ path('app_conge_new') }}'>
+                    <button class="btn btn-primary">Nouveau</button>
+                </a>
+
+
+                <hr style="visibility: hidden" />
+
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Fidèle</th>
+                            <th>Contact</th>
+                            <th>Photo</th>
+                            <th>Date debut</th>
+                            <th>Date fin</th>
+                            <th>Cause</th>
+                            <th>Etat</th>
+
+                            <th>actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for conge in conges %}
+                            <tr>
+                                <td> {% if conge.fidele is not empty %} {{ conge.fidele.nomfidele|upper }} {% else %} {% endif %}</td>
+
+                                <td> {% if conge.fidele is not empty %} {{ conge.fidele.contact1 }} {% else %} {% endif %}</td>
+                                <td> 
+
+                                    {% if conge.fidele.photoFile is not empty %}<img src="{{ asset('uploads/photos/'~conge.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare" title="Voir details" style="max-width: 100%;  max-height: 100%"/>{% else %} {% endif %}</td>
+
+                                <td>{{ conge.dateconge ?  date_format(conge.dateconge) }}</td>
+                                <td>{{ conge.datefin ?  date_format(conge.datefin) }}</td>
+                                <td>{{ conge.cause }}</td>
+                                <td>
+
+
+                                    {% if conge.datefin is empty or conge.datefin|date('Y-m-d') > "now"|date('Y-m-d')  %}<b style="color: red"> En cours </b> {% else %} Achevé {% endif %} </td>
+
+                                <td>
+
+                                    <button type="button" id="btn-fideles-modal" data-target="{{ path('app_conge_show', {'id': conge.id}) }}"> 
+                                        <span style="font-size: 1em; color: Dodgerblue;">
+                                            <i class="fas fa-list" title="Details"></i>
+                                        </span>
+                                    </button>
+
+
+                                    <a href="{{ path('app_conge_edit', {'id': conge.id}) }}"> 
+                                        <i class="fas fa-edit" title="Modifier"></i></a>
+
+                                </td>
+                            </tr>
+                        
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+                        <!-- Modal des  -->
+    <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+            $(document).on('click', 'button#btn-fideles-modal', function () {
+                // créer le modal qui porte l'id fidelesModal
+                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                    keyboard: false
+                });
+
+                // recupere le div class="modal-body" du div id="fidelesModal"
+                let container = $('#fidelesModal .modal-body');
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('data-target'),
+                    async: true,
+                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                        container.empty();
+                    },
+                    success: function (html) {
+                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                        modal.show(); // on affiche la fenêtre modal
+                        //console.log(html);
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+{% endblock %}

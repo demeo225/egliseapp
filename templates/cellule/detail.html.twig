@@ -1,0 +1,79 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Details de {{ cellule.nom}}
+{% endblock %}
+
+{% block body %}
+
+    <h3>
+        <u>
+            <strong>Details Cellule</strong>
+        </u>
+    </h3>
+
+    <table class="table">
+
+        <thead>
+            <tr>
+                <th>Cellule</th>
+                <th>Description</th>
+                <th>Responsable premier</th>
+                <th>Responsable second</th>
+                <th>Jour</th>
+                <th>Heure</th>
+                <th>Domicile</th>
+                <th>Quartier</th>
+                <th>Zone</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+
+                <td>{{ cellule.nom}}</td>
+                <td>{{ cellule.description}}</td>
+                <td>{{ cellule.responsable1}}</td>
+                <td>{{ cellule.responsable2}}</td>
+                <td>{{ cellule.jour}}</td>
+                <td>{{ cellule.heure|date('H:i:s')}}</td>
+                <td>{{ cellule.lieu}}</td>
+                <td>{{ cellule.quartier.libelle}}</td>
+                <td>{{ cellule.zone.nom}}</td>
+                {% if is_granted('ROLE_RESPONSABLE_CELLULE') %}
+
+
+                {% endif %}
+            </tr>
+        </tbody>
+    </td>
+</tr></tbody><tfooter>
+    <tr>
+        <td>
+            <a href='{{ path('cellule') }}'>
+                <button class="btn btn-success">Afficher la liste</button>
+            </a>
+        </td>
+        {% if is_granted('ROLE_SECRETAIRE') %}
+        <td>
+
+            <a href="{{ path('cellule_update', {'id': cellule.id}) }}">
+              
+
+                    <button class="btn btn-primary">Modifier</button>
+
+             
+            </a>
+
+
+        </td>
+        <td>
+            <form method="post" action="{{ path('cellule_delete', {'id': cellule.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ cellule.id) }}">
+                <button class="btn btn-danger">
+                    Delete
+                </button>
+            </form>
+
+        </td>
+        {% endif %}
+    </tr></tfooter></form></table></i>{% endblock %}

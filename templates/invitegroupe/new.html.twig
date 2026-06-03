@@ -1,0 +1,15 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}New Invitegroupe{% endblock %}
+
+{% block body %}
+       <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Gestion des invités de groupe</h3>
+        </div>
+
+    {{ include('invitegroupe/_form.html.twig') }}
+
+       </div>
+    
+{% endblock %}

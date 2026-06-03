@@ -1,0 +1,63 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Gestion des officiants{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Orateurs invités</h3>
+        </div>
+        <div class="card card-body">
+
+
+            {{ form_start(form) }}
+            {% for message in app.flashes('success') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <div class="my-custom-class-for-errors">
+                {{ form_errors(form) }}
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    {{ form_row(form.nomofficiant, {'label':'Nom et prénoms '}) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_row(form.contact, {'label':' Contact '}) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.titre, {'label':'Fonction ou titre '}) }}
+                </div>
+               
+              
+
+            </div>
+
+
+
+
+
+            <div class="row"> 
+                <div class="btn btn-default">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div>
+
+                <div class="btn btn-default"><a href="{{ path('officiant_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+            </div> 
+
+            {{ form_end(form) }}
+        </div>
+
+
+    </div>
+
+
+{% endblock %}

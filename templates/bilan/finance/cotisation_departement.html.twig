@@ -1,0 +1,72 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Liste des cotisations par groupe {% endblock %}
+
+{% block body %}
+
+    <div class="card card-body">
+        <form action="{{ path('cotisation_bygroupe') }}" method="POST">
+
+            <div class="row mb-4">
+
+                <div class="col-md-4">
+                    <select name="selGroupe" class="select2" required="true">
+                        <option value="">-- Choix du groupe -- </option>
+                        {% for groupe in groupe %}
+                            <option value="{{ groupe.id }}">{{ groupe.nom }} </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <br />
+                <div class="col-md-4">
+                    <input type="submit" value="Rechercher">
+                </div>
+    
+            </div>    
+        </form>    
+    </div> 
+
+    <div class="rows">
+        {% if app.request.method == 'POST' and listecotisation |length==0 %}
+            Aucune donnée trouvée
+
+        {% else %}
+
+            {% if listecotisation |length >0 %}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Resultats de la recherche</h3>
+                    </div>
+                    <hr style="visibility: hidden" /> 
+                    <div class="card-body">
+                    <table  id="example1" class="table table-bordered table-striped">
+                        <thead> 
+                            <tr class="btn-success">
+                                <th>Cotisation</th>
+                                <th>Montant</th>
+
+
+
+
+                            </tr></thead>
+                        <tbody>
+                            {% for liste in listecotisation %}     
+                            <div class="col-md-12">
+                                <tr>
+                                    <td>{{ liste.cotisationgroupe.objet|upper }}</td>  
+                                    <td>{{ liste.cotisationgroupe.montant }}</td>  
+  
+                                    
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">aucune donnée trouvée</td>
+                                </tr>
+
+                            </div>
+                        {% endfor %} 
+                        </tbody>
+                    </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endblock %}

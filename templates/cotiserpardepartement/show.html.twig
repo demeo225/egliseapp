@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cotiserpardepartement{% endblock %}
+
+{% block body %}
+    <h1>Cotiserpardepartement</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ cotiserpardepartement.id }}</td>
+            </tr>
+            <tr>
+                <th>Montantpayer</th>
+                <td>{{ cotiserpardepartement.montantpayer }}</td>
+            </tr>
+            <tr>
+                <th>Reste</th>
+                <td>{{ cotiserpardepartement.reste }}</td>
+            </tr>
+            <tr>
+                <th>CreateAt</th>
+                <td>{{ cotiserpardepartement.createAt ? cotiserpardepartement.createAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdateAt</th>
+                <td>{{ cotiserpardepartement.updateAt ? cotiserpardepartement.updateAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Etat</th>
+                <td>{{ cotiserpardepartement.etat ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Datecotiser</th>
+                <td>{{ cotiserpardepartement.datecotiser ? cotiserpardepartement.datecotiser|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>CreatedFromIp</th>
+                <td>{{ cotiserpardepartement.createdFromIp }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedFromIp</th>
+                <td>{{ cotiserpardepartement.updatedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>DeletedAt</th>
+                <td>{{ cotiserpardepartement.deletedAt ? cotiserpardepartement.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DeletedFromIp</th>
+                <td>{{ cotiserpardepartement.deletedFromIp }}</td>
+            </tr>
+            <tr>
+                <th>Editable</th>
+                <td>{{ cotiserpardepartement.editable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_cotiserpardepartement_index') }}">back to list</a>
+
+    <a href="{{ path('app_cotiserpardepartement_edit', {'id': cotiserpardepartement.id}) }}">edit</a>
+
+    {{ include('cotiserpardepartement/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,45 @@
+
+<div class="card card-primary">
+
+    <div class="card card-body ">
+        {{ form_start(form) }}
+        <div class="my-custom-class-for-errors">
+            {{ form_errors(form) }}
+        </div>
+    <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.groupe, {'label':'Choix du groupe'}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.cotisationpargroupe, {'label':'Cotisation'}) }}
+            </div>
+
+        </div>
+        <div class="row">
+
+            <div class="col-md-4">
+                {{ form_row(form.montantpayer, {'label':'Montant '}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.datecotiser, {'label':'Date'}) }}
+            </div>
+        </div>
+        <div class="row"> 
+           <div class="col-md-2">{{ form_row(form.save, {'label':'Valider ','attr':{'value':'save'}}) }}</div>
+
+          <div class="col-md-2"> {{ form_row(form.saveAndAdd, {'label':'Valider et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+
+          <div class="col-md-2"><a href="{{ path('app_cotiserpargroupe_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+        </div> 
+        {{ form_end(form) }}
+    </div>
+</div>

@@ -1,0 +1,140 @@
+
+
+
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Modification culte ECODIM</h3>
+        </div>
+        <div class="card card-body">
+
+        {{ form_start(form, {'attr': {'action': path('cultecodim_update', {'id': cultecodim.id})} }) }}
+            {{ form_errors(form) }}
+            {% for message in app.flashes('echec') %}
+                <div class="primary">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <div class="row mb-4">
+                <div class="col-3">
+                    <div class="form-group">
+                        {{ form_label(form.moniteur1, "Moniteur") }}
+                        {{ form_errors(form.moniteur1) }}
+                        <div>
+                            {{ form_widget(form.moniteur1)  }}
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-3">
+                    <div class="form-group">
+
+                        {{ form_label(form.moniteur2, "2nd Moniteur")}}
+                        {{ form_errors(form.moniteur2)  }}
+                        <div>
+                            {{ form_widget(form.moniteur2) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+
+                        {{ form_label(form.nbrefille, "Nbre filles") }}
+                        {{ form_errors(form.nbrefille)  }}
+                        <div>
+                            {{ form_widget(form.nbrefille) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+
+                        {{ form_label(form.nbregarcon, "Nbre garçons") }}
+                        {{ form_errors(form.nbregarcon) }}
+                        <div>
+                            {{ form_widget(form.nbregarcon)  }}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row mb-4">
+
+                <div class="col-3">
+                    <div class="form-group">
+
+                        {{ form_label(form.offrande, "Offrande") }}
+                        {{ form_errors(form.offrande) }}
+                        <div>
+                            {{ form_widget(form.offrande)}}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+
+                        {{ form_label(form.dateculte, "Date") }}
+                        {{ form_errors(form.dateculte) }}
+                        <div>
+                            {{ form_widget(form.dateculte)}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+
+                        {{ form_label(form.versets, "Versets bibliques") }}
+                        {{ form_errors(form.versets) }}
+                        <div>
+                            {{ form_widget(form.versets)}}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+
+                        {{ form_label(form.versetretenir, "Verset à retenir") }}
+                        {{ form_errors(form.versetretenir) }}
+                        <div>
+                            {{ form_widget(form.versetretenir)  }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="form-group">
+
+                    {{ form_label(form.classecodim, "Choix de la classe") }}
+                    {{ form_errors(form.classecodim) }}
+                    <div>
+                        {{ form_widget(form.classecodim)  }}
+                    </div>
+
+                </div>
+            </div>
+            <div>
+                {{ form_label(form.note, "Message") }}
+                {{ form_errors(form.note) }}
+                <div  class="col-12">
+                    {{ form_widget(form.note)  }}
+                </div>
+            </div>
+            <div class="row"> 
+              <div class="col-md-2">{{ form_row(form.save, {'label':'Modifier ','attr':{'value':'save'}}) }}</div>
+
+                <div class="btn btn-default" style="display: none"> {{ form_row(form.saveAndAdd, {'label':'Enregistrer et continuer ','attr':{'value':'save-and-add'}}) }} </div>
+            </div> 
+
+            <div>
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+

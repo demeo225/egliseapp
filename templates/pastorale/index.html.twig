@@ -1,0 +1,130 @@
+{% extends "home/index.html.twig" %}
+
+{% block title %}Reunions index{% endblock %}
+
+{% block body %}
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Liste des Reunions</h3>
+        </div>
+ <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+            <a href='{{ path('app_pastorale_new') }}'>
+                <button class="btn btn-primary">Nouveau</button>
+            </a>
+            <a href="{{ path('pastorale_listepresence') }}" class="btn btn-success">Liste de présence</a>
+
+            <hr style="visibility: hidden" />
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Date debut</th>
+                        <th>Date fin</th>
+                        <th>Rencontre</th>
+                        <th>Lieu</th>
+                        <th>Procès verbal</th>
+
+                        <th>actions</th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    {% for pastorale in pastorales %}
+                        <tr>
+                            <td> {% if pastorale.datepastorale is not empty  %} {{ date_format( pastorale.datepastorale)}} à {{  pastorale.datepastorale|date('H:i:s') }} {% else %} {% endif %}</td>
+                            <td> {{ date_format( pastorale.datefin)}} à {{  pastorale.datefin|date('H:i:s') }} </td>
+                            <td>{{ pastorale.type }}</td>
+                            <td>{{ pastorale.lieu }}</td>
+                            <td>
+                                
+                              
+                                {% if pastorale.brochureFilename is not empty %}   <a href="{{ asset('uploads/brochures/' ~ pastorale.brochureFilename) }}">Afficher</a>{% else %} Aucun PV {% endif %} </td>
+                            <td>
+
+
+                                <button type="button" id="btn-fideles-modal" data-target="{{ path('app_pastorale_show', {'id': pastorale.id}) }}"> 
+                                    <span style="font-size: 1em; color: Dodgerblue;">
+                                        <i class="fas fa-list" title="Details"></i>
+                                    </span>
+                                </button>
+
+                                <a href="{{ path('app_pastorale_edit', {'id': pastorale.id}) }}">      <span style="font-size: 1em; color: Dodgerblue;">
+                                        <i class="fas fa-edit" title="Modifier"></i>
+                                    </span></a>
+                            </td>
+                        </tr>
+                    {% else %}
+
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+
+
+
+    <!-- Modal des  -->
+    <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
+            $(document).on('click', 'button#btn-fideles-modal', function () {
+                // créer le modal qui porte l'id fidelesModal
+                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
+                    keyboard: false
+                });
+
+                // recupere le div class="modal-body" du div id="fidelesModal"
+                let container = $('#fidelesModal .modal-body');
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('data-target'),
+                    async: true,
+                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
+                        container.empty();
+                    },
+                    success: function (html) {
+                        container.append(html); // une fois la réponse, on rempli le div.modal-body
+                        modal.show(); // on affiche la fenêtre modal
+                        //console.log(html);
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+{% endblock %}

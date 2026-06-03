@@ -1,0 +1,43 @@
+  <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Details de la visite du {{ date_format(visite2.datevisite) }}</h3>
+        </div>
+    <table class="table">
+        <tbody>
+   
+            
+             <tr>
+                <th>Fidèle visté</th>
+                <td> {% if visite2.fidele is not empty %} {{ visite2.fidele }} {% else %} {{ visite2.personne }} {% endif %}</td>
+            </tr>
+            
+            <tr>
+                <th>Lieu</th>
+                <td>{{ visite2.lieu }}</td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td>{{ date_format(visite2.datevisite) }}</td>
+            </tr>
+            
+                 <tr>
+                <th>Heure</th>
+                <td>{{ visite2.heure ? visite2.heure|date('H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Verset</th>
+                <td>{{ visite2.verset }}</td>
+            </tr>
+            <tr>
+                <th>Observation</th>
+                <td>{{ visite2.observation }}</td>
+            </tr>
+            <tr>
+                <th>Responsable</th>
+                <td>{{ visite2.responsable }}</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+  </div>

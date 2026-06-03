@@ -1,0 +1,48 @@
+
+<div class="card card-body">
+    {{ form_start(form) }}
+ <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.eglise, {'label':'Eglise '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.datepaiement, {'label':'Date  '}) }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.montant, {'label':'Montant '}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.dateecheance, {'label':'Date échéance '}) }}
+        </div>
+
+    </div>
+
+
+
+    {% if is_granted('ROLE_SUPER_ADMIN') %}
+
+        <div class="row"> 
+            <div class="btn btn-default">{{ form_row(form.save, {'label':'Enregistrer ','attr':{'value':'save'}}) }}</div>
+
+
+            <div class="btn btn-default"><a href="{{ path('app_paiement_index') }}" class="btn btn-success">Afficher la liste</a> </div>
+        </div> 
+    {% endif %}
+    <div>
+        {{ form_rest(form) }}
+    </div>
+    {{ form_end(form) }}
+
+</div>
+{{ form_end(form) }}
