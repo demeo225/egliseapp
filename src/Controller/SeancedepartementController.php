@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Controller;
-
-//use Symfony\Component\Validator\Constraints\DateTime;
+ 
 
 use App\Entity\Departement;
 use App\Entity\Fidele;
@@ -300,23 +299,131 @@ use ClientIp;
                 ]);
             }
 
-//Fin liste
-     
-    #[Route('/listeparticipant', name: 'seancedepartement_listeparticipant', methods: ['GET'])]
-    public function indexPresence(PresencedepartementRepository $presenceRepository, Request $request): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+        //Fin liste
+            #[Route('/listeparticipantdepartement', name: 'seancedepartement_listeparticipant', methods: ['GET'])]
+        public function indexpresence(
+            PresencedepartementRepository $presenceRepository,
+            FideleRepository $fideleRepository,
+            DepartementRepository $departementRepository,
+            Request $request
+        ): Response {
+            $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+            
+            $user = $this->getUser();
+            $eglise = $user->getEglise();
+            
+            // Construction de la requête selon le rôle
+            $qb = $presenceRepository->createQueryBuilder('p')
+                ->leftJoin('p.seancedepartement', 's')
+                ->leftJoin('p.departement', 'd')
+                ->where('p.eglise = :eglise')
+                ->andWhere('p.deletedAt IS NULL')
+                ->setParameter('eglise', $eglise);
+            
+            // Filtres selon les rôles
+            if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+                // Ces rôles voient toutes les présences
+            } 
+            elseif ($this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+                $departement = $user->getDepartement();
+                if ($departement) {
+                    $qb->andWhere('d.id = :departementId')
+                    ->setParameter('departementId', $departement->getId());
+                }
+            }
+            else {
+                $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les présences.');
+                return $this->redirectToRoute('dashboard');
+            }
+            
+            $presences = $qb->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();
+            
+            // Récupérer les départements accessibles
+            $departements = $this->getDepartementsAccessibles($user, $eglise, $departementRepository);
+            
+            // Compter les membres par département
+            $membresParDepartement = [];
+            foreach ($departements as $departement) {
+                $membresParDepartement[$departement->getId()] = [
+                    'departement' => $departement,
+                    'nb_membres' => count($fideleRepository->findFidelesByDepartement($departement->getId())),
+                    'nb_presences' => 0
+                ];
+            }
+            
+            // Grouper par date et par département
+            $presencesParDateEtDepartement = [];
+            $totalGeneral = 0;
+            
+            foreach ($presences as $presence) {
+                if ($presence->getSeancedepartement() && $presence->getSeancedepartement()->getDatesuper()) {
+                    $dateKey = $presence->getSeancedepartement()->getDatesuper()->format('Y-m-d');
+                    $departementId = $presence->getDepartement()->getId();
+                    $departementNom = $presence->getDepartement()->getNom();
+                    
+                    if (!isset($presencesParDateEtDepartement[$dateKey])) {
+                        $presencesParDateEtDepartement[$dateKey] = [
+                            'date' => $presence->getSeancedepartement()->getDatesuper(),
+                            'departements' => [],
+                            'total_jour' => 0,
+                            'total_membres_jour' => 0
+                        ];
+                    }
+                    if (!isset($presencesParDateEtDepartement[$dateKey]['departements'][$departementId])) {
+                        $nbMembres = $membresParDepartement[$departementId]['nb_membres'] ?? 0;
+                        $presencesParDateEtDepartement[$dateKey]['departements'][$departementId] = [
+                            'departement_id' => $departementId,
+                            'departement_nom' => $departementNom,
+                            'presences' => [],
+                            'total_presences' => 0,
+                            'nb_membres' => $nbMembres,
+                            'taux_presence' => 0
+                        ];
+                        $presencesParDateEtDepartement[$dateKey]['total_membres_jour'] += $nbMembres;
+                    }
+                    $presencesParDateEtDepartement[$dateKey]['departements'][$departementId]['presences'][] = $presence;
+                    $presencesParDateEtDepartement[$dateKey]['departements'][$departementId]['total_presences']++;
+                    $presencesParDateEtDepartement[$dateKey]['total_jour']++;
+                    $totalGeneral++;
+                }
+            }
+            
+            // Calculer les taux
+            foreach ($presencesParDateEtDepartement as $dateKey => &$dateData) {
+                foreach ($dateData['departements'] as &$departementData) {
+                    $departementData['taux_presence'] = $departementData['nb_membres'] > 0 
+                        ? round(($departementData['total_presences'] / $departementData['nb_membres']) * 100, 2) 
+                        : 0;
+                }
+                $dateData['taux_global_jour'] = $dateData['total_membres_jour'] > 0 
+                    ? round(($dateData['total_jour'] / $dateData['total_membres_jour']) * 100, 2) 
+                    : 0;
+            }
+            
+            $totalMembresGeneral = array_sum(array_column($membresParDepartement, 'nb_membres'));
+            $tauxGeneral = $totalMembresGeneral > 0 ? round(($totalGeneral / $totalMembresGeneral) * 100, 2) : 0;
+            
+            return $this->render('seancedepartement/listeparticipant.html.twig', [
+                'presencesParDateEtDepartement' => $presencesParDateEtDepartement,
+                'totalGeneral' => $totalGeneral,
+                'totalMembresGeneral' => $totalMembresGeneral,
+                'tauxGeneral' => $tauxGeneral,
+            ]);
         }
-        $eglise = $this->getUser()->getEglise();
-        $user = $this->getUser();
-        $presencedepartement = $presenceRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
-        $difference = $presenceRepository->getPresenceByDates();
-        return $this->render('seancedepartement/listeparticipant.html.twig', [
-                    'presencedepartements' => $presencedepartement,
-                    'differences' => $difference,
-        ]);
-    }
+
+        private function getDepartementsAccessibles($user, $eglise, DepartementRepository $departementRepository): array
+        {
+            if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+                return $departementRepository->findBy(['eglise' => $eglise, 'deletedAt' => NULL]);
+            } 
+            elseif ($this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+                $departement = $user->getDepartement();
+                if ($departement) {
+                    return [$departement];
+                }
+            }
+            return [];
+        }
  
 
 

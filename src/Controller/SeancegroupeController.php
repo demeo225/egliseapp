@@ -144,21 +144,144 @@ class SeancegroupeController extends AbstractController {
         }
  
 
-    #[Route('/listeparticipantgroupe', name: 'seancegroupe_listeparticipant', methods: ['GET'])]
-    public function indexpresence(PresencegroupeRepository $presenceRepository, Request $request): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_GROUPE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+                
+        #[Route('/listeparticipantgroupe', name: 'seancegroupe_listeparticipant', methods: ['GET'])]
+        public function indexpresence(
+            PresencegroupeRepository $presenceRepository,
+            FideleRepository $fideleRepository,
+            GroupeRepository $groupeRepository,
+            Request $request
+        ): Response {
+            $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+            
+            $user = $this->getUser();
+            $eglise = $user->getEglise();
+            
+            // Construction de la requête selon le rôle
+            $qb = $presenceRepository->createQueryBuilder('p')
+                ->leftJoin('p.seancegroupe', 's')
+                ->leftJoin('p.groupe', 'g')
+                ->where('p.eglise = :eglise')
+                ->andWhere('p.deletedAt IS NULL')
+                ->setParameter('eglise', $eglise);
+            
+            // Filtres selon les rôles
+            if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+                // Ces rôles voient toutes les présences
+            } 
+            elseif ($this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+                $departement = $user->getDepartement();
+                if ($departement) {
+                    $qb->andWhere('g.departement = :departementId')
+                    ->setParameter('departementId', $departement->getId());
+                }
+            }
+            elseif ($this->isGranted('ROLE_RESPONSABLE_GROUPE')) {
+                $groupe = $user->getGroupe();
+                if ($groupe) {
+                    $qb->andWhere('g.id = :groupeId')
+                    ->setParameter('groupeId', $groupe->getId());
+                }
+            }
+            else {
+                $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les présences.');
+                return $this->redirectToRoute('dashboard');
+            }
+            
+            $presences = $qb->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();
+            
+            // Récupérer les groupes accessibles
+            $groupes = $this->getGroupesAccessibles($user, $eglise, $groupeRepository);
+            
+            // Compter les membres par groupe
+            $membresParGroupe = [];
+            foreach ($groupes as $groupe) {
+                $membresParGroupe[$groupe->getId()] = [
+                    'groupe' => $groupe,
+                    'nb_membres' => count($fideleRepository->findFidelesByGroupe($groupe->getId())),
+                    'nb_presences' => 0
+                ];
+            }
+            
+            // Grouper par date et par groupe
+            $presencesParDateEtGroupe = [];
+            $totalGeneral = 0;
+            
+            foreach ($presences as $presence) {
+                if ($presence->getSeancegroupe() && $presence->getSeancegroupe()->getDatesuper()) {
+                    $dateKey = $presence->getSeancegroupe()->getDatesuper()->format('Y-m-d');
+                    $groupeId = $presence->getGroupe()->getId();
+                    $groupeNom = $presence->getGroupe()->getNom();
+                    
+                    if (!isset($presencesParDateEtGroupe[$dateKey])) {
+                        $presencesParDateEtGroupe[$dateKey] = [
+                            'date' => $presence->getSeancegroupe()->getDatesuper(),
+                            'groupes' => [],
+                            'total_jour' => 0,
+                            'total_membres_jour' => 0
+                        ];
+                    }
+                    if (!isset($presencesParDateEtGroupe[$dateKey]['groupes'][$groupeId])) {
+                        $nbMembres = $membresParGroupe[$groupeId]['nb_membres'] ?? 0;
+                        $presencesParDateEtGroupe[$dateKey]['groupes'][$groupeId] = [
+                            'groupe_id' => $groupeId,
+                            'groupe_nom' => $groupeNom,
+                            'presences' => [],
+                            'total_presences' => 0,
+                            'nb_membres' => $nbMembres,
+                            'taux_presence' => 0
+                        ];
+                        $presencesParDateEtGroupe[$dateKey]['total_membres_jour'] += $nbMembres;
+                    }
+                    $presencesParDateEtGroupe[$dateKey]['groupes'][$groupeId]['presences'][] = $presence;
+                    $presencesParDateEtGroupe[$dateKey]['groupes'][$groupeId]['total_presences']++;
+                    $presencesParDateEtGroupe[$dateKey]['total_jour']++;
+                    $totalGeneral++;
+                }
+            }
+            
+            // Calculer les taux
+            foreach ($presencesParDateEtGroupe as $dateKey => &$dateData) {
+                foreach ($dateData['groupes'] as &$groupeData) {
+                    $groupeData['taux_presence'] = $groupeData['nb_membres'] > 0 
+                        ? round(($groupeData['total_presences'] / $groupeData['nb_membres']) * 100, 2) 
+                        : 0;
+                }
+                $dateData['taux_global_jour'] = $dateData['total_membres_jour'] > 0 
+                    ? round(($dateData['total_jour'] / $dateData['total_membres_jour']) * 100, 2) 
+                    : 0;
+            }
+            
+            $totalMembresGeneral = array_sum(array_column($membresParGroupe, 'nb_membres'));
+            $tauxGeneral = $totalMembresGeneral > 0 ? round(($totalGeneral / $totalMembresGeneral) * 100, 2) : 0;
+            
+            return $this->render('seancegroupe/listeparticipant.html.twig', [
+                'presencesParDateEtGroupe' => $presencesParDateEtGroupe,
+                'totalGeneral' => $totalGeneral,
+                'totalMembresGeneral' => $totalMembresGeneral,
+                'tauxGeneral' => $tauxGeneral,
+            ]);
         }
-        $eglise = $this->getUser()->getEglise();
-        $user = $this->getUser();
-        $presencegroupe = $presenceRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
-        $difference = $presenceRepository->getPresenceByDates();
-        return $this->render('seancegroupe/listeparticipant.html.twig', [
-                    'presencegroupes' => $presencegroupe,
-                    'differences' => $difference,
-        ]);
-    }
+
+        private function getGroupesAccessibles($user, $eglise, GroupeRepository $groupeRepository): array
+        {
+            if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+                return $groupeRepository->findBy(['eglise' => $eglise, 'deletedAt' => NULL]);
+            } 
+            elseif ($this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+                $departement = $user->getDepartement();
+                if ($departement) {
+                    return $departement->getGroupes()->toArray();
+                }
+            }
+            elseif ($this->isGranted('ROLE_RESPONSABLE_GROUPE')) {
+                $groupe = $user->getGroupe();
+                if ($groupe) {
+                    return [$groupe];
+                }
+            }
+            return [];
+        }
 
             /**Present et absent */
         

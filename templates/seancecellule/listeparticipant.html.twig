@@ -1,116 +1,235 @@
 {% extends "home/index.html.twig" %}
 
-{% block title %}Liste de presence Cellule{% endblock %}
+{% block title %}Liste de présence des cellules{% endblock %}
 
 {% block body %}
-
-
-
-    <div class="card card-primary">
-        <div class="card-header">
-            <h3 class="card-title">Liste de présence des cellules</h3>
-        </div>
-               <div class="offset-1 col-md-10 mt-2 mb-2">
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-users"></i> Liste de présence des cellules
+        </h3>
+    </div>
+    
+    <div class="offset-1 col-md-10 mt-2 mb-2">
         {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
             {% for message in messages %}
                 <div class="alert alert-{{ label }} my-alert" role="alert">
-                    <h1 class="m-0 flash-text">{{ message }}</h1>
+                    <h5 class="m-0 flash-text">{{ message }}</h5>
                 </div>
             {% endfor %}
         {% endfor %}
     </div>
-        <div class="container-fluid">
-         
-
-                <!-- /.card-header -->
-                <div class="card-body">
-                   
-                    <a href='{{ path('seancecellule_presence') }}'>
-                        <button class="btn btn-primary">Nouveau</button>
-                    </a>
-                    <a href='{{ path('seancecellule_index') }}'>
-                        <button class="btn btn-success">Liste des activités </button>
-                    </a>
-                    <a href='{{ path('cotisationcellule_index') }}'>
-                        <button class="btn btn-success">Cotisations </button>
-                    </a>
-                    <hr style="visibility: hidden" />
-
-                    <table id="example1" class="table table-bordered table-striped">
-
-                        <thead>
-                        <th>Cellule</th>
-                        <th>Date</th>
-                        <th>Objet</th>
-                        <th>Lieu</th>
-                        <th>Fidèle</th>
-                        <th>Contact</th>
-                        <th>Photo</th>
-                        <th>Retirer</th>
-                        </thead>
-                        </tr>
-                        <tbody>
-                            
-                            {% for diff in differences %}
-                                {% set presence = 0 %}
-                                {% set presencecellule = 0 %}
-                                {% for presencecellule in presencecellules %}
-                                    {% if is_granted("seancecellule_presence", presencecellule) %}
-                                    {% if diff.datesuper ==  presencecellule.seancecellule.datesuper %}
-                                        {% set presence = (presencecellule|length) + presence ?? 0 %}
-
-                                        <tr>
-
-                                            <td> {% if presencecellule.cellule is  not empty %}  {{ presencecellule.cellule.nom|upper}} {% else %} {% endif %}</td>
-                                            <td> {% if presencecellule.seancecellule is not empty %} 
-                                                {{ presencecellule.seancecellule.datesuper ? date_format(presencecellule.seancecellule.datesuper) }} {% else %} {% endif %}</td>
-                                            <td>{% if presencecellule.seancecellule is not empty %}{{ presencecellule.seancecellule.objet}} {% else %} {% endif %}</td>
-                                            <td>{% if presencecellule.seancecellule is not empty %}{{ presencecellule.seancecellule.lieu}} {% else %} {% endif %}</td>
-                                            <td>{% if presencecellule.seancecellule is not empty %}{{ presencecellule.fidele.nomfidele|upper}} {% else %} {% endif %}</td>
-                                            <td> {% if presencecellule.fidele.contactwhatssap is not empty %} {{ presencecellule.fidele.contactwhatssap}} {% else %} {{ presencecellule.fidele.contact1}} {% endif %}</td>
-
-                                            <td>    
-                                                <img src="{{ asset('uploads/photos/'~presencecellule.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> 
-
-                                            </td>
-                                            <td>
-                                                <form method="post" action="{{ path('presencecellule_delete', {'id': presencecellule.id}) }}" onsubmit="return confirm('etes vous-sûr de vouloir supprimer?');">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ presencecellule.id) }}">
-
-                                                    <button class="btn">
-                                                        <span style="font-size: 1em; color: red;">
-                                                            <i class="fas fa-trash-alt"></i>
-                                                        </span>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    {% endif %}
-                                    {% endif %}
-
-                                        {% endfor %}
-                                            {% if presence == 0 %}
-
-                                            {% elseif presence != 0  %}
-                                                
-                                                <tr>
-                                                    <td colspan="6"><b>Total fidèles</b> </td>
-
-                                                    <td colspan="2"><b> {{ presence }} </b> </td>
-                                                </tr>
-
-                                            {% endif %}
-                                            {% endfor %}
-                                                </tbody>
-                                            </table>
+    
+    <div class="card-body">
+        <a href="{{ path('seancecellule_presence') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouvelle présence
+        </a>
+        <a href="{{ path('seancecellule_index') }}" class="btn btn-success">
+            <i class="fas fa-list"></i> Liste des activités
+        </a>
+        
+        <hr />
+        
+        {% if presencesParDateEtCellule is empty %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Aucune présence enregistrée.
+            </div>
+        {% else %}
+            {# Cartes des taux globaux #}
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ totalGeneral }}</h3>
+                            <p>Total des présences</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-user-check"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="small-box bg-primary">
+                        <div class="inner">
+                            <h3>{{ totalMembresGeneral }}</h3>
+                            <p>Total des membres</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-users"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ tauxGeneral }}%</h3>
+                            <p>Taux de participation global</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                </div>
+            </div>
+            
+            {# Boucle sur les dates #}
+            {% for dateKey, dateData in presencesParDateEtCellule|sort|reverse %}
+                <div class="card card-dark mt-3">
+                    <div class="card-header bg-dark text-white">
+                        <h4 class="card-title">
+                            <i class="fas fa-calendar"></i> 
+                            Séance du {{ dateData.date|date('d/m/Y') }}
+                        </h4>
+                        <div class="card-tools">
+                            <span class="badge badge-light">
+                                Taux global: {{ dateData.taux_global_jour }}%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {# Boucle sur les cellules de cette date #}
+                        {% for celluleData in dateData.cellules %}
+                            <div class="card card-info mt-2 mb-3">
+                                <div class="card-header bg-info text-white">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h5 class="card-title">
+                                                <i class="fas fa-church"></i> 
+                                                Cellule : <strong>{{ celluleData.cellule_nom }}</strong>
+                                            </h5>
                                         </div>
-
+                                        <div class="col-md-6 text-right">
+                                            <span class="badge badge-light mr-2">
+                                                <i class="fas fa-users"></i> Membres: {{ celluleData.nb_membres }}
+                                            </span>
+                                            <span class="badge badge-light">
+                                                <i class="fas fa-user-check"></i> Présents: {{ celluleData.total_presences }}
+                                            </span>
+                                        </div>
                                     </div>
-
-
+                                </div>
+                                <div class="card-body">
+                                    {# Barre de progression du taux de présence #}
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <div class="progress" style="height: 25px;">
+                                                {% set taux = celluleData.taux_presence %}
+                                                {% set couleur = taux >= 75 ? 'success' : (taux >= 50 ? 'warning' : (taux >= 25 ? 'info' : 'danger')) %}
+                                                <div class="progress-bar bg-{{ couleur }} progress-bar-striped" 
+                                                     role="progressbar" 
+                                                     style="width: {{ taux }}%"
+                                                     aria-valuenow="{{ taux }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                    Taux de présence: {{ taux }}%
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">
+                                                {{ celluleData.total_presences }} présent(s) sur {{ celluleData.nb_membres }} membre(s)
+                                            </small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Fidèle</th>
+                                                    <th>Contact</th>
+                                                    <th>Photo</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for presence in celluleData.presences %}
+                                                    {% if is_granted("seancecellule_presence", presence) %}
+                                                        <tr>
+                                                            <td>{{ loop.index }}</td>
+                                                            <td>
+                                                                <strong>{{ presence.fidele.nomfidele|upper }} </strong>
+                                                            </td>
+                                                            <td>
+                                                                {% if presence.fidele.contactwhatssap is not empty %}
+                                                                    {{ presence.fidele.contactwhatssap }}
+                                                                {% elseif presence.fidele.contact1 is not empty %}
+                                                                    {{ presence.fidele.contact1 }}
+                                                                {% else %}
+                                                                    -
+                                                                {% endif %}
+                                                            </td>
+                                                            <td class="text-center">
+                                                                {% if presence.fidele.photoFile %}
+                                                                    <img src="{{ asset('uploads/photos/' ~ presence.fidele.photoFile) }}" 
+                                                                         class="img-circle img-size-40" 
+                                                                         alt="Photo"
+                                                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                                                {% else %}
+                                                                    <img src="{{ asset('images/default-avatar.png') }}" 
+                                                                         class="img-circle img-size-40" 
+                                                                         alt="Photo par défaut"
+                                                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                                                {% endif %}
+                                                            </td>
+                                                            <td class="text-center">
+                                                                {% if is_granted("seancecellule_presence_delete", presence) %}
+                                                                    <form method="post" action="{{ path('presencecellule_delete', {'id': presence.id}) }}" 
+                                                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette présence ?');">
+                                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ presence.id) }}">
+                                                                        <button class="btn btn-sm btn-danger">
+                                                                            <i class="fas fa-trash-alt"></i> Retirer
+                                                                        </button>
+                                                                    </form>
+                                                                {% else %}
+                                                                    <span class="text-muted">-</span>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="bg-light">
+                                                    <th colspan="4" class="text-right">SOUS-TOTAL {{ celluleData.cellule_nom }} :</th>
+                                                    <th class="text-center">
+                                                        <span class="badge badge-success badge-lg">{{ celluleData.total_presences }}</span>
+                                                    </th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
+                        {% endfor %}
+                        
+                        {# Total de la journée avec taux #}
+                        <div class="alert alert-secondary mt-2">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong><i class="fas fa-chart-bar"></i> Total de la journée :</strong>
+                                    {{ dateData.total_jour }} présence(s)
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <strong><i class="fas fa-chart-line"></i> Taux de participation :</strong>
+                                    <span class="badge badge-info badge-lg">{{ dateData.taux_global_jour }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
 
-
-
-                            {% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(document).ready(function() {
+    $('.table').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
+        },
+        "pageLength": 10,
+        "paging": true,
+        "searching": true,
+        "info": true
+    });
+});
+</script>
+{% endblock %}

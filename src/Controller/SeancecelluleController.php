@@ -157,21 +157,179 @@ class SeancecelluleController extends AbstractController {
                         ], $response);
     }
 
-    #[Route('/listeparticipantcellule', name: 'seancecellule_listeparticipant', methods: ['GET'])]
-    public function indexpresence(PresencecelluleRepository $presenceRepository, Request $request): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+   
+
+        #[Route('/listeparticipantcellule', name: 'seancecellule_listeparticipant', methods: ['GET'])]
+        public function indexpresence(
+            PresencecelluleRepository $presenceRepository, 
+            FideleRepository $fideleRepository,
+            CelluleRepository $celluleRepository,  // Ajout du repository
+            Request $request
+        ): Response {
+            $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+            
+            $user = $this->getUser();
+            $eglise = $user->getEglise();
+            
+            // Construction de la requête selon le rôle
+            $qb = $presenceRepository->createQueryBuilder('p')
+                ->leftJoin('p.seancecellule', 's')
+                ->leftJoin('p.cellule', 'c')
+                ->leftJoin('c.zone', 'z')
+                ->where('p.eglise = :eglise')
+                ->andWhere('p.deletedAt IS NULL')
+                ->setParameter('eglise', $eglise);
+            
+            // Filtres selon les rôles
+            if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+                // Ces rôles voient toutes les présences
+            } 
+            elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+                $zone = $user->getZone();
+                if ($zone) {
+                    $qb->andWhere('z.id = :zoneId')->setParameter('zoneId', $zone->getId());
+                } else {
+                    $this->addFlash('warning', 'Aucune zone associée à votre compte.');
+                    return $this->redirectToRoute('dashboard');
+                }
+            }
+            elseif ($this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
+                $cellule = $user->getCellule();
+                if ($cellule) {
+                    $qb->andWhere('c.id = :celluleId')->setParameter('celluleId', $cellule->getId());
+                } else {
+                    $this->addFlash('warning', 'Aucune cellule associée à votre compte.');
+                    return $this->redirectToRoute('dashboard');
+                }
+            }
+            else {
+                $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les présences.');
+                return $this->redirectToRoute('dashboard');
+            }
+            
+            $presences = $qb->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();
+            
+            // Récupérer toutes les cellules pour connaître leurs membres
+            $cellules = $this->getCellulesAccessibles($user, $eglise, $celluleRepository);
+            
+            // Compter les membres par cellule
+            $membresParCellule = [];
+            foreach ($cellules as $cellule) {
+                $membresParCellule[$cellule->getId()] = [
+                    'cellule' => $cellule,
+                    'nb_membres' => $fideleRepository->count(['cellule' => $cellule, 'deletedAt' => NULL]),
+                    'nb_presences' => 0
+                ];
+            }
+            
+            // Grouper par date et par cellule avec calcul des taux
+            $presencesParDateEtCellule = [];
+            $totalGeneral = 0;
+            
+            foreach ($presences as $presence) {
+                if ($presence->getSeancecellule() && $presence->getSeancecellule()->getDatesuper()) {
+                    $dateKey = $presence->getSeancecellule()->getDatesuper()->format('Y-m-d');
+                    $celluleId = $presence->getCellule()->getId();
+                    $celluleNom = $presence->getCellule()->getNom();
+                    
+                    if (!isset($presencesParDateEtCellule[$dateKey])) {
+                        $presencesParDateEtCellule[$dateKey] = [
+                            'date' => $presence->getSeancecellule()->getDatesuper(),
+                            'cellules' => [],
+                            'total_jour' => 0,
+                            'total_membres_jour' => 0
+                        ];
+                    }
+                    if (!isset($presencesParDateEtCellule[$dateKey]['cellules'][$celluleId])) {
+                        $nbMembres = $membresParCellule[$celluleId]['nb_membres'] ?? 0;
+                        $presencesParDateEtCellule[$dateKey]['cellules'][$celluleId] = [
+                            'cellule_id' => $celluleId,
+                            'cellule_nom' => $celluleNom,
+                            'presences' => [],
+                            'total_presences' => 0,
+                            'nb_membres' => $nbMembres,
+                            'taux_presence' => 0
+                        ];
+                        $presencesParDateEtCellule[$dateKey]['total_membres_jour'] += $nbMembres;
+                    }
+                    $presencesParDateEtCellule[$dateKey]['cellules'][$celluleId]['presences'][] = $presence;
+                    $presencesParDateEtCellule[$dateKey]['cellules'][$celluleId]['total_presences']++;
+                    $presencesParDateEtCellule[$dateKey]['total_jour']++;
+                    $totalGeneral++;
+                }
+            }
+            
+            // Calculer les taux de présence pour chaque cellule et chaque date
+            foreach ($presencesParDateEtCellule as $dateKey => &$dateData) {
+                foreach ($dateData['cellules'] as &$celluleData) {
+                    if ($celluleData['nb_membres'] > 0) {
+                        $celluleData['taux_presence'] = round(($celluleData['total_presences'] / $celluleData['nb_membres']) * 100, 2);
+                    } else {
+                        $celluleData['taux_presence'] = 0;
+                    }
+                }
+                // Calculer le taux global de la journée
+                if ($dateData['total_membres_jour'] > 0) {
+                    $dateData['taux_global_jour'] = round(($dateData['total_jour'] / $dateData['total_membres_jour']) * 100, 2);
+                } else {
+                    $dateData['taux_global_jour'] = 0;
+                }
+            }
+            
+            // Calculer le taux global général
+            $totalMembresGeneral = array_sum(array_column($membresParCellule, 'nb_membres'));
+            $tauxGeneral = $totalMembresGeneral > 0 ? round(($totalGeneral / $totalMembresGeneral) * 100, 2) : 0;
+            
+            return $this->render('seancecellule/listeparticipant.html.twig', [
+                'presencesParDateEtCellule' => $presencesParDateEtCellule,
+                'totalGeneral' => $totalGeneral,
+                'totalMembresGeneral' => $totalMembresGeneral,
+                'tauxGeneral' => $tauxGeneral,
+            ]);
         }
-        $eglise = $this->getUser()->getEglise();
-        $user = $this->getUser();
-        $presencecellule = $presenceRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
-        $difference = $presenceRepository->getPresenceByDates();
-        return $this->render('seancecellule/listeparticipant.html.twig', [
-                    'presencecellules' => $presencecellule,
-                    'differences' => $difference,
-        ]);
+
+        /**
+         * Récupère les cellules accessibles selon le rôle de l'utilisateur
+         */
+        private function getCellulesAccessibles($user, $eglise, CelluleRepository $celluleRepository): array
+        {
+            if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+                // Ces rôles voient toutes les cellules
+                return $celluleRepository->findBy(['eglise' => $eglise, 'deletedAt' => NULL]);
+            } 
+            elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+                $zone = $user->getZone();
+                if ($zone) {
+                    return $zone->getCellules()->toArray();
+                }
+            }
+            elseif ($this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
+                $cellule = $user->getCellule();
+                if ($cellule) {
+                    return [$cellule];
+                }
+            }
+            return [];
+        }
+
+
+/**
+ * Récupère les dates distinctes des séances
+ */
+private function getDistinctDates($presencecellules): array
+{
+    $dates = [];
+    foreach ($presencecellules as $presence) {
+        if ($presence->getSeancecellule() && $presence->getSeancecellule()->getDatesuper()) {
+            $date = $presence->getSeancecellule()->getDatesuper();
+            $dateKey = $date->format('Y-m-d');
+            if (!isset($dates[$dateKey])) {
+                $dates[$dateKey] = $date;
+            }
+        }
     }
+    return $dates;
+}
 
 
     

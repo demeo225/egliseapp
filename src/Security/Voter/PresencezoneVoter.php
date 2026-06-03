@@ -11,8 +11,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class PresencezoneVoter extends Voter {
 
-    public const EDIT = 'POST_EDIT';
-    public const PRESENCEFAMILLE_VIEW = 'seancezone_presence';
+    public const PRESENCE_VIEW = 'seancezone_presence';
+    public const PRESENCE_DELETE = 'seancezone_presence_delete';
 
     private Security $security;
 
@@ -21,85 +21,69 @@ class PresencezoneVoter extends Voter {
     }
 
     protected function supports(string $attribute, $presencezone): bool {
-        return in_array($attribute, [self::EDIT, self::PRESENCEFAMILLE_VIEW]) 
+        return in_array($attribute, [self::PRESENCE_VIEW, self::PRESENCE_DELETE]) 
             && $presencezone instanceof Presencezone;
     }
 
     protected function voteOnAttribute(string $attribute, $presencezone, TokenInterface $token): bool {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
         }
         
-        // ROLE_SECRETAIRE a tous les droits
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
+        // ROLE_ADMIN, ROLE_PASTEUR, ROLE_SECRETAIRE voient TOUTES les présences
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return $this->checkAttribute($attribute, $presencezone, $user);
         }
         
-        // ROLE_ADMIN a tous les droits (ajouté pour cohérence)
-        if ($this->security->isGranted('ROLE_ADMIN')) {
-            return true;
+        // ROLE_RESPONSABLE_ZONE voit uniquement les présences de sa zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            return $this->canViewByZone($attribute, $presencezone, $user);
         }
-
-        // Vérifier si la zone existe
+        
+        return false;
+    }
+    
+    private function canViewByZone(string $attribute, Presencezone $presencezone, User $user): bool {
         $zone = $presencezone->getZone();
-        if (null === $zone) {
+        if (!$zone) {
             return false;
         }
-
+        
+        $zoneResponsable = $zone->getUsers();
+        if (!$zoneResponsable || $zoneResponsable !== $user) {
+            return false;
+        }
+        
+        return $this->checkAttribute($attribute, $presencezone, $user);
+    }
+    
+    private function checkAttribute(string $attribute, Presencezone $presencezone, User $user): bool {
         switch ($attribute) {
-            case self::EDIT:
-                return $this->canEdit($presencezone, $user);
-            case self::PRESENCEFAMILLE_VIEW:
-                return $this->canViewPresence($presencezone, $user);
+            case self::PRESENCE_VIEW:
+                return true;
+                
+            case self::PRESENCE_DELETE:
+                return $this->canDelete($presencezone, $user);
         }
-
         return false;
     }
-
-    private function canEdit(Presencezone $presencezone, User $user): bool {
-        $zone = $presencezone->getZone();
-        
-        // Vérifier si l'utilisateur est responsable de zone
-        if ($zone->getUser() && $user === $zone->getUser()) {
+    
+    private function canDelete(Presencezone $presencezone, User $user): bool {
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        // Vérifier si l'utilisateur appartient à la zone (via les cellules)
-        foreach ($zone->getCellules() as $cellule) {
-            if ($cellule->getUsers()->contains($user)) {
+        
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $presencezone->getZone();
+            if ($zone && $zone->getUsers() === $user) {
                 return true;
             }
-        }
-        
-        // Si la zone a une collection d'utilisateurs directe
-        if (method_exists($zone, 'getUsers')) {
-            return $zone->getUsers()->contains($user);
-        }
-        
-        return false;
-    }
-
-    private function canViewPresence(Presencezone $presencezone, User $user): bool {
-        $zone = $presencezone->getZone();
-        
-        // Le responsable de zone peut voir les présences
-        if ($zone->getUser() && $user === $zone->getUser()) {
-            return true;
-        }
-
-        // Vérifier si l'utilisateur appartient à la zone (via les cellules)
-        foreach ($zone->getCellules() as $cellule) {
-            if ($cellule->getUsers()->contains($user)) {
-                return true;
-            }
-        }
-        
-        // Si la zone a une collection d'utilisateurs directe
-        if (method_exists($zone, 'getUsers')) {
-            return $zone->getUsers()->contains($user);
         }
         
         return false;

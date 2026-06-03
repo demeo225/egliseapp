@@ -1,112 +1,150 @@
 {% extends "home/index.html.twig" %}
 
-{% block title %}Liste de presence Groupe{% endblock %}
+{% block title %}Liste de présence des groupes{% endblock %}
 
 {% block body %}
-
-
-
-    <div class="card card-primary">
-        <div class="card-header">
-            <h3 class="card-title">Liste de présence aux activités des groupes</h3>
-        </div>
-         <div class="offset-1 col-md-10 mt-2 mb-2">
-        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
-            {% for message in messages %}
-                <div class="alert alert-{{ label }} my-alert" role="alert">
-                    <h1 class="m-0 flash-text">{{ message }}</h1>
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-users"></i> Liste de présence des groupes
+        </h3>
+    </div>
+    
+    <div class="card-body">
+        {% if presencesParDateEtGroupe is empty %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Aucune présence enregistrée.
+            </div>
+        {% else %}
+            {# Cartes des taux globaux #}
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ totalGeneral }}</h3>
+                            <p>Total des présences</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-user-check"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="small-box bg-primary">
+                        <div class="inner">
+                            <h3>{{ totalMembresGeneral }}</h3>
+                            <p>Total des membres</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-users"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ tauxGeneral }}%</h3>
+                            <p>Taux de participation global</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                </div>
+            </div>
+            
+            {# Boucle sur les dates #}
+            {% for dateKey, dateData in presencesParDateEtGroupe|sort|reverse %}
+                <div class="card card-dark mt-3">
+                    <div class="card-header bg-dark text-white">
+                        <h4 class="card-title">
+                            <i class="fas fa-calendar"></i> 
+                            Séance du {{ dateData.date|date('d/m/Y') }}
+                        </h4>
+                        <div class="card-tools">
+                            <span class="badge badge-light">
+                                Taux global: {{ dateData.taux_global_jour }}%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% for groupeData in dateData.groupes %}
+                            <div class="card card-info mt-2 mb-3">
+                                <div class="card-header bg-info text-white">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h5 class="card-title">
+                                                <i class="fas fa-users"></i> 
+                                                Groupe : <strong>{{ groupeData.groupe_nom }}</strong>
+                                            </h5>
+                                        </div>
+                                        <div class="col-md-6 text-right">
+                                            <span class="badge badge-light mr-2">
+                                                <i class="fas fa-users"></i> Membres: {{ groupeData.nb_membres }}
+                                            </span>
+                                            <span class="badge badge-light">
+                                                <i class="fas fa-user-check"></i> Présents: {{ groupeData.total_presences }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="progress mb-3" style="height: 25px;">
+                                        {% set taux = groupeData.taux_presence %}
+                                        {% set couleur = taux >= 75 ? 'success' : (taux >= 50 ? 'warning' : (taux >= 25 ? 'info' : 'danger')) %}
+                                        <div class="progress-bar bg-{{ couleur }} progress-bar-striped" 
+                                             role="progressbar" 
+                                             style="width: {{ taux }}%">
+                                            Taux de présence: {{ taux }}%
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Fidèle</th>
+                                                    <th>Contact</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for presence in groupeData.presences %}
+                                                    {% if is_granted("seancegroupe_presence", presence) %}
+                                                        <tr>
+                                                            <td>{{ loop.index }}</td>
+                                                            <td>{{ presence.fidele.nomfidele }}</td>
+                                                            <td>{{ presence.fidele.contact1|default('-') }}</td>
+                                                            <td class="text-center">
+                                                                {% if is_granted("POST_EDIT", presence) %}
+                                                                    <form method="post" action="{{ path('presencegroupe_delete', {'id': presence.id}) }}" 
+                                                                          onsubmit="return confirm('Supprimer cette présence ?');">
+                                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ presence.id) }}">
+                                                                        <button class="btn btn-sm btn-danger">
+                                                                            <i class="fas fa-trash-alt"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="bg-light">
+                                                    <th colspan="3" class="text-right">SOUS-TOTAL :</th>
+                                                    <th class="text-center">{{ groupeData.total_presences }}</th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="alert alert-secondary mt-2">
+                            <strong>Total de la journée :</strong> {{ dateData.total_jour }} présence(s)
+                            - <strong>Taux de participation :</strong> {{ dateData.taux_global_jour }}%
+                        </div>
+                    </div>
                 </div>
             {% endfor %}
-        {% endfor %}
+        {% endif %}
     </div>
-          
-        <div class="container-fluid">
-          
-
-                <!-- /.card-header -->
-                <div class="card-body">
-               
-                    <a href='{{ path('seancegroupe_presence') }}'>
-                        <button class="btn btn-primary">Nouveau</button>
-                    </a>
-                    <a href='{{ path('seancegroupe_index') }}'>
-                        <button class="btn btn-success">Liste des activités </button>
-                    </a>
-                    <a href={{ path('cotisergroupe_index') }}>
-                        <button class="btn btn-success">Paiements Cotisations</button>
-                    </a>                    <hr style="visibility: hidden" />
-
-                    <table id="example1" class="table table-bordered table-striped">
-
-                        <thead>
-                        <th>Date</th>
-
-                        <th>Groupe</th>
-                        <th>Objet</th>
-                        <th>Lieu</th>
-                        <th>Fidèle</th>
-                        <th>Photo</th>
-                        <th>Retirer</th>
-                        </thead>
-                        </tr>
-                        <tbody>
-                            {% for diff in differences %}
-
-                                {% set presence = 0 %}
-                                {% set presencegroupe = 0 %}
-                                {% for presencegroupe in presencegroupes %}
-                                    {% if is_granted("seancegroupe_presence", presencegroupe) %}
-                                        {% if diff.datesuper ==  presencegroupe.seancegroupe.datesuper %}
-                                            {% set presence = (presencegroupe|length) + presence ?? 0 %}
-                                            <tr>
-                                                <td>{{ presencegroupe.seancegroupe.datesuper ? presencegroupe.seancegroupe.datesuper|date('d-m-Y') : '' }}</td>
-                                                <td>{{ presencegroupe.groupe.nom|upper}}</td>
-                                                <td>{{ presencegroupe.seancegroupe.objet}}</td>
-                                                <td>{{ presencegroupe.seancegroupe.lieu}}</td>
-                                                <td>{{ presencegroupe.fidele.nomfidele|upper}}</td>
-
-                                                <td>    
-                                                    <img src="{{ asset('uploads/photos/'~presencegroupe.fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> 
-
-                                                </td>
-                                                <td>
-                                                    <form method="post" action="{{ path('presencegroupe_delete', {'id': presencegroupe.id}) }}" onsubmit="return confirm('etes vous-sûr de vouloir supprimer?');">
-                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ presencegroupe.id) }}">
-
-                                                        <button class="btn">
-                                                            <span style="font-size: 1em; color: red;">
-                                                                <i class="fas fa-trash-alt"></i>
-                                                            </span>
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        {% endif %}
-                                    {% endif %}
-
-                                {% endfor %}
-                                {% if presence == 0 %}
-
-                                {% elseif presence != 0  %}
-
-                                    <tr>
-                                        <td colspan="6"><b>Total fidèles</b> </td>
-
-                                        <td colspan="2"><b> {{ presence }} </b> </td>
-                                    </tr>
-
-                                {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-            </div>
-
-
-        </div>
-    </div>
-
-
-
+</div>
 {% endblock %}

@@ -11,8 +11,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class PresencedepartementVoter extends Voter {
 
-    public const EDIT = 'POST_EDIT';
-    public const PRESENCEDEPARTEMENT_VIEW = 'seancedepartement_presence';
+    public const PRESENCE_VIEW = 'seancedepartement_presence';
+    public const PRESENCE_DELETE = 'seancedepartement_presence_delete';
 
     private Security $security;
 
@@ -21,73 +21,83 @@ class PresencedepartementVoter extends Voter {
     }
 
     protected function supports(string $attribute, $presencedepartement): bool {
-        return in_array($attribute, [self::EDIT, self::PRESENCEDEPARTEMENT_VIEW]) 
+        return in_array($attribute, [self::PRESENCE_VIEW, self::PRESENCE_DELETE]) 
             && $presencedepartement instanceof Presencedepartement;
     }
 
     protected function voteOnAttribute(string $attribute, $presencedepartement, TokenInterface $token): bool {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
         }
         
-        // ROLE_SECRETAIRE a tous les droits
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
+        // ROLE_ADMIN, ROLE_PASTEUR, ROLE_SECRETAIRE voient TOUTES les présences
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return $this->checkAttribute($attribute, $presencedepartement, $user);
         }
         
-        // ROLE_ADMIN a tous les droits (ajouté pour cohérence)
-        if ($this->security->isGranted('ROLE_ADMIN')) {
-            return true;
+        // ROLE_RESPONSABLE_DEPARTEMENT voit uniquement les présences de son département
+        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            return $this->canViewByDepartement($attribute, $presencedepartement, $user);
         }
-
-        // Vérifier si le département existe
+        
+        return false;
+    }
+    
+    /**
+     * Responsable de département : voit uniquement son département
+     */
+    private function canViewByDepartement(string $attribute, Presencedepartement $presencedepartement, User $user): bool {
         $departement = $presencedepartement->getDepartement();
-        if (null === $departement) {
+        if (!$departement) {
             return false;
         }
-
+        
+        // Vérifier que l'utilisateur est responsable de ce département
+        $departementResponsable = $departement->getUsers();
+        if (!$departementResponsable || $departementResponsable !== $user) {
+            return false;
+        }
+        
+        return $this->checkAttribute($attribute, $presencedepartement, $user);
+    }
+    
+    /**
+     * Vérifie le type d'action
+     */
+    private function checkAttribute(string $attribute, Presencedepartement $presencedepartement, User $user): bool {
         switch ($attribute) {
-            case self::EDIT:
-                return $this->canEdit($presencedepartement, $user);
-            case self::PRESENCEDEPARTEMENT_VIEW:
-                return $this->canViewPresence($presencedepartement, $user);
+            case self::PRESENCE_VIEW:
+                return true;
+                
+            case self::PRESENCE_DELETE:
+                return $this->canDelete($presencedepartement, $user);
         }
-
         return false;
     }
-
-    private function canEdit(Presencedepartement $presencedepartement, User $user): bool {
-        $departement = $presencedepartement->getDepartement();
-        
-        // Vérifier si l'utilisateur est le responsable du département
-        if ($departement->getUser() && $user === $departement->getUser()) {
+    
+    /**
+     * Vérifie si l'utilisateur peut supprimer
+     */
+    private function canDelete(Presencedepartement $presencedepartement, User $user): bool {
+        // Les rôles supérieurs peuvent tout supprimer
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        // Vérifier si l'utilisateur appartient au département (si c'est une collection)
-        if (method_exists($departement, 'getUsers')) {
-            return $departement->getUsers()->contains($user);
-        }
-
-        return false;
-    }
-
-    private function canViewPresence(Presencedepartement $presencedepartement, User $user): bool {
-        $departement = $presencedepartement->getDepartement();
         
-        // Le responsable du département peut voir
-        if ($departement->getUser() && $user === $departement->getUser()) {
-            return true;
+        // Responsable de département
+        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            $departement = $presencedepartement->getDepartement();
+            if ($departement && $departement->getUsers() === $user) {
+                return true;
+            }
         }
-
-        // Les membres du département peuvent voir
-        if (method_exists($departement, 'getUsers')) {
-            return $departement->getUsers()->contains($user);
-        }
-
+        
         return false;
     }
 }

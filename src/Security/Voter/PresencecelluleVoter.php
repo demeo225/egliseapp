@@ -11,8 +11,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class PresencecelluleVoter extends Voter {
 
-    public const EDIT = 'POST_EDIT';
-    public const PRESENCEFAMILLE_VIEW = 'seancecellule_presence';
+    public const PRESENCE_VIEW = 'seancecellule_presence';
+    public const PRESENCE_DELETE = 'seancecellule_presence_delete';
 
     private Security $security;
 
@@ -21,81 +21,132 @@ class PresencecelluleVoter extends Voter {
     }
 
     protected function supports(string $attribute, $presencecellule): bool {
-        return in_array($attribute, [self::EDIT, self::PRESENCEFAMILLE_VIEW]) 
+        return in_array($attribute, [self::PRESENCE_VIEW, self::PRESENCE_DELETE]) 
             && $presencecellule instanceof Presencecellule;
     }
 
     protected function voteOnAttribute(string $attribute, $presencecellule, TokenInterface $token): bool {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
         }
         
-        // ROLE_SECRETAIRE a tous les droits
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
+        // ROLES SUPERIEURS : ROLE_ADMIN, ROLE_PASTEUR, ROLE_SECRETAIRE
+        // Ces rôles voient TOUTES les présences de l'église
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return $this->checkAttribute($attribute, $presencecellule, $user);
         }
         
-        // ROLE_ADMIN a tous les droits (ajouté pour cohérence)
-        if ($this->security->isGranted('ROLE_ADMIN')) {
-            return true;
+        // ROLE_RESPONSABLE_ZONE : voit les présences des cellules de sa zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            return $this->canViewByZone($attribute, $presencecellule, $user);
         }
-
-        // Vérifier si la cellule existe
-        $cellule = $presencecellule->getCellule();
-        if (null === $cellule) {
-            return false;
+        
+        // ROLE_RESPONSABLE_CELLULE : voit uniquement les présences de sa cellule
+        if ($this->security->isGranted('ROLE_RESPONSABLE_CELLULE')) {
+            return $this->canViewByCellule($attribute, $presencecellule, $user);
         }
-
-        switch ($attribute) {
-            case self::EDIT:
-                return $this->canEdit($presencecellule, $user);
-            case self::PRESENCEFAMILLE_VIEW:
-                return $this->canViewPresence($presencecellule, $user);
-        }
-
+        
         return false;
     }
-
-    private function canEdit(Presencecellule $presencecellule, User $user): bool {
+    
+    /**
+     * Responsable de zone : voit les présences des cellules de sa zone
+     */
+    private function canViewByZone(string $attribute, Presencecellule $presencecellule, User $user): bool {
         $cellule = $presencecellule->getCellule();
+        if (!$cellule) {
+            return false;
+        }
         
-        // Responsable de zone
-        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            $zone = $cellule->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
-            }
+        $zone = $cellule->getZone();
+        if (!$zone) {
+            return false;
         }
-
-        // Vérifier si l'utilisateur est le responsable de la cellule (si cette notion existe)
-        if (method_exists($cellule, 'getResponsable') && $cellule->getResponsable()) {
-            return $user === $cellule->getResponsable();
+        
+        // Vérifier que la zone appartient au responsable
+        $zoneResponsable = $zone->getUser();
+        if (!$zoneResponsable || $zoneResponsable !== $user) {
+            return false;
         }
-
-        // Vérifier si l'utilisateur appartient à la cellule
-        return $cellule->getUsers()->contains($user);
+        
+        return $this->checkAttribute($attribute, $presencecellule, $user);
     }
-
-    private function canViewPresence(Presencecellule $presencecellule, User $user): bool {
+    
+    /**
+     * Responsable de cellule : voit uniquement sa cellule
+     */
+    private function canViewByCellule(string $attribute, Presencecellule $presencecellule, User $user): bool {
         $cellule = $presencecellule->getCellule();
+        if (!$cellule) {
+            return false;
+        }
+        
+        // Vérifier que l'utilisateur est responsable de cette cellule
+        // ou qu'il appartient à la cellule (si plusieurs utilisateurs par cellule)
+        $celluleResponsable = $cellule->getUsers();
+        
+        if ($celluleResponsable && $celluleResponsable === $user) {
+            return $this->checkAttribute($attribute, $presencecellule, $user);
+        }
+        
+        // Vérifier si l'utilisateur appartient à la cellule (pour les membres)
+        if (method_exists($cellule, 'getUsers') && $cellule->getUsers()->contains($user)) {
+            return $this->checkAttribute($attribute, $presencecellule, $user);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Vérifie le type d'action (view, delete)
+     */
+    private function checkAttribute(string $attribute, Presencecellule $presencecellule, User $user): bool {
+        switch ($attribute) {
+            case self::PRESENCE_VIEW:
+                return true;
+                
+            case self::PRESENCE_DELETE:
+                return $this->canDelete($presencecellule, $user);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Vérifie si l'utilisateur peut supprimer
+     */
+    private function canDelete(Presencecellule $presencecellule, User $user): bool {
+        // Les rôles supérieurs peuvent tout supprimer
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
+        
+        $cellule = $presencecellule->getCellule();
+        if (!$cellule) {
+            return false;
+        }
         
         // Responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $cellule->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUser() === $user) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur est le responsable de la cellule
-        if (method_exists($cellule, 'getResponsable') && $cellule->getResponsable()) {
-            return $user === $cellule->getResponsable();
+        
+        // Responsable de cellule
+        if ($this->security->isGranted('ROLE_RESPONSABLE_CELLULE')) {
+            if ($cellule->getUsers() === $user) {
+                return true;
+            }
         }
-
-        // Vérifier si l'utilisateur appartient à la cellule
-        return $cellule->getUsers()->contains($user);
+        
+        return false;
     }
 }

@@ -143,21 +143,143 @@ class SeancezoneController extends AbstractController {
                         ], $response);
     }
 
-    #[Route('/listeparticipantzone', name: 'app_seancezone_listeparticipant', methods: ['GET'])]
-    public function indexPresence(PresencezoneRepository $presenceRepository): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
-        }
-        $eglise = $this->getUser()->getEglise();
-        $user = $this->getUser();
-        $presencezone = $presenceRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
-        $difference = $presenceRepository->getPresenceByDates();
-        return $this->render('seancezone/listeparticipant.html.twig', [
-                    'presencezones' => $presencezone,
-                    'differences' => $difference,
-        ]);
-    }
+                #[Route('/listeparticipantzone', name: 'seancezone_listeparticipant', methods: ['GET'])]
+            public function indexpresence(
+                PresencezoneRepository $presenceRepository,
+                FideleRepository $fideleRepository,
+                ZoneRepository $zoneRepository,
+                Request $request
+            ): Response {
+                $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+                
+                $user = $this->getUser();
+                $eglise = $user->getEglise();
+                
+                // Construction de la requête selon le rôle
+                $qb = $presenceRepository->createQueryBuilder('p')
+                    ->leftJoin('p.seancezone', 's')
+                    ->leftJoin('p.zone', 'z')
+                    ->where('p.eglise = :eglise')
+                    ->andWhere('p.deletedAt IS NULL')
+                    ->setParameter('eglise', $eglise);
+                
+                // Filtres selon les rôles
+                if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+                    // Ces rôles voient toutes les présences
+                } 
+                elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+                    $zone = $user->getZone();
+                    if ($zone) {
+                        $qb->andWhere('z.id = :zoneId')
+                        ->setParameter('zoneId', $zone->getId());
+                    } else {
+                        $this->addFlash('warning', 'Aucune zone associée à votre compte.');
+                        return $this->redirectToRoute('dashboard');
+                    }
+                }
+                else {
+                    $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les présences.');
+                    return $this->redirectToRoute('dashboard');
+                }
+                
+                $presences = $qb->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();
+                
+                // Récupérer les zones accessibles
+                $zones = $this->getZonesAccessibles($user, $eglise, $zoneRepository);
+                
+                // Compter les membres par zone (utilisation de findBy)
+                $membresParZone = [];
+                foreach ($zones as $zone) {
+                    $membres = $fideleRepository->findBy([
+                        'zone' => $zone,
+                        'deletedAt' => NULL,
+                        'etatfidele' => 1
+                    ]);
+                    
+                    $membresParZone[$zone->getId()] = [
+                        'zone' => $zone,
+                        'nb_membres' => count($membres),
+                        'nb_presences' => 0,
+                        'membres' => $membres
+                    ];
+                }
+                
+                // Grouper par date et par zone
+                $presencesParDateEtZone = [];
+                $totalGeneral = 0;
+                
+                foreach ($presences as $presence) {
+                    if ($presence->getSeancezone() && $presence->getSeancezone()->getDatesuper()) {
+                        $dateKey = $presence->getSeancezone()->getDatesuper()->format('Y-m-d');
+                        $zoneId = $presence->getZone()->getId();
+                        $zoneNom = $presence->getZone()->getNom();
+                        
+                        if (!isset($presencesParDateEtZone[$dateKey])) {
+                            $presencesParDateEtZone[$dateKey] = [
+                                'date' => $presence->getSeancezone()->getDatesuper(),
+                                'zones' => [],
+                                'total_jour' => 0,
+                                'total_membres_jour' => 0
+                            ];
+                        }
+                        if (!isset($presencesParDateEtZone[$dateKey]['zones'][$zoneId])) {
+                            $nbMembres = $membresParZone[$zoneId]['nb_membres'] ?? 0;
+                            $presencesParDateEtZone[$dateKey]['zones'][$zoneId] = [
+                                'zone_id' => $zoneId,
+                                'zone_nom' => $zoneNom,
+                                'presences' => [],
+                                'total_presences' => 0,
+                                'nb_membres' => $nbMembres,
+                                'taux_presence' => 0
+                            ];
+                            $presencesParDateEtZone[$dateKey]['total_membres_jour'] += $nbMembres;
+                        }
+                        $presencesParDateEtZone[$dateKey]['zones'][$zoneId]['presences'][] = $presence;
+                        $presencesParDateEtZone[$dateKey]['zones'][$zoneId]['total_presences']++;
+                        $presencesParDateEtZone[$dateKey]['total_jour']++;
+                        $totalGeneral++;
+                    }
+                }
+                
+                // Calculer les taux
+                foreach ($presencesParDateEtZone as $dateKey => &$dateData) {
+                    foreach ($dateData['zones'] as &$zoneData) {
+                        $zoneData['taux_presence'] = $zoneData['nb_membres'] > 0 
+                            ? round(($zoneData['total_presences'] / $zoneData['nb_membres']) * 100, 2) 
+                            : 0;
+                    }
+                    $dateData['taux_global_jour'] = $dateData['total_membres_jour'] > 0 
+                        ? round(($dateData['total_jour'] / $dateData['total_membres_jour']) * 100, 2) 
+                        : 0;
+                }
+                
+                $totalMembresGeneral = array_sum(array_column($membresParZone, 'nb_membres'));
+                $tauxGeneral = $totalMembresGeneral > 0 ? round(($totalGeneral / $totalMembresGeneral) * 100, 2) : 0;
+                
+                return $this->render('seancezone/listeparticipant.html.twig', [
+                    'presencesParDateEtZone' => $presencesParDateEtZone,
+                    'totalGeneral' => $totalGeneral,
+                    'totalMembresGeneral' => $totalMembresGeneral,
+                    'tauxGeneral' => $tauxGeneral,
+                ]);
+            }
+
+            /**
+             * Récupère les zones accessibles selon le rôle de l'utilisateur
+             */
+            private function getZonesAccessibles($user, $eglise, ZoneRepository $zoneRepository): array
+            {
+                if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+                    return $zoneRepository->findBy(['eglise' => $eglise, 'deletedAt' => NULL]);
+                } 
+                elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+                    $zone = $user->getZone();
+                    if ($zone) {
+                        return [$zone];
+                    }
+                }
+                return [];
+            }
 
 //     
    
@@ -253,7 +375,7 @@ class SeancezoneController extends AbstractController {
             // Méthode GET
             $fideles = $fideleRepository->findBy([
                 'zone' => $zone, 
-            // "deleteAt" => NULL, 
+             "deleteAt" => NULL, 
                 "etatfidele" => 1
             ]);
             

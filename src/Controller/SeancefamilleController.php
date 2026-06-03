@@ -150,21 +150,180 @@ class SeancefamilleController extends AbstractController {
                         ], $response);
     }
 
-    #[Route('/listeparticipantfamille', name: 'seancefamille_listeparticipant', methods: ['GET'])]
-    public function indexpresence(PresencefamilleRepository $presenceRepository, Request $request): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_FAMILLE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+    
+ 
+        #[Route('/listeparticipantfamille', name: 'seancefamille_listeparticipant', methods: ['GET'])]
+        public function indexpresence(
+            PresencefamilleRepository $presenceRepository, 
+            FideleRepository $fideleRepository,
+            FamilleRepository $familleRepository,  // Ajout du repository
+            Request $request
+        ): Response {
+            $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+            
+            $user = $this->getUser();
+            $eglise = $user->getEglise();
+            
+            // Construction de la requête selon le rôle
+            $qb = $presenceRepository->createQueryBuilder('p')
+                ->leftJoin('p.seancefamille', 's')
+                ->leftJoin('p.famille', 'c')
+                ->leftJoin('c.zone', 'z')
+                ->where('p.eglise = :eglise')
+                ->andWhere('p.deletedAt IS NULL')
+                ->setParameter('eglise', $eglise);
+            
+            // Filtres selon les rôles
+            if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+                // Ces rôles voient toutes les présences
+            } 
+            elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+                $zone = $user->getZone();
+                if ($zone) {
+                    $qb->andWhere('z.id = :zoneId')->setParameter('zoneId', $zone->getId());
+                } else {
+                    $this->addFlash('warning', 'Aucune zone associée à votre compte.');
+                    return $this->redirectToRoute('dashboard');
+                }
+            }
+            elseif ($this->isGranted('ROLE_RESPONSABLE_FAMILLE')) {
+                $famille = $user->getFamille();
+                if ($famille) {
+                    $qb->andWhere('c.id = :familleId')->setParameter('familleId', $famille->getId());
+                } else {
+                    $this->addFlash('warning', 'Aucune famille associée à votre compte.');
+                    return $this->redirectToRoute('dashboard');
+                }
+            }
+            else {
+                $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les présences.');
+                return $this->redirectToRoute('dashboard');
+            }
+            
+            $presences = $qb->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();
+            
+            // Récupérer toutes les familles pour connaître leurs membres
+            $familles = $this->getFamillesAccessibles($user, $eglise, $familleRepository);
+            
+            // Compter les membres par famille
+            $membresParFamille = [];
+            foreach ($familles as $famille) {
+                $membresParFamille[$famille->getId()] = [
+                    'famille' => $famille,
+                    'nb_membres' => $fideleRepository->count(['famille' => $famille, 'deletedAt' => NULL]),
+                    'nb_presences' => 0
+                ];
+            }
+            
+            // Grouper par date et par famille avec calcul des taux
+            $presencesParDateEtFamille = [];
+            $totalGeneral = 0;
+            
+            foreach ($presences as $presence) {
+                if ($presence->getSeancefamille() && $presence->getSeancefamille()->getDatesuper()) {
+                    $dateKey = $presence->getSeancefamille()->getDatesuper()->format('Y-m-d');
+                    $familleId = $presence->getFamille()->getId();
+                    $familleNom = $presence->getFamille()->getNom();
+                    
+                    if (!isset($presencesParDateEtFamille[$dateKey])) {
+                        $presencesParDateEtFamille[$dateKey] = [
+                            'date' => $presence->getSeancefamille()->getDatesuper(),
+                            'familles' => [],
+                            'total_jour' => 0,
+                            'total_membres_jour' => 0
+                        ];
+                    }
+                    if (!isset($presencesParDateEtFamille[$dateKey]['familles'][$familleId])) {
+                        $nbMembres = $membresParFamille[$familleId]['nb_membres'] ?? 0;
+                        $presencesParDateEtFamille[$dateKey]['familles'][$familleId] = [
+                            'famille_id' => $familleId,
+                            'famille_nom' => $familleNom,
+                            'presences' => [],
+                            'total_presences' => 0,
+                            'nb_membres' => $nbMembres,
+                            'taux_presence' => 0
+                        ];
+                        $presencesParDateEtFamille[$dateKey]['total_membres_jour'] += $nbMembres;
+                    }
+                    $presencesParDateEtFamille[$dateKey]['familles'][$familleId]['presences'][] = $presence;
+                    $presencesParDateEtFamille[$dateKey]['familles'][$familleId]['total_presences']++;
+                    $presencesParDateEtFamille[$dateKey]['total_jour']++;
+                    $totalGeneral++;
+                }
+            }
+            
+            // Calculer les taux de présence pour chaque famille et chaque date
+            foreach ($presencesParDateEtFamille as $dateKey => &$dateData) {
+                foreach ($dateData['familles'] as &$familleData) {
+                    if ($familleData['nb_membres'] > 0) {
+                        $familleData['taux_presence'] = round(($familleData['total_presences'] / $familleData['nb_membres']) * 100, 2);
+                    } else {
+                        $familleData['taux_presence'] = 0;
+                    }
+                }
+                // Calculer le taux global de la journée
+                if ($dateData['total_membres_jour'] > 0) {
+                    $dateData['taux_global_jour'] = round(($dateData['total_jour'] / $dateData['total_membres_jour']) * 100, 2);
+                } else {
+                    $dateData['taux_global_jour'] = 0;
+                }
+            }
+            
+            // Calculer le taux global général
+            $totalMembresGeneral = array_sum(array_column($membresParFamille, 'nb_membres'));
+            $tauxGeneral = $totalMembresGeneral > 0 ? round(($totalGeneral / $totalMembresGeneral) * 100, 2) : 0;
+            
+            return $this->render('seancefamille/listeparticipant.html.twig', [
+                'presencesParDateEtFamille' => $presencesParDateEtFamille,
+                'totalGeneral' => $totalGeneral,
+                'totalMembresGeneral' => $totalMembresGeneral,
+                'tauxGeneral' => $tauxGeneral,
+            ]);
         }
-        $eglise = $this->getUser()->getEglise();
-        $user = $this->getUser();
-        $presencefamille = $presenceRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
-        $difference = $presenceRepository->getPresenceByDates();
-        return $this->render('seancefamille/listeparticipant.html.twig', [
-                    'presencefamilles' => $presencefamille,
-                    'differences' => $difference,
-        ]);
+
+        /**
+         * Récupère les familles accessibles selon le rôle de l'utilisateur
+         */
+        private function getFamillesAccessibles($user, $eglise, FamilleRepository $familleRepository): array
+        {
+            if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+                // Ces rôles voient toutes les familles
+                return $familleRepository->findBy(['eglise' => $eglise, 'deletedAt' => NULL]);
+            } 
+            elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+                $zone = $user->getZone();
+                if ($zone) {
+                    return $zone->getFamilles()->toArray();
+                }
+            }
+            elseif ($this->isGranted('ROLE_RESPONSABLE_FAMILLE')) {
+                $famille = $user->getFamille();
+                if ($famille) {
+                    return [$famille];
+                }
+            }
+            return [];
+        }
+
+
+/**
+ * Récupère les dates distinctes des séances
+ */
+private function getDistinctDates($presencefamilles): array
+{
+    $dates = [];
+    foreach ($presencefamilles as $presence) {
+        if ($presence->getSeancefamille() && $presence->getSeancefamille()->getDatesuper()) {
+            $date = $presence->getSeancefamille()->getDatesuper();
+            $dateKey = $date->format('Y-m-d');
+            if (!isset($dates[$dateKey])) {
+                $dates[$dateKey] = $date;
+            }
+        }
     }
+    return $dates;
+}
+
 
     #[Route('/{id}/show', name: 'seancefamille_show', methods: ['GET'])]
     public function show(Seancefamille $seancefamille): Response {
@@ -259,14 +418,14 @@ class SeancefamilleController extends AbstractController {
             }
             
             // Récupérer tous les membres de la famille
-            $membresCellule = $fideleRepository->findBy([
+            $membresFamille = $fideleRepository->findBy([
                 'famille' => $familleId,
                 'deletedAt' => null
             ]);
             
             // Filtrer les absents (membres qui ne sont pas dans la liste des présents)
             $absents = [];
-            foreach ($membresCellule as $membre) {
+            foreach ($membresFamille as $membre) {
                 if (!in_array($membre->getId(), $presentIds)) {
                     $absents[] = [
                         'id' => $membre->getId(),
@@ -280,7 +439,7 @@ class SeancefamilleController extends AbstractController {
                 'absents' => $absents,
                 'seance' => $seance,
                 'total' => count($absents),
-                'totalMembres' => count($membresCellule)
+                'totalMembres' => count($membresFamille)
             ]);
         }
 
@@ -398,8 +557,8 @@ class SeancefamilleController extends AbstractController {
         {
             $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
             
-            // Vérifiez le rôle approprié (RESPONSABLE_FAMILLE ou RESPONSABLE_CELLULE ?)
-            if (!$this->isGranted('ROLE_RESPONSABLE_FAMILLE') && !$this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
+            // Vérifiez le rôle approprié (RESPONSABLE_FAMILLE ou RESPONSABLE_FAMILLE ?)
+            if (!$this->isGranted('ROLE_RESPONSABLE_FAMILLE') && !$this->isGranted('ROLE_RESPONSABLE_FAMILLE')) {
                 return $this->json(['error' => 'Accès refusé'], 403);
             }
             
