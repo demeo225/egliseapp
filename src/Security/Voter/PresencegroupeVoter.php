@@ -85,7 +85,7 @@ class PresencegroupeVoter extends Voter {
         }
         
         // Vérifier que l'utilisateur est responsable de ce groupe
-        $groupeResponsable = $groupe->getResponsable();
+        $groupeResponsable = $groupe->getUsers();
         if ($groupeResponsable && $groupeResponsable === $user) {
             return $this->checkAttribute($attribute, $presencegroupe, $user);
         }
@@ -138,7 +138,7 @@ class PresencegroupeVoter extends Voter {
         
         // Responsable de groupe
         if ($this->security->isGranted('ROLE_RESPONSABLE_GROUPE')) {
-            if ($groupe->getResponsable() === $user) {
+            if ($groupe->getUsers() === $user) {
                 return true;
             }
         }

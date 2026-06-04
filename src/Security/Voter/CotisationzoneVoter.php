@@ -69,8 +69,8 @@ class CotisationzoneVoter extends Voter {
         // Si vous avez un rôle spécifique pour les responsables de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             // Si la zone a un responsable spécifique
-            if ($zone->getResponsable()) {
-                return $user === $zone->getResponsable();
+            if ($zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
@@ -88,8 +88,8 @@ class CotisationzoneVoter extends Voter {
         
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            if ($zone->getResponsable()) {
-                return $user === $zone->getResponsable();
+            if ($zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
@@ -107,8 +107,8 @@ class CotisationzoneVoter extends Voter {
         
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            if ($zone->getResponsable()) {
-                return $user === $zone->getResponsable();
+            if ($zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 

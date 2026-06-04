@@ -97,12 +97,12 @@ class InvitegroupeVoter extends Voter {
      */
     private function isGroupeResponsable($groupe, User $user): bool
     {
-        // Vérifier si la méthode getResponsable existe
-        if (!method_exists($groupe, 'getResponsable')) {
+        // Vérifier si la méthode getUsers existe
+        if (!method_exists($groupe, 'getUsers')) {
             return false;
         }
         
-        $responsable = $groupe->getResponsable();
+        $responsable = $groupe->getUsers();
         if (null === $responsable) {
             return false;
         }

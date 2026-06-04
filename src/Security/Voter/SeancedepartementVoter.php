@@ -74,8 +74,8 @@ class SeancedepartementVoter extends Voter {
         }
 
         // Vérifier si l'utilisateur est le responsable du département (si cette notion existe)
-        if (method_exists($departement, 'getResponsable') && $departement->getResponsable()) {
-            return $user === $departement->getResponsable();
+        if (method_exists($departement, 'getUsers') && $departement->getUsers()) {
+            return $user === $departement->getUsers();
         }
 
         // Vérifier si l'utilisateur appartient au département
@@ -94,8 +94,8 @@ class SeancedepartementVoter extends Voter {
         }
 
         // Vérifier si l'utilisateur est le responsable du département
-        if (method_exists($departement, 'getResponsable') && $departement->getResponsable()) {
-            return $user === $departement->getResponsable();
+        if (method_exists($departement, 'getUsers') && $departement->getUsers()) {
+            return $user === $departement->getUsers();
         }
 
         // Vérifier si l'utilisateur appartient au département
@@ -114,8 +114,8 @@ class SeancedepartementVoter extends Voter {
         }
 
         // Vérifier si l'utilisateur est le responsable du département
-        if (method_exists($departement, 'getResponsable') && $departement->getResponsable()) {
-            return $user === $departement->getResponsable();
+        if (method_exists($departement, 'getUsers') && $departement->getUsers()) {
+            return $user === $departement->getUsers();
         }
 
         // Pour la suppression, on peut limiter au responsable uniquement

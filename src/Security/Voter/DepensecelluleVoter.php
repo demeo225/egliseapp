@@ -78,8 +78,8 @@ class DepensecelluleVoter extends Voter
         }
 
         // Vérifier si l'utilisateur est le responsable de la cellule (si cette notion existe)
-        if (method_exists($cellule, 'getResponsable') && $cellule->getResponsable()) {
-            return $user === $cellule->getResponsable();
+        if (method_exists($cellule, 'getUsers') && $cellule->getUsers()) {
+            return $user === $cellule->getUsers();
         }
 
         // Vérifier si l'utilisateur appartient à la cellule
@@ -99,8 +99,8 @@ class DepensecelluleVoter extends Voter
         }
 
         // Vérifier si l'utilisateur est le responsable de la cellule
-        if (method_exists($cellule, 'getResponsable') && $cellule->getResponsable()) {
-            return $user === $cellule->getResponsable();
+        if (method_exists($cellule, 'getUsers') && $cellule->getUsers()) {
+            return $user === $cellule->getUsers();
         }
 
         // Vérifier si l'utilisateur appartient à la cellule
@@ -120,8 +120,8 @@ class DepensecelluleVoter extends Voter
         }
 
         // Vérifier si l'utilisateur est le responsable de la cellule
-        if (method_exists($cellule, 'getResponsable') && $cellule->getResponsable()) {
-            return $user === $cellule->getResponsable();
+        if (method_exists($cellule, 'getUsers') && $cellule->getUsers()) {
+            return $user === $cellule->getUsers();
         }
 
         // Pour la suppression, peut-être seulement le responsable

@@ -74,8 +74,8 @@ class CotisergroupeVoter extends Voter {
         }
 
         // Vérifier si l'utilisateur est le responsable du groupe (si cette notion existe)
-        if (method_exists($groupe, 'getResponsable') && $groupe->getResponsable()) {
-            return $user === $groupe->getResponsable();
+        if (method_exists($groupe, 'getUsers') && $groupe->getUsers()) {
+            return $user === $groupe->getUsers();
         }
 
         // Vérifier si l'utilisateur appartient au groupe
@@ -99,8 +99,8 @@ class CotisergroupeVoter extends Voter {
         }
 
         // Vérifier si l'utilisateur est le responsable du groupe
-        if (method_exists($groupe, 'getResponsable') && $groupe->getResponsable()) {
-            return $user === $groupe->getResponsable();
+        if (method_exists($groupe, 'getUsers') && $groupe->getUsers()) {
+            return $user === $groupe->getUsers();
         }
 
         // Vérifier si l'utilisateur appartient au groupe
@@ -124,8 +124,8 @@ class CotisergroupeVoter extends Voter {
         }
 
         // Vérifier si l'utilisateur est le responsable du groupe
-        if (method_exists($groupe, 'getResponsable') && $groupe->getResponsable()) {
-            return $user === $groupe->getResponsable();
+        if (method_exists($groupe, 'getUsers') && $groupe->getUsers()) {
+            return $user === $groupe->getUsers();
         }
 
         // Pour la suppression, peut-être seulement le responsable du groupe

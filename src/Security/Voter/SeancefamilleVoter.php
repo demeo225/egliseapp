@@ -74,8 +74,8 @@ class SeancefamilleVoter extends Voter {
         }
 
         // Vérifier si l'utilisateur est le responsable de la famille (si cette notion existe)
-        if (method_exists($famille, 'getResponsable') && $famille->getResponsable()) {
-            return $user === $famille->getResponsable();
+        if (method_exists($famille, 'getUsers') && $famille->getUsers()) {
+            return $user === $famille->getUsers();
         }
 
         // Vérifier si l'utilisateur appartient à la famille
@@ -99,8 +99,8 @@ class SeancefamilleVoter extends Voter {
         }
 
         // Vérifier si l'utilisateur est le responsable de la famille
-        if (method_exists($famille, 'getResponsable') && $famille->getResponsable()) {
-            return $user === $famille->getResponsable();
+        if (method_exists($famille, 'getUsers') && $famille->getUsers()) {
+            return $user === $famille->getUsers();
         }
 
         // Vérifier si l'utilisateur appartient à la famille
@@ -124,8 +124,8 @@ class SeancefamilleVoter extends Voter {
         }
 
         // Pour la suppression, on peut limiter au responsable de la famille uniquement
-        if (method_exists($famille, 'getResponsable') && $famille->getResponsable()) {
-            return $user === $famille->getResponsable();
+        if (method_exists($famille, 'getUsers') && $famille->getUsers()) {
+            return $user === $famille->getUsers();
         }
 
         // Ou alors tous les membres peuvent supprimer (selon votre logique)
