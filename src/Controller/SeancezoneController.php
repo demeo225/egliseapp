@@ -143,7 +143,7 @@ class SeancezoneController extends AbstractController {
                         ], $response);
     }
 
-                #[Route('/listeparticipantzone', name: 'seancezone_listeparticipant', methods: ['GET'])]
+                #[Route('/listeparticipantzone', name: 'app_seancezone_listeparticipant', methods: ['GET'])]
             public function indexpresence(
                 PresencezoneRepository $presenceRepository,
                 FideleRepository $fideleRepository,

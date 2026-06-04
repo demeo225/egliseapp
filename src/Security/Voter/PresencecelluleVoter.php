@@ -68,7 +68,7 @@ class PresencecelluleVoter extends Voter {
         }
         
         // Vérifier que la zone appartient au responsable
-        $zoneResponsable = $zone->getUser();
+        $zoneResponsable = $zone->getUsers();
         if (!$zoneResponsable || $zoneResponsable !== $user) {
             return false;
         }
@@ -135,7 +135,7 @@ class PresencecelluleVoter extends Voter {
         // Responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $cellule->getZone();
-            if ($zone && $zone->getUser() === $user) {
+            if ($zone && $zone->getUsers() === $user) {
                 return true;
             }
         }

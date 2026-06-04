@@ -71,13 +71,13 @@ class DetailcotisationdepartementVoter extends Voter {
         // Vérifier si l'utilisateur est responsable de zone (si cette relation existe)
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $departement->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
         // Vérifier si l'utilisateur est le responsable du département
-        if ($departement->getUser() && $user === $departement->getUser()) {
+        if ($departement->getUsers() && $user === $departement->getUsers()) {
             return true;
         }
 
@@ -95,13 +95,13 @@ class DetailcotisationdepartementVoter extends Voter {
         // Responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $departement->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
         // Responsable du département
-        if ($departement->getUser() && $user === $departement->getUser()) {
+        if ($departement->getUsers() && $user === $departement->getUsers()) {
             return true;
         }
 

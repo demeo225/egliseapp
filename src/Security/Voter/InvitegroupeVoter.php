@@ -133,7 +133,7 @@ class InvitegroupeVoter extends Voter {
             return false;
         }
         
-        $departementResponsable = $departement->getUser();
+        $departementResponsable = $departement->getUsers();
         if (null === $departementResponsable) {
             return false;
         }

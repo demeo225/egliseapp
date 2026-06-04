@@ -72,8 +72,8 @@ class DepensecelluleVoter extends Voter
         // Responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $cellule->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
@@ -93,8 +93,8 @@ class DepensecelluleVoter extends Voter
         // Responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $cellule->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
@@ -114,8 +114,8 @@ class DepensecelluleVoter extends Voter
         // Responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $cellule->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 

@@ -27,7 +27,7 @@ class AccueilController extends AbstractController {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $eglise = $this->getUser()->getEglise();
         $egliseId = $this->getUser()->getEglise()->getId();
-        $user = $this->getUser();
+        $user = $this->getUser(); 
 
         $enfant = $enfantRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL, "etatenfant" => 1]);
         $cellule = $celluleRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
@@ -368,11 +368,11 @@ class AccueilController extends AbstractController {
         $eglise = $this->getUser()->getEglise();
         $user = $this->getUser();
 
-        $groupe = $groupeRepository->findOneBy([
-            'eglise' => $eglise,
-            'user' => $user,
-            'deletedAt' => NULL
-        ]);
+         $groupe = $groupeRepository->findOneByUser($user);
+         if (!$groupe) {
+            $this->addFlash('warning', 'Vous ne disposez pas sous-groupe à gérer.');
+            return $this->redirectToRoute('cotisationgroupe_index');
+        }
         if (!$groupe) {
             $this->addFlash('message', 'Vous ne disposez pas de groupe à gérer.');
             return $this->redirectToRoute('seancegroupe_index');
@@ -399,11 +399,7 @@ class AccueilController extends AbstractController {
         $user = $this->getUser();
 
         //Recuperer le departement et les membres
-        $departement = $departementRepository->findOneBy([
-         'eglise' => $eglise,
-         'user' => $user,
-         'deletedAt' => NULL
-     ]);
+        $departement = $departementRepository->findOneByUser($user);
      if (!$departement) {
         $this->addFlash('message', 'Vous ne disposez pas de departement à gérer.');
         return $this->redirectToRoute('seancedepartement_index');

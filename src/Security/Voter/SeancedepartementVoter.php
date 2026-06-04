@@ -68,8 +68,8 @@ class SeancedepartementVoter extends Voter {
         // Vérifier si l'utilisateur est responsable de zone (si le département est lié à une zone)
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $departement->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
@@ -88,8 +88,8 @@ class SeancedepartementVoter extends Voter {
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $departement->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
@@ -108,8 +108,8 @@ class SeancedepartementVoter extends Voter {
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $departement->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 

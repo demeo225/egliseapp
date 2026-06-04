@@ -28,9 +28,9 @@ class CotisationgroupeController extends AbstractController {
             throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
         }
         $eglise = $this->getUser()->getEglise();
-        $user = $this->getUser();
-        $groupe = $this->getUser()->getGroupe();
-        $groupe2 = $groupeRepo->findOneGroupe($groupe);
+        $user = $this->getUser(); 
+       // $groupe = $this->getUser()->getGroupe();
+        $groupe2 = $groupeRepo->findOneGroupe($user);
         $solde = $soldeRepo->findBy(['groupe' => $groupe2]);
         $cotisationgroupe = $cotisationgroupeRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
         return $this->render('cotisationgroupe/index.html.twig', [
@@ -52,7 +52,7 @@ class CotisationgroupeController extends AbstractController {
 
         $eglise = $this->getUser()->getEglise();
         $user = $this->getUser();
-        $groupe = $user->getGroupe();
+        $groupe = $groupeRepository->findOneByUser($user);
          if (!$groupe) {
             $this->addFlash('warning', 'Vous ne disposez pas sous-groupe à gérer.');
             return $this->redirectToRoute('cotisationgroupe_index');
@@ -62,13 +62,14 @@ class CotisationgroupeController extends AbstractController {
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            //Adresse ip de l'utilisateur
+             $groupe = $groupeRepository->findOneByUser($user);
             //Adresse ip de l'utilisateur
             if ($type === 'new') {
                 $cotisationgroupe->setCreatedFromIp($this->GetIp()) // remplacement de la function par le trait
                         ->setEglise($user->getEglise())
                         ->setCreatedBy($user)
-                        ->setEtatcotiser("1")
+                        ->setGroupe($groupe)
+                        ->setEtatcotiser(1)
                 ;
             } else {
                 $cotisationgroupe->setUpdatedFromIp($this->GetIp()) // remplacement de la function par le trait
@@ -138,7 +139,7 @@ public function detailCotisationgroupe(
         ['cotisationgroupe' => $cotisationgroupe, 'deletedAt' => NULL],
         ['datecotiser' => 'DESC']
     );
-    
+     
     // Calculer le total payé
     $totalPaye = 0;
     foreach ($listeCotisergroupe as $paiement) {

@@ -57,11 +57,12 @@ class InvitefamilleController extends AbstractController {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
+            $famille = $familleRepo->findOneByUser($user);
             //Adresse ip de l'utilisateur
             if ($type === 'new') {
                 $invitefamille->setCreatedFromIp($this->GetIp()) // remplacement de la function par le trait
                         ->setEglise($user->getEglise())
+                        ->setFamille($famille)
                         ->setCreatedBy($user)
                 ;
             } else {

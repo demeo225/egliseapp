@@ -71,7 +71,7 @@ class CotiserdepartementVoter extends Voter {
         $departement = $cotiserdepartement->getCotisationdepartement()->getDepartement();
         
         // Vérifier si l'utilisateur est responsable de département
-        if ($departement->getUser() && $user === $departement->getUser()) {
+        if ($departement->getUsers() && $user === $departement->getUsers()) {
             return true;
         }
 
@@ -92,7 +92,7 @@ class CotiserdepartementVoter extends Voter {
         $departement = $cotiserdepartement->getCotisationdepartement()->getDepartement();
         
         // Vérifier si l'utilisateur est responsable de département
-        if ($departement->getUser() && $user === $departement->getUser()) {
+        if ($departement->getUsers() && $user === $departement->getUsers()) {
             return true;
         }
 
@@ -113,6 +113,6 @@ class CotiserdepartementVoter extends Voter {
         $departement = $cotiserdepartement->getCotisationdepartement()->getDepartement();
         
         // Seul le responsable de département peut supprimer
-        return $departement->getUser() && $user === $departement->getUser();
+        return $departement->getUsers() && $user === $departement->getUsers();
     }
 }

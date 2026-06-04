@@ -69,8 +69,8 @@ class CotisationdepartementVoter extends Voter {
         // À adapter selon votre structure
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             // Si le département a une relation avec une zone
-            if ($departement->getZone() && $departement->getZone()->getUser()) {
-                return $user === $departement->getZone()->getUser();
+            if ($departement->getZone() && $departement->getZone()->getUsers()) {
+                return $user === $departement->getZone()->getUsers();
             }
         }
 
@@ -90,8 +90,8 @@ class CotisationdepartementVoter extends Voter {
         
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            if ($departement->getZone() && $departement->getZone()->getUser()) {
-                return $user === $departement->getZone()->getUser();
+            if ($departement->getZone() && $departement->getZone()->getUsers()) {
+                return $user === $departement->getZone()->getUsers();
             }
         }
 
@@ -109,8 +109,8 @@ class CotisationdepartementVoter extends Voter {
         
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            if ($departement->getZone() && $departement->getZone()->getUser()) {
-                return $user === $departement->getZone()->getUser();
+            if ($departement->getZone() && $departement->getZone()->getUsers()) {
+                return $user === $departement->getZone()->getUsers();
             }
         }
 

@@ -62,12 +62,13 @@ class CotisationzoneController extends AbstractController {
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-
+            $zone = $zoneRepository->findOneByUser($user);
             if ($type === 'new') {
                 $cotisationzone->setCreatedFromIp($this->GetIp()) // remplacement de la function par le trait
                         ->setEglise($user->getEglise())
                         ->setCreatedBy($user)
-                        ->setEtatcotiser("1")
+                        ->setZone($zone)
+                        ->setEtatcotiser(1)
                 ;
             } else {
                 $cotisationzone->setUpdatedFromIp($this->GetIp()) // remplacement de la function par le trait

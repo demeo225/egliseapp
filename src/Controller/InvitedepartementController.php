@@ -51,16 +51,17 @@ class InvitedepartementController extends AbstractController {
                 $invitedepartement = $invitedepartement === null ? new Invitedepartement() : $invitedepartement;
 
         
-        $departement = $departementRepo->findBy(['eglise' => $eglise, "user" => $user, "deletedAt" => NULL]);
+         $departement = $departementRepo->findOneByUser($user);
         $seancedepartement = $seancedepartementRepository->findBy(["departement" => $departement, "deletedAt" => NULL]);
         $form = $this->createForm(InvitedepartementType::class, $invitedepartement, ['seancedepartement' => $seancedepartement]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
+ $departement = $departementRepo->findOneByUser($user);
             //Adresse ip de l'utilisateur
             if ($type === 'new') {
                 $invitedepartement->setCreatedFromIp($this->GetIp()) // remplacement de la function par le trait
+                        ->setDepartement($departement)
                         ->setEglise($user->getEglise())
                         ->setCreatedBy($user)
                 ;

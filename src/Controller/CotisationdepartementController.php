@@ -61,11 +61,12 @@ class CotisationdepartementController extends AbstractController {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
+        $departement = $departementRepository->findOneByUser($user);
             //Adresse ip de l'utilisateur
             if ($type === 'new') {
                 $cotisationdepartement->setCreatedFromIp($this->GetIp()) // remplacement de la function par le trait
                         ->setEglise($user->getEglise())
+                          ->setDepartement($departement)
                         ->setCreatedBy($user)
                         ->setEtatcotiser(1)
 

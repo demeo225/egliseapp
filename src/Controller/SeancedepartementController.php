@@ -86,7 +86,7 @@ use ClientIp;
             $seancedepartement,
             [
                 'fidele' => $fidele,
-                'departement' => $departement,
+              
             ]
         );
 

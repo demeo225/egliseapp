@@ -51,7 +51,7 @@ class InvitegroupeController extends AbstractController {
                 $invitegroupe = $invitegroupe === null ? new Invitegroupe() : $invitegroupe;
 
         
-        $groupe = $groupeRepo->findBy(['eglise' => $eglise, "user" => $user, "deletedAt" => NULL]);
+        $groupe = $$groupeRepo->findOneByUser($user);
         $seancegroupe = $seancegroupeRepository->findBy(["groupe" => $groupe, "deletedAt" => NULL]);
         $form = $this->createForm(InvitegroupeType::class, $invitegroupe, ['seancegroupe' => $seancegroupe]);
         $form->handleRequest($request);

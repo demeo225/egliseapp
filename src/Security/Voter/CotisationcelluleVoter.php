@@ -67,7 +67,7 @@ class CotisationcelluleVoter extends Voter {
         
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            $responsableZone = $cellule->getZone()->getUser();
+            $responsableZone = $cellule->getZone()->getUsers();
             return $user === $responsableZone;
         }
 
@@ -85,7 +85,7 @@ class CotisationcelluleVoter extends Voter {
         
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            $responsableZone = $cellule->getZone()->getUser();
+            $responsableZone = $cellule->getZone()->getUsers();
             return $user === $responsableZone;
         }
 
@@ -103,7 +103,7 @@ class CotisationcelluleVoter extends Voter {
         
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            $responsableZone = $cellule->getZone()->getUser();
+            $responsableZone = $cellule->getZone()->getUsers();
             return $user === $responsableZone;
         }
 

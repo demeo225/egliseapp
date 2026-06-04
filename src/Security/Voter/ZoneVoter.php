@@ -34,7 +34,7 @@ class ZoneVoter extends Voter
         }
         
         // On va vérifier ici si la zone appartient à un utilisateur
-//        if(null === $zone->getUser()) return false;
+//        if(null === $zone->getUsers()) return false;
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case self::ZONE_ADD:
@@ -61,21 +61,21 @@ class ZoneVoter extends Voter
     }
     
     private function canAdd (ZoneVoter $zone, User $user){
-        return $user === $zone->getUser();
+        return $user === $zone->getUsers();
     }
      private function canDelete(ZoneVoter $zone, User $user){
-       return $user === $zone->getUser();  
+       return $user === $zone->getUsers();  
     }
     
 //     private function canUpdate(ZoneVoter $zone, User $user){
-//      return $user === $zone->getUser();   
+//      return $user === $zone->getUsers();   
 //    }
     
      private function canDetail(ZoneVoter $zone, User $user){
-        return $user === $zone->getUser(); 
+        return $user === $zone->getUsers(); 
     }
     
       private function canIndex(ZoneVoter $zone, User $user){
-       return $user === $zone->getUser();  
+       return $user === $zone->getUsers();  
     }
 }

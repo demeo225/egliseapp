@@ -68,8 +68,8 @@ class SeancefamilleVoter extends Voter {
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $famille->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
@@ -93,8 +93,8 @@ class SeancefamilleVoter extends Voter {
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $famille->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
@@ -118,8 +118,8 @@ class SeancefamilleVoter extends Voter {
         // Vérifier si l'utilisateur est responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $famille->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 

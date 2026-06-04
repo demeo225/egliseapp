@@ -70,7 +70,7 @@ class DetailcotisationzoneVoter extends Voter {
         
         // Responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            return $zone->getUser() && $user === $zone->getUser();
+            return $zone->getUsers() && $user === $zone->getUsers();
         }
         
         // Vérifier si l'utilisateur appartient à la zone (via les cellules)
@@ -93,7 +93,7 @@ class DetailcotisationzoneVoter extends Voter {
         
         // Responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            return $zone->getUser() && $user === $zone->getUser();
+            return $zone->getUsers() && $user === $zone->getUsers();
         }
         
         // Vérifier si l'utilisateur appartient à la zone

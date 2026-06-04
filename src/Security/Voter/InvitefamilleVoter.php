@@ -107,7 +107,7 @@ class InvitefamilleVoter extends Voter {
             return false;
         }
         
-        $responsable = $famille->getUser();
+        $responsable = $famille->getUsers();
         if (null === $responsable) {
             return false;
         }
@@ -138,7 +138,7 @@ class InvitefamilleVoter extends Voter {
             return false;
         }
         
-        $zoneResponsable = $zone->getUser();
+        $zoneResponsable = $zone->getUsers();
         if (null === $zoneResponsable) {
             return false;
         }

@@ -66,13 +66,13 @@ class FamilleVoter extends Voter
         // Responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $famille->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
         // Vérifier si l'utilisateur est le responsable de la famille
-        if ($famille->getUser() && $user === $famille->getUser()) {
+        if ($famille->getUsers() && $user === $famille->getUsers()) {
             return true;
         }
 
@@ -98,13 +98,13 @@ class FamilleVoter extends Voter
         // Responsable de zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $famille->getZone();
-            if ($zone && $zone->getUser()) {
-                return $user === $zone->getUser();
+            if ($zone && $zone->getUsers()) {
+                return $user === $zone->getUsers();
             }
         }
 
         // Vérifier si l'utilisateur est le responsable de la famille
-        if ($famille->getUser() && $user === $famille->getUser()) {
+        if ($famille->getUsers() && $user === $famille->getUsers()) {
             return true;
         }
 

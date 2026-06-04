@@ -66,7 +66,7 @@ class SeancezoneVoter extends Voter {
         $zone = $seancezone->getZone();
         
         // Le responsable de zone peut modifier
-        if ($zone->getUser() && $user === $zone->getUser()) {
+        if ($zone->getUsers() && $user === $zone->getUsers()) {
             return true;
         }
 
@@ -89,7 +89,7 @@ class SeancezoneVoter extends Voter {
         $zone = $seancezone->getZone();
         
         // Le responsable de zone peut voir
-        if ($zone->getUser() && $user === $zone->getUser()) {
+        if ($zone->getUsers() && $user === $zone->getUsers()) {
             return true;
         }
 
@@ -113,6 +113,6 @@ class SeancezoneVoter extends Voter {
         
         // Seul le responsable de zone peut supprimer
         // (ou admin/secrétaire déjà géré plus haut)
-        return $zone->getUser() && $user === $zone->getUser();
+        return $zone->getUsers() && $user === $zone->getUsers();
     }
 }

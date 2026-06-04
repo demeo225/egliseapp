@@ -49,7 +49,7 @@ class CotisationfamilleController extends AbstractController {
         }
               $user = $this->getUser();
                     //Recuperer le groupe et les membres
-            $famille = $user->getFamille();
+            $famille = $familleRepository->findOneByUser($user);
          if (!$famille) {
             $this->addFlash('warning', 'Vous ne disposez pas de Famille à gérer.');
             return $this->redirectToRoute('cotisationfamille_index');
@@ -62,14 +62,15 @@ class CotisationfamilleController extends AbstractController {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
+            $famille = $familleRepository->findOneByUser($user);
             //Adresse ip de l'utilisateur
               //Adresse ip de l'utilisateur
             if ($type === 'new') {
                 $cotisationfamille->setCreatedFromIp($this->GetIp()) // remplacement de la function par le trait
                         ->setEglise($user->getEglise())
                         ->setCreatedBy($user)
-                        ->setEtatcotiser("1")
+                         ->setFamille($famille)
+                        ->setEtatcotiser(1)
                 ;
             } else {
                 $cotisationfamille->setUpdatedFromIp($this->GetIp()) // remplacement de la function par le trait

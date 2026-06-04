@@ -68,8 +68,8 @@ class CotisationgroupeVoter extends Voter {
         // Vérifier si l'utilisateur est responsable de département
         if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
             $departement = $groupe->getDepartement();
-            if ($departement && $departement->getUser()) {
-                return $user === $departement->getUser();
+            if ($departement && $departement->getUsers()) {
+                return $user === $departement->getUsers();
             }
         }
 
@@ -88,8 +88,8 @@ class CotisationgroupeVoter extends Voter {
         // Vérifier si l'utilisateur est responsable de département
         if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
             $departement = $groupe->getDepartement();
-            if ($departement && $departement->getUser()) {
-                return $user === $departement->getUser();
+            if ($departement && $departement->getUsers()) {
+                return $user === $departement->getUsers();
             }
         }
 
@@ -108,8 +108,8 @@ class CotisationgroupeVoter extends Voter {
         // Vérifier si l'utilisateur est responsable de département
         if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
             $departement = $groupe->getDepartement();
-            if ($departement && $departement->getUser()) {
-                return $user === $departement->getUser();
+            if ($departement && $departement->getUsers()) {
+                return $user === $departement->getUsers();
             }
         }
 

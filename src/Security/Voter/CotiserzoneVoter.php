@@ -61,7 +61,7 @@ class CotiserzoneVoter extends Voter {
         $zone = $cotiserzone->getZone();
         
         // Vérifier si l'utilisateur est responsable de zone
-        if ($zone->getUser() && $user === $zone->getUser()) {
+        if ($zone->getUsers() && $user === $zone->getUsers()) {
             return true;
         }
 
@@ -73,7 +73,7 @@ class CotiserzoneVoter extends Voter {
         $zone = $cotiserzone->getZone();
         
         // Vérifier si l'utilisateur est responsable de zone
-        if ($zone->getUser() && $user === $zone->getUser()) {
+        if ($zone->getUsers() && $user === $zone->getUsers()) {
             return true;
         }
 
@@ -85,7 +85,7 @@ class CotiserzoneVoter extends Voter {
         $zone = $cotiserzone->getZone();
         
         // Seul le responsable de zone peut supprimer
-        return $zone->getUser() && $user === $zone->getUser();
+        return $zone->getUsers() && $user === $zone->getUsers();
     }
 
     /**

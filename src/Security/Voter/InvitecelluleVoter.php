@@ -113,7 +113,7 @@ class InvitecelluleVoter extends Voter {
         }
         
         // Vérifier si l'utilisateur est le responsable de la zone
-        $zoneUser = $zone->getUser();
+        $zoneUser = $zone->getUsers();
         if (null === $zoneUser) {
             return false;
         }
