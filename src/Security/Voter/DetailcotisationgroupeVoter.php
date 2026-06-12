@@ -7,95 +7,142 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class DetailcotisationgroupeVoter extends Voter {
-
-    public const EDIT = 'POST_EDIT';
-    public const DETAILCOTISATIONFAMILLE_VIEW = 'cotisergroupe_detailgroupe';
+class DetailcotisationgroupeVoter extends Voter 
+{
+    public const COTISATIONCELLULE_EDIT = 'detailcotisationgroupe_edit';
+    public const COTISATIONCELLULE_VIEW = 'detailcotisationgroupe_index';
+    public const COTISATIONCELLULE_DELETE = 'detailcotisationgroupe_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $detailgroupe): bool {
-        return in_array($attribute, [self::EDIT, self::DETAILCOTISATIONFAMILLE_VIEW]) 
-            && $detailgroupe instanceof Detailcotisationgroupe;
+    protected function supports(string $attribute, $detailcotisationgroupe): bool 
+    {
+        return in_array($attribute, [
+            self::COTISATIONCELLULE_EDIT, 
+            self::COTISATIONCELLULE_VIEW, 
+            self::COTISATIONCELLULE_DELETE
+        ]) && $detailcotisationgroupe instanceof Detailcotisationgroupe;
     }
 
-    protected function voteOnAttribute(string $attribute, $detailgroupe, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $detailcotisationgroupe, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
-        
-        // ROLE_ADMIN a tous les droits
+
+        // Les admins ont tous les accès
         if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
         }
-        
-        // ROLE_SECRETAIRE a tous les droits
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
-        }
 
-        // Vérifier si le groupe existe
-        $groupe = $detailgroupe->getGroupe();
+        $groupe = $detailcotisationgroupe->getGroupe();
+        
         if (null === $groupe) {
             return false;
         }
 
-        switch ($attribute) {
-            case self::EDIT:
-                return $this->canEdit($detailgroupe, $user);
-            case self::DETAILCOTISATIONFAMILLE_VIEW:
-                return $this->canViewDetail($detailgroupe, $user);
+        // Vérifier si l'utilisateur a accès à cette detailcotisation
+        if (!$this->canAccessDetailcotisation($user, $groupe)) {
+            return false;
         }
 
+        switch ($attribute) {
+            case self::COTISATIONCELLULE_VIEW:
+                return true;
+                
+            case self::COTISATIONCELLULE_EDIT:
+                return $this->canEdit($user, $groupe);
+                
+            case self::COTISATIONCELLULE_DELETE:
+                return $this->canDelete($user, $groupe);
+                
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut accéder à la detailcotisation
+     * Accès si : 
+     * - L'utilisateur appartient à la groupe (User.groupe)
+     * - OU l'utilisateur est responsable de la zone de cette groupe (User.zone)
+     */
+    private function canAccessDetailcotisation(User $user, $groupe): bool
+    {
+        // Cas 1: L'utilisateur est membre de la groupe
+        if ($user->getGroupe() && $user->getGroupe()->getId() === $groupe->getId()) {
+            return true;
+        }
+        
+        // Cas 2: L'utilisateur est responsable de la zone qui contient cette groupe
+        $zone = $groupe->getDepartement();
+        if ($zone && $user->getDepartement() && $user->getDepartement()->getId() === $zone->getId()) {
+            return true;
+        }
+        
         return false;
     }
 
-    private function canEdit(Detailcotisationgroupe $detailgroupe, User $user): bool {
-        $groupe = $detailgroupe->getGroupe();
+    /**
+     * Vérifie si l'utilisateur peut modifier
+     * Modification possible si :
+     * - L'utilisateur est secrétaire
+     * - L'utilisateur est responsable de la zone
+     * - L'utilisateur est membre de la groupe (si vous autorisez)
+     */
+    private function canEdit(User $user, $groupe): bool
+    {
+        // Secrétaire peut tout modifier
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
         
-        // Responsable de département
+        // Responsable de zone peut modifier les detailcotisations des groupes de sa zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            $departement = $groupe->getDepartement();
-            if ($departement && $departement->getUser()) {
-                return $user === $departement->getUser();
+            $zone = $groupe->getDepartement();
+            if ($zone && $user->getDepartement() && $user->getDepartement()->getId() === $zone->getId()) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur est le responsable du groupe (si cette notion existe)
-        if (method_exists($groupe, 'getUsers') && $groupe->getUsers()) {
-            return $user === $groupe->getUsers();
+        
+        // Option: Les membres de la groupe peuvent modifier
+        // Décommentez si vous voulez autoriser les membres à modifier
+        if ($user->getGroupe() && $user->getGroupe()->getId() === $groupe->getId()) {
+            return true;
         }
-
-        // Vérifier si l'utilisateur appartient au groupe
-        return $groupe->getUsers()->contains($user);
+        
+        return false;
     }
 
-    private function canViewDetail(Detailcotisationgroupe $detailgroupe, User $user): bool {
-        $groupe = $detailgroupe->getGroupe();
+    /**
+     * Vérifie si l'utilisateur peut supprimer
+     * Suppression possible seulement pour :
+     * - Secrétaire
+     * - Responsable de zone
+     */
+    private function canDelete(User $user, $groupe): bool
+    {
+        // Secrétaire peut tout supprimer
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
         
-        // Responsable de département
+        // Responsable de zone peut supprimer les detailcotisations des groupes de sa zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            $departement = $groupe->getDepartement();
-            if ($departement && $departement->getUser()) {
-                return $user === $departement->getUser();
+            $zone = $groupe->getDepartement();
+            if ($zone && $user->getDepartement() && $user->getDepartement()->getId() === $zone->getId()) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur est le responsable du groupe
-        if (method_exists($groupe, 'getUsers') && $groupe->getUsers()) {
-            return $user === $groupe->getUsers();
-        }
-
-        // Vérifier si l'utilisateur appartient au groupe
-        return $groupe->getUsers()->contains($user);
+        
+        return false;
     }
 }

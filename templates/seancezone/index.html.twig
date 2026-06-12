@@ -1,8 +1,11 @@
 {% extends "home/index.html.twig" %}
 
-{% block title %}Liste des séances de zone{% endblock %}
+{% block title %}Liste des séances zones{% endblock %}
 
 {% block body %}
+
+
+
     <div class="card card-primary">
         <div class="card-header">
             <h3 class="card-title">Activités des zones</h3>
@@ -15,55 +18,52 @@
                 </div>
             {% endfor %}
         {% endfor %}
-  </div>
-          
-        {% if is_granted('ROLE_RESPONSABLE_ZONE') %}
-            <div class="card-body">
-                <a href="{{ path('app_seancezone_new') }}">
-                    <button class="btn btn-primary">Nouveau</button>
-                </a>
-                <a href={{ path('app_invitezone_index') }}>
-                    <button class="btn btn-success">Invités</button>
-                </a>
-                <a href="{{ path('app_cotisationzone_index') }}">
-                    <button class="btn btn-success">Cotisation</button>
-                </a>
-
-                <a href="{{ path('app_cotiserzone_index') }}">
-                    <button class="btn btn-success">Paiement de cotisation</button>
-
-                </a>
-                <a href="{{ path('app_seancezone_listeparticipant') }}">
-                    <button class="btn btn-success">Liste de présence</button>
-
-                </a>
-                <a href={{ path('app_bilan_zone2') }}>
-                    <button class="btn btn-danger">Bilan</button>
-
-                </a>
-                <a href={{ path('app_depensezone_index') }}>
-                    <button class="btn btn-primary">Depenses</button>
-
+    </div>
+           
+        <!-- /.card-header -->
+        <div class="card-body">
+            {% if is_granted('seancezone_create') %}
+                <a href="{{ path('app_seancezone_new') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nouveau
                 </a>
             {% endif %}
+            <a href="{{ path('app_invitezone_index') }}" class="btn btn-success">
+                <i class="fas fa-user-plus"></i> Invités
+            </a>
+            <a href="{{ path('app_cotisationzone_index') }}" class="btn btn-success">
+                <i class="fas fa-hand-holding-usd"></i> Cotisation
+            </a>
+            <a href="{{ path('app_cotiserzone_index') }}" class="btn btn-success">
+                <i class="fas fa-money-bill"></i> Paiement de cotisation
+            </a>
+            <a href="{{ path('app_seancezone_listeparticipant') }}" class="btn btn-success">
+                <i class="fas fa-list"></i> Liste de présence
+            </a>
+            <a href="{{ path('app_bilan_zone2') }}" class="btn btn-danger">
+                <i class="fas fa-chart-bar"></i> Bilan
+            </a>
+            <a href="{{ path('app_depensezone_index') }}" class="btn btn-primary">
+                <i class="fas fa-shopping-cart"></i> Dépenses
+            </a>
+        </div>
             <hr style="visibility: hidden" />
+
             <table id="example1" class="table table-bordered table-striped">
+
                 <thead>
                     <tr>
-
                         <th>Date</th>
                         <th>Zone</th>
                         <th>Lieu</th>
-                     
-                        <th>Total present</th>
+                        <th>Theme</th>
                         <th>Invités</th>
                         <th>Présents</th>
                         <th>Absents</th>
                         <th>Details</th>
 
                     </tr>
-                </thead> 
-                 <tbody>
+                </thead>
+                  <tbody>
                 {% if is_granted('ROLE_RESPONSABLE_ZONE') %}
                     {% for diff in differences %}
                         {% set totaux = 0 %}
@@ -92,14 +92,14 @@
                                             <button type="button" class="btn btn-sm btn-success btn-present" 
                                                     data-id="{{ seancezone.id }}"
                                                     data-zone="{{ seancezone.zone.id }}">
-                                                <i class="fas fa-check-circle"></i> Voir
+                                                <i class="fas fa-check-circle"></i> Présents
                                             </button>
                                         </td>
                                         <td class="text-center">
                                             <button type="button" class="btn btn-sm btn-danger btn-absent" 
                                                     data-id="{{ seancezone.id }}"
                                                     data-zone="{{ seancezone.zone.id }}">
-                                                <i class="fas fa-times-circle"></i> Voir
+                                                <i class="fas fa-times-circle"></i> Absents
                                             </button>
                                         </td>
                                         <td class="text-center">

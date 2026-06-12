@@ -31,20 +31,65 @@ class SeancedepartementController extends AbstractController {
 use ClientIp;
     
     #[Route('/', name: 'seancedepartement_index', methods: ['GET'])]
-    public function index(SeancedepartementRepository $seancedepartementRepository, Request $request): Response {
+ public function index(SeancedepartementRepository $seancedepartementRepository, SoldedepartementRepository $soldeRepo, DepartementRepository $departementRepo): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
-        }
-        $eglise = $this->getUser()->getEglise();
+        
         $user = $this->getUser();
-        $seancedepartement = $seancedepartementRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
+        $eglise = $user->getEglise();
+        
+        // Construction de la requête selon le rôle
+        $qb = $seancedepartementRepository->createQueryBuilder('s')
+            ->leftJoin('s.departement', 'z')
+            ->where('s.eglise = :eglise')
+            ->andWhere('s.deletedAt IS NULL')
+            ->setParameter('eglise', $eglise);
+        
+        // Filtres selon les rôles
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+            // Ces rôles voient toutes les séances
+            // Pas de filtre supplémentaire
+        } 
+        elseif ($this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            $departement = $user->getDepartement();
+            if ($departement) {
+                $qb->andWhere('z.id = :departementId')
+                ->setParameter('departementId', $departement->getId());
+            } else {
+                $this->addFlash('warning', 'Aucune departement associée à votre compte.');
+                return $this->redirectToRoute('home');
+            }
+        }
+        else {
+            // Pour ROLE_RESPONSABLE_CELLULE, on redirige car ce n'est pas son niveau
+            if ($this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
+                $this->addFlash('warning', 'Vous n\'avez pas les droits pour voir les séances de departement.');
+            } else {
+                $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les séances.');
+            }
+            return $this->redirectToRoute('home');
+        }
+        
+        $seancedepartements = $qb->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();
+        
+        // Récupération des différences de dates
         $difference = $seancedepartementRepository->getSeanceByDates();
+        
+        // Récupération du solde
+        $solde = [];
+        $departement = $user->getDepartement();
+        if ($departement) {
+            $departement2 = $departementRepo->findOneDepartement($departement);
+            if ($departement2) {
+                $solde = $soldeRepo->findBy(['departement' => $departement2]);
+            }
+        }
+        
         return $this->render('seancedepartement/index.html.twig', [
-                    'seancedepartements' => $seancedepartement,
-                    'differences' => $difference,
+            'seancedepartements' => $seancedepartements,
+            'differences' => $difference,
+            'soldes' => $solde,
         ]);
-    } 
+    }
     
     #[Route('/{id}/edit', name: 'seancedepartement_edit', methods: ['GET', 'POST'])]
     #[Route('/new', name: 'seancedepartement_new', methods: ['GET', 'POST'])]
@@ -76,7 +121,7 @@ use ClientIp;
 
             return $this->redirectToRoute('seancedepartement_index');
         }
-
+ 
         // Récupérer les fidèles du département
         $fidele = $fideleRepository->findFidelesByDepartement($departement->getId());
 
@@ -93,9 +138,8 @@ use ClientIp;
         $form->handleRequest($request);
 
                 if ($form->isSubmitted() && $form->isValid()) {
-
-                // $ideglise = $this->getUser()->getEglise()->getId();
-                //  $seancedepartement->setIdeglise($ideglise);
+            $user = $this->getUser();
+            $departement = $departementRepository->findOneByUser($user);
 
                     $seancedepartement->setDepartement($departement);
 
@@ -333,7 +377,7 @@ use ClientIp;
             }
             else {
                 $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les présences.');
-                return $this->redirectToRoute('dashboard');
+                return $this->redirectToRoute('home');
             }
             
             $presences = $qb->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();

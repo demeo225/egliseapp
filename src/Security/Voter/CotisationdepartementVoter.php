@@ -11,9 +11,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class CotisationdepartementVoter extends Voter {
 
-    public const COTISATIONDEPARTEMENT_EDIT = 'cotisationdepartement_edit';
-    public const COTISATIONDEPARTEMENT_VIEW = 'cotisationdepartement_index';
-    public const COTISATIONDEPARTEMENT_DELETE = 'cotisationdepartement_delete';
+    public const COTISATION_VIEW = 'cotisationdepartement_view';
+    public const COTISATION_EDIT = 'cotisationdepartement_edit';
+    public const COTISATION_DELETE = 'cotisationdepartement_delete';
+    public const COTISATION_CREATE = 'cotisationdepartement_create';
 
     private Security $security;
 
@@ -22,99 +23,126 @@ class CotisationdepartementVoter extends Voter {
     }
 
     protected function supports(string $attribute, $cotisationdepartement): bool {
-        return in_array($attribute, [self::COTISATIONDEPARTEMENT_EDIT, self::COTISATIONDEPARTEMENT_VIEW, self::COTISATIONDEPARTEMENT_DELETE]) 
-            && $cotisationdepartement instanceof Cotisationdepartement;
+        return in_array($attribute, [
+            self::COTISATION_VIEW, 
+            self::COTISATION_EDIT, 
+            self::COTISATION_DELETE,
+            self::COTISATION_CREATE
+        ]) && ($cotisationdepartement instanceof Cotisationdepartement || $cotisationdepartement === null);
     }
 
     protected function voteOnAttribute(string $attribute, $cotisationdepartement, TokenInterface $token): bool {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
         }
-
-        // Admin a tous les droits
-        if ($this->security->isGranted('ROLE_ADMIN')) {
-            return true;
+        
+        // ROLES SUPERIEURS : ROLE_ADMIN, ROLE_PASTEUR, ROLE_SECRETAIRE
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return $this->checkAttribute($attribute, $cotisationdepartement, $user);
         }
-
-        // Vérifier si le département existe
-        $departement = $cotisationdepartement->getDepartement();
-        if (null === $departement) {
-            return false;
+        
+        // ROLE_RESPONSABLE_DEPARTEMENT : voit les cotisations de sa departement
+        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            return $this->canViewByDepartement($attribute, $cotisationdepartement, $user);
         }
-
-        switch ($attribute) {
-            case self::COTISATIONDEPARTEMENT_EDIT:
-                return $this->canEdit($cotisationdepartement, $user);
-            case self::COTISATIONDEPARTEMENT_VIEW:
-                return $this->canView($cotisationdepartement, $user);
-            case self::COTISATIONDEPARTEMENT_DELETE:
-                return $this->canDelete($cotisationdepartement, $user);
-        }
-
+        
         return false;
     }
-
+    
+    /**
+     * Responsable de departement : voit les cotisations de sa departement
+     */
+    private function canViewByDepartement(string $attribute, ?Cotisationdepartement $cotisationdepartement, User $user): bool {
+        $departement = $user->getDepartement();
+        if (!$departement) {
+            return false;
+        }
+        
+        // Pour la création (pas de cotisation spécifique)
+        if ($cotisationdepartement === null) {
+            return $this->checkAttribute($attribute, null, $user);
+        }
+        
+        $cotisationDepartement = $cotisationdepartement->getDepartement();
+        if (!$cotisationDepartement || $cotisationDepartement->getId() !== $departement->getId()) {
+            return false;
+        }
+        
+        return $this->checkAttribute($attribute, $cotisationdepartement, $user);
+    }
+    
+    /**
+     * Vérifie le type d'action
+     */
+    private function checkAttribute(string $attribute, ?Cotisationdepartement $cotisationdepartement, User $user): bool {
+        switch ($attribute) {
+            case self::COTISATION_VIEW:
+                return true;
+                
+            case self::COTISATION_CREATE:
+                return $this->canCreate($cotisationdepartement, $user);
+                
+            case self::COTISATION_EDIT:
+                return $this->canEdit($cotisationdepartement, $user);
+                
+            case self::COTISATION_DELETE:
+                return $this->canDelete($cotisationdepartement, $user);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Vérifie si l'utilisateur peut créer une cotisation
+     */
+    private function canCreate(?Cotisationdepartement $cotisationdepartement, User $user): bool {
+        // Les rôles supérieurs peuvent créer
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
+        
+        // Responsable de departement
+        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Vérifie si l'utilisateur peut modifier une cotisation
+     */
     private function canEdit(Cotisationdepartement $cotisationdepartement, User $user): bool {
-        // Le secrétaire peut tout modifier
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+        // Les rôles supérieurs peuvent tout modifier
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        $departement = $cotisationdepartement->getDepartement();
         
-        // Vérifier si l'utilisateur est responsable de zone (si cette relation existe)
-        // À adapter selon votre structure
-        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            // Si le département a une relation avec une zone
-            if ($departement->getZone() && $departement->getZone()->getUsers()) {
-                return $user === $departement->getZone()->getUsers();
+        // Responsable de departement
+        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            $departement = $user->getDepartement();
+            $cotisationDepartement = $cotisationdepartement->getDepartement();
+            if ($departement && $cotisationDepartement && $departement->getId() === $cotisationDepartement->getId()) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur appartient au département
-        // Note: Cette méthode suppose que Departement a une relation getUsers() similaire à Cellule
-        // Si ce n'est pas le cas, il faudra adapter
-        return $departement->getUsers()->contains($user);
-    }
-
-    private function canView(Cotisationdepartement $cotisationdepartement, User $user): bool {
-        // Le secrétaire peut tout voir
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
-        }
-
-        $departement = $cotisationdepartement->getDepartement();
         
-        // Vérifier si l'utilisateur est responsable de zone
-        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            if ($departement->getZone() && $departement->getZone()->getUsers()) {
-                return $user === $departement->getZone()->getUsers();
-            }
-        }
-
-        // Vérifier si l'utilisateur appartient au département
-        return $departement->getUsers()->contains($user);
+        return false;
     }
-
+    
+    /**
+     * Vérifie si l'utilisateur peut supprimer une cotisation
+     */
     private function canDelete(Cotisationdepartement $cotisationdepartement, User $user): bool {
-        // Le secrétaire peut tout supprimer
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
-        }
-
-        $departement = $cotisationdepartement->getDepartement();
-        
-        // Vérifier si l'utilisateur est responsable de zone
-        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            if ($departement->getZone() && $departement->getZone()->getUsers()) {
-                return $user === $departement->getZone()->getUsers();
-            }
-        }
-
-        // Vérifier si l'utilisateur appartient au département
-        return $departement->getUsers()->contains($user);
+        // Même logique que l'édition
+        return $this->canEdit($cotisationdepartement, $user);
     }
 }

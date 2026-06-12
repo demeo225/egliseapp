@@ -71,6 +71,36 @@ class GroupeRepository extends ServiceEntityRepository
                 ->getQuery()
                 ->getOneOrNullResult();
         }
+
+
+         public function findAccessibleByUser(User $user): array
+    {
+        $qb = $this->createQueryBuilder('g');
+        
+        if ($user->getIddepartement()) {
+            $qb->andWhere('g.iddepartement = :deptId')
+               ->setParameter('deptId', $user->getIddepartement());
+        } else {
+            return [];
+        }
+        
+        return $qb->getQuery()->getResult();
+    }
+    
+    /**
+     * Récupère toutes les séances des groupes accessibles
+     */
+    public function findAllSeancesAccessibles(User $user): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('s')
+           ->from('App\Entity\Seancegroupe', 's')
+           ->join('s.idgroupe', 'g')
+           ->where('g.iddepartement = :deptId')
+           ->setParameter('deptId', $user->getIddepartement());
+        
+        return $qb->getQuery()->getResult();
+    }
     
 
 }

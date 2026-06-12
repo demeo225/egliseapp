@@ -40,7 +40,7 @@
                 </thead>
                 <tbody>
                     {% for detail in details %}
-                          {% if is_granted("cotiserzone_detailzone", detail) %}
+                                  {% if is_granted("detailcotisationzone_edit", detail) %}
                         <tr>
                             <td>{{ detail.datedetail ?  date_format(detail.datedetail) }}</td>
                             <td>{{ detail.fidele.zone.nom|upper }}</td>
@@ -63,10 +63,7 @@
 
                         </tr>
                           {% endif %}
-                    {% else %}
-                        <tr>
-                            <td colspan="13">Aucuné donnée trouvée</td>
-                        </tr>
+                  
                     {% endfor %}
                 </tbody>
             </table>

@@ -9,6 +9,7 @@ use App\Repository\CotisationcelluleRepository;
 use App\Repository\CotisercelluleRepository;
 use App\Repository\SolecelluleRepository;
 use App\Repository\FideleRepository;
+use App\Repository\DetailcotisationcelluleRepository;
 use App\Traits\ClientIp;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,7 +37,7 @@ class CotisationcelluleController extends AbstractController {
         $cotisationcellule = $cotisationcelluleRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
         return $this->render('cotisationcellule/index.html.twig', [
                     'cotisationcellules' => $cotisationcellule,
-            'soldes'=>$solde,
+                    'soldes'=>$solde,
         ]);
     }
 
@@ -109,59 +110,135 @@ class CotisationcelluleController extends AbstractController {
 
     
 
+// #[Route('/cotiser/{id}', name: 'cotisationcellule_cotiser', methods: ['GET'])]
+// public function detailCotisationcellule(
+//     int $id,
+//     CotisercelluleRepository $cotisercelluleRepository,
+//     CotisationcelluleRepository $cotisationcelluleRepo,
+//     FideleRepository $fideleRepository,
+//     CelluleRepository $celluleRepository
+// ): Response {
+//     $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    
+//     if (!$this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
+//         throw $this->createAccessDeniedException('Accès refusé, vous n\'avez pas les droits d\'accès ici!');
+//     }
+    
+//     // Récupérer la cotisation
+//     $cotisationcellule = $cotisationcelluleRepo->find($id);
+    
+//     if (!$cotisationcellule) {
+//         $this->addFlash('danger', 'Cotisation non trouvée');
+//         return $this->redirectToRoute('cotisationcellule_index');
+//     }
+    
+//     // Récupérer la cellule
+//     $cellule = $cotisationcellule->getCellule();
+    
+//     // Compter le nombre de membres de la cellule
+//     $nbMembres = 0;
+//     $membres = [];
+//     if ($cellule) {
+//         $membres = $fideleRepository->findBy(['cellule' => $cellule, 'deletedAt' => NULL]);
+//         $nbMembres = count($membres);
+//     }
+    
+//     // Calculer le montant prévu réel (nbMembres * montantCotisation)
+//     $montantCotisationUnitaire = $cotisationcellule->getMontant() ?? 0;
+//     $montantTotalPrevu = $nbMembres * $montantCotisationUnitaire;
+    
+//     // Récupérer tous les paiements (Cotisercellule) pour cette cotisation
+//     $listeCotisercellule = $cotisercelluleRepository->findBy(
+//         ['cotisationcellule' => $cotisationcellule, 'deletedAt' => NULL],
+//         ['datecotiser' => 'DESC']
+//     );
+    
+//     // Calculer les totaux des paiements
+//     $totalPaye = 0;
+//     foreach ($listeCotisercellule as $paiement) {
+//         $totalPaye += $paiement->getMontantpayer() ?? 0;
+//     }
+    
+//     // Calculer le reste à payer
+//     $totalReste = $montantTotalPrevu - $totalPaye;
+    
+//     // Pour chaque fidèle, calculer s'il a payé ou non
+//     $paiementsParFidele = [];
+//     foreach ($listeCotisercellule as $paiement) {
+//         $fideleId = $paiement->getFidele() ? $paiement->getFidele()->getId() : null;
+//         if ($fideleId) {
+//             $paiementsParFidele[$fideleId] = $paiement;
+//         }
+//     }
+    
+//     // Statistiques par fidèle
+//     $statsParFidele = [];
+//     foreach ($membres as $membre) {
+//         $aPaye = isset($paiementsParFidele[$membre->getId()]);
+//         $montantPaye = $aPaye ? $paiementsParFidele[$membre->getId()]->getMontantpayer() : 0;
+        
+//         $statsParFidele[] = [
+//             'fidele' => $membre,
+//             'a_paye' => $aPaye,
+//             'montant_paye' => $montantPaye,
+//             'reste' => $montantCotisationUnitaire - $montantPaye
+//         ];
+//     }
+    
+//     return $this->render('cotisationcellule/detail.html.twig', [
+//         'cotisationcellule' => $cotisationcellule,
+//         'cotisercellules' => $listeCotisercellule,
+//         'totalPaye' => $totalPaye,
+//         'totalReste' => $totalReste,
+//         'montantTotalPrevu' => $montantTotalPrevu,
+//         'montantUnitaire' => $montantCotisationUnitaire,
+//         'nbMembres' => $nbMembres,
+//         'nbPaiements' => count($listeCotisercellule),
+//         'membres' => $membres,
+//         'statsParFidele' => $statsParFidele,
+//         'cellule' => $cellule,
+//     ]);
+// }
+
+
 #[Route('/cotiser/{id}', name: 'cotisationcellule_cotiser', methods: ['GET'])]
 public function detailCotisationcellule(
     int $id,
     CotisercelluleRepository $cotisercelluleRepository,
     CotisationcelluleRepository $cotisationcelluleRepo,
-    FideleRepository $fideleRepository,
-    CelluleRepository $celluleRepository
+    FideleRepository $fideleRepository
 ): Response {
     $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
     
-    if (!$this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
-        throw $this->createAccessDeniedException('Accès refusé, vous n\'avez pas les droits d\'accès ici!');
+    if (!$this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+        throw $this->createAccessDeniedException('Accès refusé');
     }
     
-    // Récupérer la cotisation
     $cotisationcellule = $cotisationcelluleRepo->find($id);
-    
     if (!$cotisationcellule) {
         $this->addFlash('danger', 'Cotisation non trouvée');
-        return $this->redirectToRoute('cotisationcellule_index');
+        return $this->redirectToRoute('app_cotisationcellule_index');
     }
     
-    // Récupérer la cellule
     $cellule = $cotisationcellule->getCellule();
+    $membres = $cellule ? $fideleRepository->findBy(['cellule' => $cellule, 'deletedAt' => NULL]) : [];
+    $nbMembres = count($membres);
+    $montantUnitaire = $cotisationcellule->getMontant() ?? 0;
+    $montantTotalPrevu = $nbMembres * $montantUnitaire;
     
-    // Compter le nombre de membres de la cellule
-    $nbMembres = 0;
-    $membres = [];
-    if ($cellule) {
-        $membres = $fideleRepository->findBy(['cellule' => $cellule, 'deletedAt' => NULL]);
-        $nbMembres = count($membres);
-    }
-    
-    // Calculer le montant prévu réel (nbMembres * montantCotisation)
-    $montantCotisationUnitaire = $cotisationcellule->getMontant() ?? 0;
-    $montantTotalPrevu = $nbMembres * $montantCotisationUnitaire;
-    
-    // Récupérer tous les paiements (Cotisercellule) pour cette cotisation
+    // Récupérer tous les paiements
     $listeCotisercellule = $cotisercelluleRepository->findBy(
         ['cotisationcellule' => $cotisationcellule, 'deletedAt' => NULL],
         ['datecotiser' => 'DESC']
     );
     
-    // Calculer les totaux des paiements
     $totalPaye = 0;
     foreach ($listeCotisercellule as $paiement) {
         $totalPaye += $paiement->getMontantpayer() ?? 0;
     }
-    
-    // Calculer le reste à payer
     $totalReste = $montantTotalPrevu - $totalPaye;
     
-    // Pour chaque fidèle, calculer s'il a payé ou non
+    // Paiements par fidèle
     $paiementsParFidele = [];
     foreach ($listeCotisercellule as $paiement) {
         $fideleId = $paiement->getFidele() ? $paiement->getFidele()->getId() : null;
@@ -175,12 +252,11 @@ public function detailCotisationcellule(
     foreach ($membres as $membre) {
         $aPaye = isset($paiementsParFidele[$membre->getId()]);
         $montantPaye = $aPaye ? $paiementsParFidele[$membre->getId()]->getMontantpayer() : 0;
-        
         $statsParFidele[] = [
             'fidele' => $membre,
             'a_paye' => $aPaye,
             'montant_paye' => $montantPaye,
-            'reste' => $montantCotisationUnitaire - $montantPaye
+            'reste' => $montantUnitaire - $montantPaye,
         ];
     }
     
@@ -190,12 +266,47 @@ public function detailCotisationcellule(
         'totalPaye' => $totalPaye,
         'totalReste' => $totalReste,
         'montantTotalPrevu' => $montantTotalPrevu,
-        'montantUnitaire' => $montantCotisationUnitaire,
+        'montantUnitaire' => $montantUnitaire,
         'nbMembres' => $nbMembres,
         'nbPaiements' => count($listeCotisercellule),
-        'membres' => $membres,
         'statsParFidele' => $statsParFidele,
-        'cellule' => $cellule,
+    ]);
+}
+
+       #[Route('/detail-paiement/{id}', name: 'detail_paiement_cellule', methods: ['POST'])]
+public function detailPaiement(int $id, DetailcotisationcelluleRepository $detailcotisationcelluleRepository, CotisercelluleRepository $cotisercelluleRepository ): Response
+{
+    $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    
+    // Alternative: chercher par cotisationcellule_id et fidele_id
+    $cotisercellule = $cotisercelluleRepository->find($id);
+    
+    if (!$cotisercellule) {
+        return $this->json(['error' => 'Paiement non trouvé'], 404);
+    }
+    
+    // Chercher les détails par cotisationcellule et fidele
+    $details = $detailcotisationcelluleRepository->findBy([
+        'cotisationcellule' => $cotisercellule->getCotisationcellule(),
+        'fidele' => $cotisercellule->getFidele(),
+        'deletedAt' => NULL
+    ], ['datedetail' => 'DESC']);
+    
+    $totalMontant = 0;
+    $totalPaye = 0;
+    $totalReste = 0;
+    foreach ($details as $detail) {
+        $totalMontant += $detail->getMontant() ?? 0;
+        $totalPaye += $detail->getMontantpayer() ?? 0;
+        $totalReste += $detail->getReste() ?? 0;
+    }
+    
+    return $this->render('cotisationcellule/_detail_paiement_modal.html.twig', [
+        'details' => $details,
+        'cotisercellule' => $cotisercellule,
+        'totalMontant' => $totalMontant,
+        'totalPaye' => $totalPaye,
+        'totalReste' => $totalReste,
     ]);
 }
 

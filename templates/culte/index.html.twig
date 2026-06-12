@@ -3,22 +3,20 @@
 {% block title %}Liste des cultes{% endblock %}
 
 {% block body %}
-
-
     <div class="card-body">
         <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title">Gestion des cultes</h3>
             </div>
-    <div class="offset-1 col-md-10 mt-2 mb-2">
-        {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune']) %}
-            {% for message in messages %}
-                <div class="alert alert-{{ label }} my-alert" role="alert">
-                    <h1 class="m-0 flash-text">{{ message }}</h1>
-                </div>
-            {% endfor %}
-        {% endfor %}
-    </div>
+            <div class="offset-1 col-md-10 mt-2 mb-2">
+                {% for label, messages in app.flashes(['success', 'warning', 'danger', 'commune']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} my-alert" role="alert">
+                            <h1 class="m-0 flash-text">{{ message }}</h1>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
             <div class="card-body">
                 <a href="{{ path('culte_add') }}" class="btn btn-primary">Nouveau</a>
                 <a href="{{ path('invite_add') }}" class="btn btn-primary">Enregistrement invités</a>
@@ -27,7 +25,6 @@
                 <hr style="visibility: hidden" />
 
                 <table id="example1" class="table table-bordered table-striped">
-
                     <thead>
                         <tr>
                             <th>Date</th>
@@ -35,137 +32,234 @@
                             <th>Orateur</th>
                             <th>Total fidèles</th>
                             <th>Invités</th>
+                        
                             <th>Fiche de rapport</th>
-                            <th>Detail</th>
+                            <th>Détail</th>
                             <th>Modifier</th>
                             <th>Supprimer</th>
-
-
                         </tr>
                     </thead>
                     <tbody>
-                        {% for culte in culte %}
+                        {% for culte in cultes %}
                             <tr>
                                 <td>{{ culte.dateculte|format_datetime('full', 'none', locale='fr')}}</td>
                                 <td>{{ culte.theme}}</td>
-  
                                 <td>{% if culte.messager is not empty %} {{ culte.messager.nomfidele}} {% else %}{{ culte.orateur}}{% endif %}</td>
 
-                                {% set nmbrehomme =culte.nmbrehomme%}
-                                {% set nobrefemme = culte.nobrefemme %}
-                                {% set nbrefant = culte.nbrefant %}
-                                {% set nbreinvite = culte.invite %}
+                                {% set nmbrehomme = culte.nmbrehomme|default(0) %}
+                                {% set nobrefemme = culte.nobrefemme|default(0) %}
+                                {% set nbrefant = culte.nbrefant|default(0) %}
+                                {% set nbreinvite = culte.invite|default(0) %}
 
                                 <td>{{ nmbrehomme + nobrefemme + nbrefant + nbreinvite }}</td>
-                                   <td>
-                        {% if culte.photo is not empty %} <a href="{{ asset('uploads/photos/' ~ culte.photo) }}" target="_blank">
-                        Afficher rapport</a> {% else %} Fiche rapport indisponible {% endif %}
-
-                    </td>
+                                <td>{{ nbreinvite }}</td>
+                                
+                           
+                                
                                 <td>
-                                      <button type="button" id="btn-fideles-modal" data-target="{{ path('culte_search_invites', {'id':culte.id}) }}"> 
-                                        <span style="font-size: 1em; color: Dodgerblue;">
-                                            <i class="fas fa-users" title="Voir invités"></i>
-                                        </span>
+                                    {% if culte.photo is not empty %}
+                                        <a href="{{ asset('uploads/photos/' ~ culte.photo) }}" target="_blank" class="btn btn-sm btn-success">
+                                            <i class="fas fa-file-pdf"></i> Rapport
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">Indisponible</span>
+                                    {% endif %}
+                                </td>
+                                
+                                <!-- Détail button -->
+                                <td>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-primary btn-view-detail" 
+                                            data-toggle="modal" 
+                                            data-target="#detailModal{{ culte.id }}"
+                                            title="Voir détails">
+                                        <i class="fas fa-book"></i>
                                     </button>
                                 </td>
+                                
+                                <!-- Edit button -->
                                 <td>
-                                    <button type="button" id="btn-fideles-modal" data-target="{{ path('culte_detail', {'id': culte.id}) }}"> 
-                                        <span style="font-size: 1em; color: Dodgerblue;">
-                                            <i class="fas fa-book" title="Details"></i>
-                                        </span>
-                                    </button>
-
-
-                                </td>
-
-
-                                <td>
-                                    <a href="{{ path('culte_update', {'id': culte.id}) }}">
-                                        <span style="font-size: 1em; color: Dodgerblue;">
-                                            <i class="fas fa-edit"></i>
-                                        </span>
+                                    <a href="{{ path('culte_update', {'id': culte.id}) }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                 </td>
+                                
+                                <!-- Delete button -->
                                 <td>
-                                    <form method="post" action="{{ path('culte_delete', {'id': culte.id}) }}" onsubmit="return confirm('etes vous sur de vouloir supprimer?');">
+                                    <form method="post" action="{{ path('culte_delete', {'id': culte.id}) }}" 
+                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce culte ?');"
+                                          style="display: inline-block;">
                                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ culte.id) }}">
-
-                                        <button class="btn">
-                                            <span style="font-size: 1em; color: red;">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </span>
+                                        <button class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
                                 </td>
                             </tr>
-                       
 
+                            <!-- Modal QR Code -->
+                            
+
+                            <!-- Modal Détail du culte -->
+                            <div class="modal fade" id="detailModal{{ culte.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title">
+                                                <i class="fas fa-calendar-alt"></i>  {{ culte.theme }}
+                                            </h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div id="detailContent{{ culte.id }}">
+                                                <div class="text-center">
+                                                    <div class="spinner-border text-primary" role="status"></div>
+                                                    <p>Chargement des détails...</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-
-        </div>
-
-
-    </div>
-
-
-
-
-
-    <!-- Modal des  -->
-    <div class="modal fade bd-example-modal-lg" id="fidelesModal" tabindex="-1" aria-labelledby="fidelesModalLabel" aria-hidden="true">
-
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-body">
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
-                </div>
-            </div>
         </div>
     </div>
+
+    <!-- Zone d'impression cachée pour le QR code -->
+    <div id="printArea" style="display: none;"></div>
 
 {% endblock %}
-
-
-
 
 {% block javascripts %}
     {{ parent() }}
     <script>
         $(document).ready(function () {
-            // quand on clic sur le button voir les fideles pour ouvrir la fenêtre modal
-            $(document).on('click', 'button#btn-fideles-modal', function () {
-                // créer le modal qui porte l'id fidelesModal
-                let modal = new bootstrap.Modal(document.getElementById('fidelesModal'), {
-                    keyboard: false
-                });
-
-                // recupere le div class="modal-body" du div id="fidelesModal"
-                let container = $('#fidelesModal .modal-body');
-
+            // Charger les détails via AJAX quand on ouvre le modal
+            $('[id^="detailModal"]').on('show.bs.modal', function (event) {
+                var modalId = $(this).attr('id');
+                var culteId = modalId.replace('detailModal', '');
+                var contentDiv = $('#detailContent' + culteId);
+                
+                // Générer l'URL correctement
+                var url = '{{ path('culte_detail', {'id': 'ID_PLACEHOLDER'}) }}';
+                url = url.replace('ID_PLACEHOLDER', culteId);
+                
                 $.ajax({
                     type: 'POST',
-                    url: $(this).attr('data-target'),
+                    url: url,
                     async: true,
-                    beforeSend: function () { // avant d'envoyé le post on vide le div.modal-body
-                        container.empty();
+                    beforeSend: function() {
+                        contentDiv.html('<div class="text-center"><div class="spinner-border text-primary" role="status"></div><p>Chargement des détails...</p></div>');
                     },
-                    success: function (html) {
-                        container.append(html); // une fois la réponse, on rempli le div.modal-body
-                        modal.show(); // on affiche la fenêtre modal
-                        //console.log(html);
+                    success: function(html) {
+                        contentDiv.html(html);
+                    },
+                    error: function() {
+                        contentDiv.html('<div class="alert alert-danger">Erreur lors du chargement des détails</div>');
                     }
                 });
             });
         });
+
+        // Fonction pour imprimer le QR code
+        function imprimerQR(qrCodeDataUrl, theme, date) {
+            var printWindow = window.open('', '_blank', 'width=800,height=600');
+            
+            printWindow.document.write('<!DOCTYPE html>');
+            printWindow.document.write('<html>');
+            printWindow.document.write('<head>');
+            printWindow.document.write('<title>QR Code - ' + theme + '</title>');
+            printWindow.document.write('<meta charset="UTF-8">');
+            printWindow.document.write('<style>');
+            printWindow.document.write(`
+                body {
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                    margin: 0;
+                    padding: 20px;
+                }
+                .qr-container {
+                    max-width: 400px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 2px solid #ddd;
+                    border-radius: 10px;
+                    page-break-after: avoid;
+                }
+                .qr-title {
+                    font-size: 24px;
+                    font-weight: bold;
+                    margin-bottom: 10px;
+                    color: #333;
+                }
+                .qr-subtitle {
+                    font-size: 18px;
+                    margin-bottom: 20px;
+                    color: #666;
+                }
+                .qr-code {
+                    margin: 20px 0;
+                }
+                .qr-code img {
+                    max-width: 300px;
+                    height: auto;
+                }
+                .qr-info {
+                    margin-top: 20px;
+                    font-size: 14px;
+                    color: #666;
+                }
+                .qr-footer {
+                    margin-top: 30px;
+                    font-size: 12px;
+                    color: #999;
+                    border-top: 1px solid #eee;
+                    padding-top: 10px;
+                }
+                @media print {
+                    .qr-container {
+                        border: none;
+                    }
+                }
+            `);
+            printWindow.document.write('</style>');
+            printWindow.document.write('</head>');
+            printWindow.document.write('<body>');
+            printWindow.document.write('<div class="qr-container">');
+            printWindow.document.write('<div class="qr-title">🎯 QR Code - Culte</div>');
+            printWindow.document.write('<div class="qr-subtitle">' + theme + '</div>');
+            printWindow.document.write('<div class="qr-code">');
+            printWindow.document.write('<img src="' + qrCodeDataUrl + '" alt="QR Code">');
+            printWindow.document.write('</div>');
+            printWindow.document.write('<div class="qr-info">');
+            printWindow.document.write('<strong>Date:</strong> ' + date + '<br>');
+            printWindow.document.write('<strong>Instructions:</strong><br>');
+            printWindow.document.write('1. Scannez ce QR code avec votre téléphone<br>');
+            printWindow.document.write('2. Entrez votre numéro de téléphone et votre nom<br>');
+            printWindow.document.write('3. Validez votre présence au culte<br>');
+            printWindow.document.write('</div>');
+            printWindow.document.write('<div class="qr-footer">');
+            printWindow.document.write('Présence scannée - Culte ' + date);
+            printWindow.document.write('</div>');
+            printWindow.document.write('</div>');
+            printWindow.document.write('</body>');
+            printWindow.document.write('</html>');
+            
+            printWindow.document.close();
+            
+            printWindow.onload = function() {
+                setTimeout(function() {
+                    printWindow.print();
+                }, 500);
+            };
+        }
     </script>
-
-
-
 {% endblock %}

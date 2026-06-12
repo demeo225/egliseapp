@@ -44,7 +44,7 @@
                 </thead>
                 <tbody>
                     {% for detail in details %}
-                        {% if is_granted("cotiserfamille_detailfamille", detail) %}
+                        {% if is_granted("detailcotisationfamille_edit", detail) %}
 
                             <tr>
                                 <td>{{ detail.datedetail ? date_format(detail.datedetail) }}</td>

@@ -9,8 +9,18 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Entity(repositoryClass=PresenceculteRepository::class)
  */
+/**
+ * @ORM\Table(
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(
+ *             name="presence_unique",
+ *             columns={"fidele_id","culte_id"}
+ *         )
+ *     }
+ * )
+ */
 class Presenceculte extends AbstractEntity 
-{
+{ 
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

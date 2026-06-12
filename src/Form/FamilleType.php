@@ -37,7 +37,16 @@ class FamilleType extends AbstractType {
                     'required' => false,
                 ])
              
-
+                 ->add('save', SubmitType::class, [
+                    'attr' => [
+                        'value' => 'create-don'
+                    ]
+                ])
+                         ->add('saveAndAdd', SubmitType::class, [
+                    'attr' => [
+                        'value' => 'create-don'
+                    ]
+                ])
         ;
     }
 

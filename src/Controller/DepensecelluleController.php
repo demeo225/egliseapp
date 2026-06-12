@@ -23,19 +23,59 @@ class DepensecelluleController extends AbstractController {
     use ClientIp;
 
     #[Route('/', name: 'app_depensecellule_index', methods: ['GET'])]
-    public function index(DepensecelluleRepository $depensecelluleRepository, SolecelluleRepository $soldeRepo, CelluleRepository $celluleRepo): Response {
+    public function index(DepensecelluleRepository $depensecelluleRepository, SolecelluleRepository $soldeRepo, CelluleRepository $celluleRepository): Response
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
-        }
-        $cellule = $this->getUser()->getCellule();
-        $cellule2 = $celluleRepo->findOneCellule($cellule);
+        
         $user = $this->getUser();
-        $solde = $soldeRepo->findBy(['cellule' => $cellule2]);
-        $depense = $depensecelluleRepository->findBy(['cellule' => $cellule2, "deletedAt" => NULL]);
+        $eglise = $user->getEglise();
+        
+        // Construction de la requête selon le rôle
+        $qb = $depensecelluleRepository->createQueryBuilder('d')
+            ->leftJoin('d.cellule', 'c')
+            ->leftJoin('c.zone', 'z')
+            ->where('d.eglise = :eglise')
+            ->andWhere('d.deletedAt IS NULL')
+            ->setParameter('eglise', $eglise);
+        
+        // Filtres selon les rôles
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+            // Ces rôles voient toutes les dépenses
+        } 
+        elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $user->getZone();
+            if ($zone) {
+                $qb->andWhere('z.id = :zoneId')
+                   ->setParameter('zoneId', $zone->getId());
+            } else {
+                $this->addFlash('warning', 'Aucune zone associée à votre compte.');
+                return $this->redirectToRoute('home');
+            }
+        }
+        elseif ($this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
+            $cellule = $user->getCellule();
+            if ($cellule) {
+                $qb->andWhere('c.id = :celluleId')
+                   ->setParameter('celluleId', $cellule->getId());
+            } else {
+                $this->addFlash('warning', 'Aucune cellule associée à votre compte.');
+                return $this->redirectToRoute('home');
+            }
+        }
+        else {
+            $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les dépenses.');
+            return $this->redirectToRoute('home');
+        }
+        
+        $depenses = $qb->orderBy('d.datedepense', 'DESC')->getQuery()->getResult();
+
+              $user = $this->getUser();
+              $cellule = $user->getCellule();
+        $solde = $soldeRepo->findBy(['cellule' => $cellule]);
+        
         return $this->render('depensecellule/index.html.twig', [
-                    'depensecellules' => $depense,
-                    'soldes' => $solde,
+            'depensecellules' => $depenses,
+             'soldes' => $solde,
         ]);
     }
 

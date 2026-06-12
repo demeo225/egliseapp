@@ -26,34 +26,79 @@ class CotiserzoneController extends AbstractController {
 
     use ClientIp;
 
-    #[Route('/', name: 'app_cotiserzone_index', methods: ['GET'])]
-    public function index(CotiserzoneRepository $cotiserzoneRepository): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+        #[Route('/', name: 'app_cotiserzone_index', methods: ['GET'])]
+        public function index(CotiserzoneRepository $cotiserzoneRepository): Response {
+            $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+            
+            $user = $this->getUser();
+            $eglise = $user->getEglise();
+            $zone = $user->getZone();
+            
+            // Vérifier les droits d'accès selon les rôles
+            if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+                // Rôle supérieur : voit tous les paiements de l'église
+                $cotiserzones = $cotiserzoneRepository->findBy([
+                    'eglise' => $eglise, 
+                    'deletedAt' => NULL
+                ], ['datecotiser' => 'DESC']);
+            } 
+            elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE') && $zone) {
+                // Responsable de zone : voit les paiements des cotisations de sa zone
+                $cotiserzones = $cotiserzoneRepository->createQueryBuilder('c')
+                    ->leftJoin('c.cotisationzone', 'cz')
+                    ->where('c.eglise = :eglise')
+                    ->andWhere('c.deletedAt IS NULL')
+                    ->andWhere('cz.zone = :zone')
+                    ->setParameter('eglise', $eglise)
+                    ->setParameter('zone', $zone)
+                    ->orderBy('c.datecotiser', 'DESC')
+                    ->getQuery()
+                    ->getResult();
+            } 
+            else {
+                $this->addFlash('warning', 'Vous n\'avez pas les droits pour voir les paiements.');
+                return $this->redirectToRoute('app_home');
+            }
+            
+            return $this->render('cotiserzone/index.html.twig', [
+                'cotiserzones' => $cotiserzones,
+            ]);
         }
-        $eglise = $this->getUser()->getEglise();
-        $user = $this->getUser();
-        $roles = $user->getRoles();
-        $cotiserzone = $cotiserzoneRepository->findBy(['eglise' => $eglise, 'deletedAt' => NULL]);
-        return $this->render('cotiserzone/index.html.twig', [
-                    'cotiserzones' => $cotiserzone,
-        ]);
-    }
 
-    #[Route('/detailzone', name: 'app_cotiserzone_detailzone', methods: ['GET'])]
-    public function detailCotisation(DetailcotisationzoneRepository $detailRepo): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+        #[Route('/detailzone', name: 'app_cotiserzone_detailzone', methods: ['GET'])]
+        public function detailCotisation(DetailcotisationzoneRepository $detailRepo): Response
+        {
+            $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+            $user = $this->getUser();
+            $eglise = $user->getEglise();
+            $zone = $user->getZone();
+
+            // 🔥 ADMIN + SECRETAIRE = tout l’église
+            if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_SECRETAIRE')) {
+
+                $details = $detailRepo->findBy([
+                    'eglise' => $eglise,
+                    'deletedAt' => null
+                ]);
+
+            } else {
+
+                // 🔵 USER = filtre par zone via relation correcte
+                $details = $detailRepo->createQueryBuilder('d')
+                    ->leftJoin('d.cotisationzone', 'zc')
+                    ->leftJoin('zc.zone', 'z')
+                    ->andWhere('z = :zone')
+                    ->andWhere('d.deletedAt IS NULL')
+                    ->setParameter('zone', $zone)
+                    ->getQuery()
+                    ->getResult();
+            }
+
+            return $this->render('cotiserzone/detailcotisation.html.twig', [
+                'details' => $details,
+            ]);
         }
-        $eglise = $this->getUser()->getEglise();
-        $user = $this->getUser();
-        $detailcotisation = $detailRepo->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
-        return $this->render('cotiserzone/detailcotisation.html.twig', [
-                    'details' => $detailcotisation,
-        ]);
-    }
 
     #[Route('/new', name: 'app_cotiserzone_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, ZoneRepository $zoneRepository, SoldezoneRepository $soldeRepo, CotiserzoneRepository $cotiserzoneRepository, FideleRepository $fideleRepository, CotisationzoneRepository $cotisationzoneRepository): Response {
@@ -177,6 +222,7 @@ class CotiserzoneController extends AbstractController {
                 $detail->setMontantpayer($montant);
                 $detail->setCreatedBy($user);
                 $detail->setCreatedFromIp($this->GetIp());
+                $detail->setZone($zone);
                 $detail->setReste($restepayer);
                 $detail->setDatedetail($date);
                 $detail->setEtat('1');

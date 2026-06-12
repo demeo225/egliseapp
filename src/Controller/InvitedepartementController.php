@@ -22,14 +22,25 @@ class InvitedepartementController extends AbstractController {
     #[Route('/', name: 'app_invitedepartement_index', methods: ['GET'])]
     public function index(InvitedepartementRepository $invitedepartementRepository): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+       $user = $this->getUser();
+        $eglise = $user->getEglise();
+        
+        // Récupérer tous les invités
+        $allInvites = $invitedepartementRepository->findBy([
+            'eglise' => $eglise,
+            'deletedAt' => NULL
+        ], ['id' => 'DESC']);
+        
+        // Filtrer selon les droits via le Voter
+        $invites = [];
+        foreach ($allInvites as $invite) {
+            if ($this->isGranted('invitedepartement_view', $invite)) {
+                $invites[] = $invite;
+            }
         }
-        $user = $this->getUser();
-        $eglise = $this->getUser()->getEglise();
-        $invitedepartement = $invitedepartementRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
+        
         return $this->render('invitedepartement/index.html.twig', [
-                    'invitedepartements' => $invitedepartement,
+            'invitedepartements' => $invites,
         ]);
     }
 
@@ -52,16 +63,16 @@ class InvitedepartementController extends AbstractController {
 
         
          $departement = $departementRepo->findOneByUser($user);
-        $seancedepartement = $seancedepartementRepository->findBy(["departement" => $departement, "deletedAt" => NULL]);
+        $seancedepartement = $seancedepartementRepository->findBy(["departement" => $departement, "deletedAt" => NULL], ["id" => "DESC"]);
         $form = $this->createForm(InvitedepartementType::class, $invitedepartement, ['seancedepartement' => $seancedepartement]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
- $departement = $departementRepo->findOneByUser($user);
+          $departement = $departementRepo->findOneByUser($user);
             //Adresse ip de l'utilisateur
             if ($type === 'new') {
                 $invitedepartement->setCreatedFromIp($this->GetIp()) // remplacement de la function par le trait
-                        ->setDepartement($departement)
+                       // ->setDepartement($departement)
                         ->setEglise($user->getEglise())
                         ->setCreatedBy($user)
                 ;
@@ -84,6 +95,7 @@ class InvitedepartementController extends AbstractController {
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('invitedepartement/new.html.twig', [
                     'invitedepartement' => $invitedepartement,
+                    'departement' => $departement,
                     'form' => $form->createView(),
                     'response' => $response,
                         ], $response);

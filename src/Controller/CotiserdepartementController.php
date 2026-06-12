@@ -37,7 +37,7 @@ class CotiserdepartementController extends AbstractController {
         $cotiserdepartement = $cotiserdepartementRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
         return $this->render('cotiserdepartement/index.html.twig', [
                     'cotiserdepartements' => $cotiserdepartement,
-        ]);
+        ]); 
     }
 
     #[Route('/new', name: 'cotiserdepartement_new', methods: ['GET', 'POST'])]
@@ -67,7 +67,7 @@ class CotiserdepartementController extends AbstractController {
         $departements = $departementRepository->findOneByUser($user);
         
         // Récupérer les cotisations actives du département
-        $cotisationdepartement = $cotisationdepartementRepository->findBy(["deletedAt" => NULL, "etatcotiser" => 1]);
+        $cotisationdepartement = $cotisationdepartementRepository->findBy(['departement' => $departements, "etatcotiser" => 1]);
         
         $form = $this->createForm(CotiserdepartementType::class, $cotiserdepartement, [
            
@@ -223,7 +223,7 @@ private function gestionSoldeDepartement(SoldedepartementRepository $soldeRepo, 
 }
 
 
-#[Route('/get-montant-cotisation', name: 'get_montant_cotisation', methods: ['POST'])]
+#[Route('/get-montant-cotisation-departement', name: 'get_montant_cotisation_departement', methods: ['POST'])]
 public function getMontantCotisation(Request $request, CotisationdepartementRepository $cotisationdepartementRepository): JsonResponse
 {
     $id = $request->request->get('id');
@@ -238,7 +238,7 @@ public function getMontantCotisation(Request $request, CotisationdepartementRepo
     return $this->json(['montant' => 0]);
 }
 
-#[Route('/get-deja-paye-fidele', name: 'get_deja_paye_fidele', methods: ['POST'])]
+#[Route('/get-deja-paye-fidele-departement', name: 'get_deja_paye_fidele_departement', methods: ['POST'])]
 public function getDejaPayeFidele(
     Request $request, 
     CotisationdepartementRepository $cotisationdepartementRepository,

@@ -1,0 +1,87 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Informations du paiement -->
+            <div class="alert alert-info">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong><i class="fas fa-user"></i> Fidèle :</strong> {{ cotiserdepartement.fidele ? cotiserdepartement.fidele.nomfidele }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong><i class="fas fa-calendar"></i> Date :</strong> {{ cotiserdepartement.datecotiser ? cotiserdepartement.datecotiser|date('d/m/Y') : '-' }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cartes récapitulatives -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="alert alert-primary text-center">
+                        <strong>Montant total prévu</strong><br>
+                        <span style="font-size: 18px;">{{ totalMontant|default(0)|number_format(0, ',', ' ') }} FCFA</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="alert alert-success text-center">
+                        <strong>Total payé</strong><br>
+                        <span style="font-size: 18px;">{{ totalPaye|default(0)|number_format(0, ',', ' ') }} FCFA</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="alert alert-warning text-center">
+                        <strong>Reste total</strong><br>
+                        <span style="font-size: 18px;">{{ totalReste|default(0)|number_format(0, ',', ' ') }} FCFA</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Barre de progression -->
+            {% set taux = totalMontant > 0 ? (totalPaye / totalMontant * 100) : 0 %}
+            <div class="progress mb-4" style="height: 25px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ taux }}%">
+                    {{ taux|round(1) }}% réalisé
+                </div>
+            </div>
+            
+            <!-- Liste des transactions -->
+            {% if details is empty %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle"></i> Aucune transaction détaillée trouvée
+                </div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr class="bg-primary text-white">
+                                <th>#</th>
+                                <th>Date</th>
+                                <th class="text-right">Montant prévu</th>
+                                <th class="text-right">Montant payé</th>
+                                <th class="text-right">Reste</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detail in details %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ detail.datedetail ? detail.datedetail|date('d/m/Y') : '-' }}</td>
+                                <td class="text-right">{{ detail.montant|default(0)|number_format(0, ',', ' ') }} FCFA</td>
+                                <td class="text-right text-success">{{ detail.montantpayer|default(0)|number_format(0, ',', ' ') }} FCFA</td>
+                                <td class="text-right">{{ detail.reste|default(0)|number_format(0, ',', ' ') }} FCFA</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-light">
+                                <th colspan="2" class="text-right">TOTAUX :</th>
+                                <th class="text-right">{{ totalMontant|default(0)|number_format(0, ',', ' ') }} FCFA</th>
+                                <th class="text-right">{{ totalPaye|default(0)|number_format(0, ',', ' ') }} FCFA</th>
+                                <th class="text-right">{{ totalReste|default(0)|number_format(0, ',', ' ') }} FCFA</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

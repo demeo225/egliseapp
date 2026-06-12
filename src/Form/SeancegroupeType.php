@@ -80,18 +80,18 @@ class SeancegroupeType extends AbstractType
                 'attr' => ['placeholder' => 'Nom et Prénoms',]
             ])
 
-            // ✅ Groupe unique du responsable
-            ->add('groupe', EntityType::class, [
-                'class' => Groupe::class,
-                'choices' => $options['groupes'],
-                'choice_label' => 'nom',
+            // // ✅ Groupe unique du responsable
+            // ->add('groupe', EntityType::class, [
+            //     'class' => Groupe::class,
+            //     'choices' => $options['groupes'],
+            //     'choice_label' => 'nom',
             
-                'required' => true,
-                'multiple' => false,
-                'attr' => [
-                    'class' => 'select2',
-                ],
-            ])
+            //     'required' => true,
+            //     'multiple' => false,
+            //     'attr' => [
+            //         'class' => 'select2',
+            //     ],
+            // ])
 
             ->add('typeactivite', ChoiceType::class, [
                 'choices' => [
@@ -117,11 +117,11 @@ class SeancegroupeType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Seancegroupe::class,
             'fideles' => [],   // ✅ tableau de Fidele
-            'groupes' => [],   // ✅ tableau de Groupe
+           // 'groupes' => [],   // ✅ tableau de Groupe
         ]);
 
         // 🔒 Sécurise le type des options
         $resolver->setAllowedTypes('fideles', 'array');
-        $resolver->setAllowedTypes('groupes', 'array');
+      //  $resolver->setAllowedTypes('groupes', 'array');
     }
 }

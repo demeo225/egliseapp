@@ -7,149 +7,142 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class CotiserfamilleVoter extends Voter {
-
-    public const COTISATIONFAMILLE_EDIT = 'cotiserfamille_edit';
-    public const COTISATIONFAMILLE_VIEW = 'cotiserfamille_index';
-    public const COTISATIONFAMILLE_DELETE = 'cotiserfamille_delete';
+class CotiserfamilleVoter extends Voter 
+{
+    public const COTISATIONCELLULE_EDIT = 'cotiserfamille_edit';
+    public const COTISATIONCELLULE_VIEW = 'cotiserfamille_index';
+    public const COTISATIONCELLULE_DELETE = 'cotiserfamille_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $cotiserfamille): bool {
-        return in_array($attribute, [self::COTISATIONFAMILLE_EDIT, self::COTISATIONFAMILLE_VIEW, self::COTISATIONFAMILLE_DELETE]) 
-            && $cotiserfamille instanceof Cotiserfamille;
+    protected function supports(string $attribute, $cotiserfamille): bool 
+    {
+        return in_array($attribute, [
+            self::COTISATIONCELLULE_EDIT, 
+            self::COTISATIONCELLULE_VIEW, 
+            self::COTISATIONCELLULE_DELETE
+        ]) && $cotiserfamille instanceof Cotiserfamille;
     }
 
-    protected function voteOnAttribute(string $attribute, $cotiserfamille, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $cotiserfamille, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
-        
-        // Admin a tous les droits
+
+        // Les admins ont tous les accès
         if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
         }
 
-        // Vérifier si la famille existe
         $famille = $cotiserfamille->getFamille();
+        
         if (null === $famille) {
             return false;
         }
 
+        // Vérifier si l'utilisateur a accès à cette cotiser
+        if (!$this->canAccessCotiser($user, $famille)) {
+            return false;
+        }
+
         switch ($attribute) {
-            case self::COTISATIONFAMILLE_EDIT:
-                return $this->canEdit($cotiserfamille, $user);
-            case self::COTISATIONFAMILLE_VIEW:
-                return $this->canView($cotiserfamille, $user);
-            case self::COTISATIONFAMILLE_DELETE:
-                return $this->canDelete($cotiserfamille, $user);
+            case self::COTISATIONCELLULE_VIEW:
+                return true;
+                
+            case self::COTISATIONCELLULE_EDIT:
+                return $this->canEdit($user, $famille);
+                
+            case self::COTISATIONCELLULE_DELETE:
+                return $this->canDelete($user, $famille);
+                
+            default:
+                return false;
         }
+    }
 
+    /**
+     * Vérifie si l'utilisateur peut accéder à la cotiser
+     * Accès si : 
+     * - L'utilisateur appartient à la famille (User.famille)
+     * - OU l'utilisateur est responsable de la zone de cette famille (User.zone)
+     */
+    private function canAccessCotiser(User $user, $famille): bool
+    {
+        // Cas 1: L'utilisateur est membre de la famille
+        if ($user->getFamille() && $user->getFamille()->getId() === $famille->getId()) {
+            return true;
+        }
+        
+        // Cas 2: L'utilisateur est responsable de la zone qui contient cette famille
+        $zone = $famille->getZone();
+        if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+            return true;
+        }
+        
         return false;
     }
 
-    private function canEdit(Cotiserfamille $cotiserfamille, User $user): bool {
-        // Le secrétaire peut tout modifier
+    /**
+     * Vérifie si l'utilisateur peut modifier
+     * Modification possible si :
+     * - L'utilisateur est secrétaire
+     * - L'utilisateur est responsable de la zone
+     * - L'utilisateur est membre de la famille (si vous autorisez)
+     */
+    private function canEdit(User $user, $famille): bool
+    {
+        // Secrétaire peut tout modifier
         if ($this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        $famille = $cotiserfamille->getFamille();
         
-        // Vérifier si l'utilisateur est responsable de zone
+        // Responsable de zone peut modifier les cotisers des familles de sa zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $famille->getZone();
-            if ($zone && $zone->getUsers()) {
-                return $user === $zone->getUsers();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur est le responsable de la famille
-        if ($famille->getUsers() && $user === $famille->getUsers()) {
+        
+        // Option: Les membres de la famille peuvent modifier
+        // Décommentez si vous voulez autoriser les membres à modifier
+        if ($user->getFamille() && $user->getFamille()->getId() === $famille->getId()) {
             return true;
         }
-
-        // Vérifier si l'utilisateur appartient à la famille
-        if (method_exists($famille, 'getUsers')) {
-            return $famille->getUsers()->contains($user);
-        }
-
-        // Vérifier dans les membres de la famille
-        if (method_exists($famille, 'getMembres')) {
-            foreach ($famille->getMembres() as $membre) {
-                if ($user === $membre) {
-                    return true;
-                }
-            }
-        }
-
+        
         return false;
     }
 
-    private function canView(Cotiserfamille $cotiserfamille, User $user): bool {
-        // Le secrétaire peut tout voir
+    /**
+     * Vérifie si l'utilisateur peut supprimer
+     * Suppression possible seulement pour :
+     * - Secrétaire
+     * - Responsable de zone
+     */
+    private function canDelete(User $user, $famille): bool
+    {
+        // Secrétaire peut tout supprimer
         if ($this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        $famille = $cotiserfamille->getFamille();
         
-        // Vérifier si l'utilisateur est responsable de zone
+        // Responsable de zone peut supprimer les cotisers des familles de sa zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $famille->getZone();
-            if ($zone && $zone->getUsers()) {
-                return $user === $zone->getUsers();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur est le responsable de la famille
-        if ($famille->getUsers() && $user === $famille->getUsers()) {
-            return true;
-        }
-
-        // Vérifier si l'utilisateur appartient à la famille
-        if (method_exists($famille, 'getUsers')) {
-            return $famille->getUsers()->contains($user);
-        }
-
-        // Vérifier dans les membres de la famille
-        if (method_exists($famille, 'getMembres')) {
-            foreach ($famille->getMembres() as $membre) {
-                if ($user === $membre) {
-                    return true;
-                }
-            }
-        }
-
+        
         return false;
-    }
-
-    private function canDelete(Cotiserfamille $cotiserfamille, User $user): bool {
-        // Le secrétaire peut tout supprimer
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
-        }
-
-        $famille = $cotiserfamille->getFamille();
-        
-        // Vérifier si l'utilisateur est responsable de zone
-        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            $zone = $famille->getZone();
-            if ($zone && $zone->getUsers()) {
-                return $user === $zone->getUsers();
-            }
-        }
-
-        // Seul le responsable de la famille peut supprimer
-        return $famille->getUsers() && $user === $famille->getUsers();
     }
 }

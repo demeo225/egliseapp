@@ -52,7 +52,7 @@ class InvitefamilleController extends AbstractController {
 
         
         $famille = $familleRepo->findOneByUser($user);
-        $seancefamille = $seancefamilleRepository->findBy(["famille" => $famille, "deletedAt" => NULL]);
+        $seancefamille = $seancefamilleRepository->findBy(["famille" => $famille, "deletedAt" => NULL], ["id" => "DESC"]);
         $form = $this->createForm(InvitefamilleType::class, $invitefamille, ['seancefamille' => $seancefamille]);
         $form->handleRequest($request);
 
@@ -62,7 +62,7 @@ class InvitefamilleController extends AbstractController {
             if ($type === 'new') {
                 $invitefamille->setCreatedFromIp($this->GetIp()) // remplacement de la function par le trait
                         ->setEglise($user->getEglise())
-                        ->setFamille($famille)
+                       // ->setFamille($famille)
                         ->setCreatedBy($user)
                 ;
             } else {

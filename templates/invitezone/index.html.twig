@@ -7,7 +7,7 @@
         <div class="card-header">
             <h3 class="card-title">Liste des invités de zone</h3>
         </div>
-<div class="offset-1 col-md-10 mt-2 mb-2">
+ <div class="offset-1 col-md-10 mt-2 mb-2">
         {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
             {% for message in messages %}
                 <div class="alert alert-{{ label }} my-alert" role="alert">
@@ -18,11 +18,25 @@
     </div>
         
         <div class="card-body">
-            <a href="{{ path('app_invitezone_new') }}">
-                <button class="btn btn-primary">Nouveau</button></a>
-            <a href={{ path('app_seancezone_index') }}>
+                    <a href={{ path('app_seancezone_index') }}>
                 <button class="btn btn-success">Liste activités</button>
             </a>
+         <a href="{{ path('app_cotiserzone_new') }}" class="btn btn-danger">
+                <i class="fas fa-money-bill"></i> Paiement cotisation
+            </a>
+            <a href="{{ path('app_cotiserzone_index') }}" class="btn btn-success">
+                <i class="fas fa-list"></i> Liste des paiements
+            </a>
+                               <a href={{ path('app_depensezone_index') }}>
+                        <button class="btn btn-success">Depense</button>
+
+                    </a>
+                <a href={{ path('app_cotiserzone_detailzone') }}>
+                    <button class="btn btn-success">Detail cotisation</button>
+                </a>
+            <a href="{{ path('app_invitezone_new') }}">
+                <button class="btn btn-primary">Nouveau</button></a>
+
 
 
             <hr style="visibility: hidden" />
@@ -31,20 +45,20 @@
                     <tr>
 
                         <th>Date</th>
-                        <th>Zone</th>
+                        <th>Cone</th>
                         <th>Nom</th>
                         <th>Contact</th>
                         <th>Habitation</th>
                         <th>Sexe</th>
                         <th>Fonction</th>
+
                         <th>Modifier</th>
                         <th>Supprimer</th>
-                        
                     </tr>
                 </thead>
                 <tbody>
                     {% for invitezone in invitezones %}
-                        {% if is_granted("invitezone_edit", invitezone) %}
+                        {% if is_granted("invitezone_view", invitezone) %}
                             <tr>
                                 <td> {% if invitezone.seancezone is not empty %} {{ invitezone.seancezone.datesuper|date('d-m-Y') }} {% else %} {% endif %}</td>
                                 <td> {% if invitezone.seancezone is not empty %} {{ invitezone.seancezone.zone.nom }} {% else %} {% endif %}</td>
@@ -62,7 +76,6 @@
                                         </span>
                                     </button>
                                 </td>
-                                
                                  <td>
                                 <form method="post" action="{{ path('app_invitezone_delete', {'id': invitezone.id}) }}" onsubmit="return confirm('Voulez-vous supprimer?');">
                                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ invitezone.id) }}">

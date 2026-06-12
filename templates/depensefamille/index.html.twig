@@ -73,7 +73,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for depensefamille in depensefamilles %}
+                        {% for depensefamille in depensefamilles %} 
+                            {% if is_granted("depensefamille_edit", depensefamille) %}
                             <tr>
                                 <td> {% if depensefamille.famille is not empty %}  {{ depensefamille.famille.nom }} {% else %} {% endif %}</td>
                                 <td>{{ depensefamille.datedepense ? depensefamille.datedepense|date('d-m-Y') : '' }}</td>
@@ -81,15 +82,13 @@
                                 <td>{{ depensefamille.montant|number_format(0, '.', ' ')  }}</td>
 
                                 <td>
-                                    <a href="{{ path('app_depensefamille_show', {'id': depensefamille.id}) }}">      <span style="font-size: 1em; color: Dodgerblue;">
-                                            <i class="fas fa-list" title="Details"></i>
-                                        </span></a>
+                                   
                                     <a href="{{ path('app_depensefamille_edit', {'id': depensefamille.id}) }}">          <span style="font-size: 1em; color: Dodgerblue;">
                                             <i class="fas fa-edit" title="Modification"></i>
                                         </span></a>
                                 </td>
                             </tr>
-                     
+                     {% endif %}
 
                         {% endfor %}
                     </tbody>

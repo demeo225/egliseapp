@@ -27,16 +27,16 @@ class QuartierType extends AbstractType {
                     'attr' => array('class' => 'select2'),
                     'required' => true,
                 ])
-                // ->add('save', SubmitType::class, [
-                //     'attr' => [
-                //         'value' => 'create'
-                //     ]
-                // ])
-                // ->add('saveAndAdd', SubmitType::class, [
-                //     'attr' => [
-                //         'value' => 'save-and-add'
-                //     ]
-                // ])
+              ->add('save', SubmitType::class, [
+                    'attr' => [
+                        'value' => 'create-don'
+                    ]
+                ])
+                ->add('saveAndAdd', SubmitType::class, [
+                    'attr' => [
+                        'value' => 'save-and-add'
+                    ]
+                ])
 
         ; 
     }

@@ -26,7 +26,7 @@ class DepartementType extends AbstractType {
                 ->add('responsable2', TextType::class, [
                     'required' => false,
                 ])
-            /*     ->add('save', SubmitType::class, [
+                ->add('save', SubmitType::class, [
                     'attr' => [
                         'value' => 'create-don'
                     ]
@@ -35,7 +35,7 @@ class DepartementType extends AbstractType {
                     'attr' => [
                         'value' => 'save-and-add'
                     ]
-                ]) */
+                ]) 
 
         ;
     }

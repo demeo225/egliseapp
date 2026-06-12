@@ -23,20 +23,47 @@ class DepensezoneController extends AbstractController {
 
     use ClientIp;
 
-    #[Route('/', name: 'app_depensezone_index', methods: ['GET'])]
+   #[Route('/', name: 'app_depensezone_index', methods: ['GET'])]
     public function index(DepensezoneRepository $depensezoneRepository, SoldezoneRepository $soldeRepo, ZoneRepository $zoneRepo): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
-        }
-        $zone = $this->getUser()->getZone();
-        $zone2 = $zoneRepo->findOneZone($zone);
+        
         $user = $this->getUser();
-        $solde = $soldeRepo->findBy(['zone' => $zone2]);
-        $depense = $depensezoneRepository->findBy(['zone' => $zone2, "deletedAt" => NULL]);
+        $eglise = $user->getEglise();
+        $zone = $user->getZone();
+        
+        // Vérifier les droits d'accès
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SUPER_ADMIN') || $this->isGranted('ROLE_SECRETAIRE')) {
+            // Rôle supérieur : voit toutes les cotisations
+            $cotisations = $depensezoneRepository->findBy([
+                'eglise' => $eglise, 
+                'deletedAt' => NULL
+            ], ['createAt' => 'DESC']);
+        } 
+        elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE') && $zone) {
+            // Responsable de zone : voit uniquement les cotisations de sa zone
+            $cotisations = $depensezoneRepository->findBy([
+                'eglise' => $eglise, 
+                'zone' => $zone,
+                'deletedAt' => NULL
+            ], ['createAt' => 'DESC']);
+        } 
+        else {
+            $this->addFlash('warning', 'Vous n\'avez pas les droits pour voir les cotisations.');
+            return $this->redirectToRoute('home');
+        }
+        
+        // Récupération du solde
+        $solde = [];
+        if ($zone) {
+            $zone2 = $zoneRepo->findOneZone($zone);
+            if ($zone2) {
+                $solde = $soldeRepo->findBy(['zone' => $zone2]);
+            }
+        }
+        
         return $this->render('depensezone/index.html.twig', [
-                    'depensezones' => $depense,
-                    'soldes' => $solde,
+            'depensezones' => $cotisations,
+            'soldes' => $solde,
         ]);
     }
 

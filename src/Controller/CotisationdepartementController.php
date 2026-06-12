@@ -9,6 +9,8 @@ use App\Repository\CotiserdepartementRepository;
 use App\Repository\DepartementRepository;
 use App\Repository\SoldedepartementRepository;
 use App\Repository\FideleRepository;
+use App\Repository\DetailcotisationdepartementRepository;
+
 
 use App\Traits\ClientIp;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -54,7 +56,7 @@ class CotisationdepartementController extends AbstractController {
        // $departement = $user->getDepartement();
          $departement = $departementRepository->findOneByUser($user);
              if (!$departement) {
-            $this->addFlash('warning', 'Vous ne disposez pas de Famille à gérer.');
+            $this->addFlash('warning', 'Vous ne disposez pas de Departement à gérer.');
             return $this->redirectToRoute('cotisationdepartement_index');
         }
         $form = $this->createForm(CotisationdepartementType::class, $cotisationdepartement,);
@@ -190,6 +192,43 @@ public function detailCotisationdepartement(
         'membres' => $membres,
         'statsParFidele' => $statsParFidele,
         'departement' => $departement,
+    ]);
+}
+
+  #[Route('/detail-paiement/{id}', name: 'detail_paiement_departement', methods: ['POST'])]
+public function detailPaiement(int $id, DetailcotisationdepartementRepository $detailcotisationdepartementRepository, CotiserdepartementRepository $cotiserdepartementRepository ): Response
+{
+    $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    
+    // Alternative: chercher par cotisationdepartement_id et fidele_id
+    $cotiserdepartement = $cotiserdepartementRepository->find($id);
+    
+    if (!$cotiserdepartement) {
+        return $this->json(['error' => 'Paiement non trouvé'], 404);
+    }
+    
+    // Chercher les détails par cotisationdepartement et fidele
+    $details = $detailcotisationdepartementRepository->findBy([
+        'cotisationdepartement' => $cotiserdepartement->getCotisationdepartement(),
+        'fidele' => $cotiserdepartement->getFidele(),
+        'deletedAt' => NULL
+    ], ['datedetail' => 'DESC']);
+    
+    $totalMontant = 0;
+    $totalPaye = 0;
+    $totalReste = 0;
+    foreach ($details as $detail) {
+        $totalMontant += $detail->getMontant() ?? 0;
+        $totalPaye += $detail->getMontantpayer() ?? 0;
+        $totalReste += $detail->getReste() ?? 0;
+    }
+    
+    return $this->render('cotisationdepartement/_detail_paiement_modal.html.twig', [
+        'details' => $details,
+        'cotiserdepartement' => $cotiserdepartement,
+        'totalMontant' => $totalMontant,
+        'totalPaye' => $totalPaye,
+        'totalReste' => $totalReste,
     ]);
 }
 

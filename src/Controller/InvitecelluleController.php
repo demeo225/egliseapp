@@ -52,7 +52,7 @@ class InvitecelluleController extends AbstractController {
 
         
         $cellule = $celluleRepo->findOneByUser($user);
-        $seancecellule = $seancecelluleRepository->findBy(["cellule" => $cellule, "deletedAt" => NULL]);
+        $seancecellule = $seancecelluleRepository->findBy(["cellule" => $cellule, "deletedAt" => NULL], ["id" => "DESC"]);
         $form = $this->createForm(InvitecelluleType::class, $invitecellule, ['seancecellule' => $seancecellule]);
         $form->handleRequest($request);
 

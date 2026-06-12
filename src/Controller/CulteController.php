@@ -11,6 +11,11 @@ use App\Repository\PresenceculteRepository;
 use App\Repository\TypeculteRepository;
 use App\Service\FileUploader;
 use App\Traits\ClientIp;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Uid\Uuid;
+use App\Service\QrCodeGenerator;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
@@ -34,9 +39,9 @@ class CulteController extends AbstractController {
         }
         $eglise = $this->getUser()->getEglise();
         $user = $this->getUser();
-        $culte = $culteRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
+        $culte = $culteRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL], ["createAt"=>"ASC"]);
         return $this->render('culte/index.html.twig', [
-                    'culte' => $culte,
+                    'cultes' => $culte,
         ]);
     }
 
@@ -121,71 +126,267 @@ class CulteController extends AbstractController {
         }
     }
 
-    #[Route('/{id}/update', name: 'culte_update', methods: ['GET', 'POST'])]
-    #[Route('/add', name: 'culte_add', methods: ['GET', 'POST'])]
-    public function add(EntityManagerInterface $entityManager, Request $request, FileUploader $fileUploader,  TypeculteRepository $typeculteRepository ,FideleRepository $fideleRepository, ?Culte $culte = null): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_SECRETAIRE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+
+#[Route('/{id}/update', name: 'culte_update', methods: ['GET', 'POST'])]
+#[Route('/add', name: 'culte_add', methods: ['GET', 'POST'])]
+public function add(EntityManagerInterface $entityManager, Request $request, QrCodeGenerator $qrGenerator, FileUploader $fileUploader, TypeculteRepository $typeculteRepository, FideleRepository $fideleRepository, CulteRepository $culteRepository, ?Culte $culte = null): Response 
+{
+    $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    if (!$this->isGranted('ROLE_SECRETAIRE')) {
+        throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+    }
+    
+    $user = $this->getUser();
+    $type = $culte === null ? 'add' : 'update';
+    $culte = $culte === null ? new Culte() : $culte;
+    $eglise = $this->getUser()->getEglise();
+    $fidele = $fideleRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
+    $typeculte = $typeculteRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
+
+    $form = $this->createForm(CulteType::class, $culte, ['fidele' => $fidele, 'typeculte' => $typeculte,]);
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+        $brochureFile = $form->get('photo')->getData();
+        if ($brochureFile) {
+            $brochureFileName = $fileUploader->upload($brochureFile);
+            $culte->setPhoto($brochureFileName);
         }
-        $user = $this->getUser();
-        $type = $culte === null ? 'add' : 'update';
-        $culte = $culte === null ? new Culte() : $culte;
-        $eglise = $this->getUser()->getEglise();
-        $fidele = $fideleRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
-        $typeculte = $typeculteRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
 
-        $form = $this->createForm(CulteType::class, $culte, ['fidele' => $fidele, 'typeculte' => $typeculte,]);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
+        // Vérification de la date
+        $naiss = $form['dateculte']->getData();
+        $aujourdhui = new DateTime("now");
+
+        if ($aujourdhui < $naiss) {
+            $this->addFlash('warning', 'Date éronnée.');
+            return $this->redirectToRoute('culte_add');
+        }
+
+        if ($type === 'add') {
+            // Désactiver tous les autres cultes
+            $allCultes = $culteRepository->findBy(['eglise' => $eglise]);
+            foreach ($allCultes as $existingCulte) {
+                $existingCulte->setEtat(false);
+            }
             
-          $brochureFile = $form->get('photo')->getData();
-            if ($brochureFile) {
-                $brochureFileName = $fileUploader->upload($brochureFile);
-                $culte->setPhoto($brochureFileName);
-            }
-         
+            // Configurer le nouveau culte
+            $culte->setEtat(true);
+            $culte->setCreatedFromIp($this->GetIp())
+                  ->setEglise($user->getEglise())
+                  ->setCreatedBy($user);
+            
+            // Persister sans flush
+                    $culte->setTokenPresence(
+                Uuid::v4()->toRfc4122()
+            );
 
-            if ($type === 'add') {
-                $culte->setCreatedFromIp($this->GetIp()) // remplacement de la function par le trait
-                        ->setEglise($user->getEglise())
-                        ->setCreatedBy($user)
-                ;
-                $this->addFlash('success', 'Enregistrement avec succès.');
-            } else {
-                $culte->setUpdatedFromIp($this->GetIp()) // remplacement de la function par le trait
-                        ->setUpdatedBy($user)
-                ;
-                $this->addFlash('success', 'Modification effectuée  avec succès.');
-            }
-            $culte->setCreatedFromIp($this->GetIp());
-
-            //Calcul d'age en fonction de la date de naissance et la date d'ohjodui
-            $naiss = $form['dateculte']->getData();
-
-            $aujourdhui = new DateTime("now");
-
-            if ($aujourdhui < $naiss) {
-                $this->addFlash('warning', 'Date éronnée.');
-                return $this->redirect('add');
-            }
-            $culte->setCreatedBy($user);
-            $culte->setEglise($eglise);
-            $culte = $form->getData();
+                $culte->setDateExpirationQr(
+                    (new \DateTime())->modify('+1 day')
+                );
             $entityManager->persist($culte);
             $entityManager->flush();
-            $nextAction = $form->get('saveAndAdd')->isClicked() ? 'culte_add' : 'culte';
+                    $url = $this->generateUrl(
+                    'presence_scan',
+                    [
+                        'token' => $culte->getTokenPresence()
+                    ],
+                    UrlGeneratorInterface::ABSOLUTE_URL
+                );
 
-            return $this->redirectToRoute($nextAction);
+         $qrGenerator->generate(
+            $url,
+            $this->getParameter('kernel.project_dir')
+            . '/public/qrcode/culte_'.$culte->getId().'.png'
+        );
+            
+        //   $this->generateQrCodeDirect($culte, $entityManager);
+            }
+        else {
+            $culte->setUpdatedFromIp($this->GetIp())
+                  ->setUpdatedBy($user);
+            $entityManager->persist($culte);
+            $entityManager->flush();
+            $this->addFlash('success', 'Modification effectuée avec succès.');
         }
-        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
-
-        return $this->render('culte/add.html.twig', [
-                    'culte' => $culte,
-                    'form' => $form->createView(),
-                    'response' => $response,
-                        ], $response);
+        
+        $nextAction = $form->get('saveAndAdd')->isClicked() ? 'culte_add' : 'culte';
+        return $this->redirectToRoute($nextAction);
     }
+    
+    $response = new Response(null, $form->isSubmitted() ? 422 : 200);
+    return $this->render('culte/add.html.twig', [
+        'culte' => $culte,
+        'form' => $form->createView(),
+        'response' => $response,
+    ], $response);
+}
+
+//    private function generateQrCodeDirect(Culte $culte, EntityManagerInterface $entityManager): void
+// {
+//     try {
+//         if (!$culte->getId()) {
+//             return;
+//         }
+        
+//         $url = $this->generateUrl('culte_scan_qr', ['id' => $culte->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        
+//         $qrCode = new QrCode($url);
+//         $qrCode->setSize(300);
+//         $qrCode->setMargin(10);
+        
+//         $writer = new PngWriter();
+//         $result = $writer->write($qrCode);
+        
+//         $culte->setQrCode($result->getDataUri());
+        
+//         // Ne pas faire de flush ici, le flush sera fait après
+//         // $entityManager->flush();
+        
+//     } catch (\Exception $e) {
+//         error_log('Erreur génération QR: ' . $e->getMessage());
+//         $culte->setQrCode(null);
+//     }
+// }
+
+// #[Route('/scan/{id}', name: 'culte_scan_qr', methods: ['GET'])]
+// public function scanQrCode(Culte $culte, Request $request): Response
+// {
+//     // Vérifier si le culte est actif (etat == 1)
+//     if ($culte->getEtat() != 1) {
+//         $this->addFlash('warning', 'Ce culte n\'est pas actif ou est terminé.');
+//         return $this->render('culte/scan_error.html.twig', [
+//             'message' => 'Ce culte n\'est pas disponible pour l\'enregistrement.'
+//         ]);
+//     }
+    
+//     // Vérifier si la date du culte n'est pas dépassée
+//     $now = new \DateTime();
+//     if ($culte->getDateculte() < $now) {
+//         $this->addFlash('warning', 'Ce culte est déjà passé.');
+//         return $this->render('culte/scan_error.html.twig', [
+//             'message' => 'Ce culte est déjà terminé.'
+//         ]);
+//     }
+    
+//     // Stocker l'ID du culte en session
+//     $session = $request->getSession();
+//     $session->set('current_culte_id', $culte->getId());
+    
+//     return $this->render('culte/scan_form.html.twig', [
+//         'culte' => $culte,
+//         'csrf_token' => $this->generateCsrfToken('scan_culte')
+//     ]);
+// }
+
+// // Dans CulteController.php
+// #[Route('/qrcode/print/{id}', name: 'culte_qrcode_print', methods: ['GET'])]
+// public function printQrCode(Culte $culte): Response
+// {
+//     if (!$culte->getQrCode() || $culte->getEtat() != 1) {
+//         $this->addFlash('warning', 'QR code non disponible pour ce culte');
+//         return $this->redirectToRoute('culte');
+//     }
+    
+//     return $this->render('culte/qrcode_print.html.twig', [
+//         'culte' => $culte,
+//     ]);
+// }
+
+// #[Route('/scan/register', name: 'culte_scan_register', methods: ['POST'])]
+// public function registerFromScan(Request $request, FideleRepository $fideleRepository, CulteRepository $culteRepository, PresenceculteRepository $presenceRepo, EntityManagerInterface $entityManager): Response
+// {
+//     // Vérifier le token CSRF
+//     $submittedToken = $request->request->get('_token');
+//     if (!$this->isCsrfTokenValid('scan_culte', $submittedToken)) {
+//         return $this->json(['error' => 'Token invalide'], 400);
+//     }
+    
+//     $session = $request->getSession();
+//     $culteId = $session->get('current_culte_id');
+    
+//     if (!$culteId) {
+//         return $this->json(['error' => 'Session expirée, veuillez scanner à nouveau'], 400);
+//     }
+    
+//     $culte = $culteRepository->find($culteId);
+//     if (!$culte || $culte->getEtat() != 1) {
+//         return $this->json(['error' => 'Culte non disponible'], 400);
+//     }
+    
+//     $contact1 = $request->request->get('contact1');
+//     $nomfidele = $request->request->get('nomfidele');
+    
+//     // Validation
+//     if (empty($contact1)) {
+//         return $this->json(['error' => 'Le numéro de téléphone est requis'], 400);
+//     }
+    
+//     if (empty($nomfidele)) {
+//         return $this->json(['error' => 'Le nom est requis'], 400);
+//     }
+    
+//     $eglise = $culte->getEglise();
+    
+//     // Chercher si le fidèle existe déjà
+//     $fidele = $fideleRepository->findOneBy([
+//         'contact1' => $contact1,
+//         'eglise' => $eglise,
+//         'deletedAt' => null
+//     ]);
+    
+//     // Si le fidèle n'existe pas, le créer
+//     if (!$fidele) {
+//         $fidele = new Fidele();
+//         $fidele->setNomfidele($nomfidele)
+//                ->setContact1($contact1)
+//                ->setEglise($eglise)
+//                ->setEtatfidele(1)
+//                ->setCreatedBy($this->getUser() ?? 'system')
+//                ->setCreatedFromIp($request->getClientIp());
+        
+//         $entityManager->persist($fidele);
+//         $entityManager->flush();
+        
+//         $this->addFlash('success', 'Nouveau fidèle enregistré avec succès !');
+//     } else {
+//         // Mettre à jour le nom si différent
+//         if ($fidele->getNomfidele() !== $nomfidele) {
+//             $fidele->setNomfidele($nomfidele);
+//             $entityManager->flush();
+//         }
+//         $this->addFlash('success', 'Bienvenue ' . $fidele->getNomfidele() . ' !');
+//     }
+    
+//     // Vérifier si la présence existe déjà
+//     $existingPresence = $presenceRepo->findOneBy([
+//         'fidele' => $fidele,
+//         'culte' => $culte
+//     ]);
+    
+//     if ($existingPresence) {
+//         return $this->json(['error' => 'Vous avez déjà enregistré votre présence pour ce culte'], 400);
+//     }
+    
+//     // Créer la présence
+//     $presence = new Presenceculte();
+//     $presence->setFidele($fidele)
+//              ->setCulte($culte)
+//              ->setEglise($eglise)
+//              ->setCreatedBy($fidele->getNomfidele())
+//              ->setCreatedFromIp($request->getClientIp());
+    
+//     $entityManager->persist($presence);
+//     $entityManager->flush();
+    
+//     // Nettoyer la session
+//     $session->remove('current_culte_id');
+    
+//     return $this->json([
+//         'success' => true,
+//         'message' => 'Présence enregistrée avec succès !',
+//         'fidele' => $fidele->getNomfidele()
+//     ], 200);
+// }
 
     #[Route('/print', name: 'culte_print', methods: ['GET', 'POST'])]
     public function printculte(CulteRepository $culteRepository): Response {

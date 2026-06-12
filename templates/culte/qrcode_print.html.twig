@@ -1,0 +1,64 @@
+{# templates/culte/qrcode_print.html.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>QR Code - {{ culte.theme }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .qr-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+        }
+        .qr-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .qr-subtitle {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #666;
+        }
+        .qr-code img {
+            max-width: 300px;
+            height: auto;
+        }
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .qr-container {
+                border: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="qr-container">
+        <div class="qr-title">QR Code - Culte</div>
+        <div class="qr-subtitle">{{ culte.theme }}</div>
+        <div class="qr-code">
+            <img src="{{ culte.qrCode }}" alt="QR Code">
+        </div>
+        <div class="qr-info">
+            Date: {{ culte.dateculte|date('d/m/Y H:i') }}<br>
+            Scannez pour enregistrer votre présence
+        </div>
+    </div>
+    <script>
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

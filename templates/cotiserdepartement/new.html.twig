@@ -81,6 +81,7 @@
 
 {% block javascripts %}
 {{ parent() }}
+
 <script>
 $(document).ready(function() {
     // Initialiser les select2
@@ -99,7 +100,7 @@ $(document).ready(function() {
         
         if (cotisationId && cotisationId !== '') {
             $.ajax({
-                url: '{{ path('get_montant_cotisation') }}',
+                url: '{{ path('get_montant_cotisation_departement') }}',
                 type: 'POST',
                 data: { id: cotisationId },
                 dataType: 'json',
@@ -133,7 +134,7 @@ $(document).ready(function() {
         
         if (cotisationId && fideleId && cotisationId !== '' && fideleId !== '') {
             $.ajax({
-                url: '{{ path('get_deja_paye_fidele') }}',
+                url: '{{ path('get_deja_paye_fidele_departement') }}',
                 type: 'POST',
                 data: { 
                     cotisation_id: cotisationId,
@@ -228,7 +229,7 @@ $(document).ready(function() {
         
         if (cotisationId && fideleId && cotisationId !== '' && fideleId !== '') {
             $.ajax({
-                url: '{{ path('get_deja_paye_fidele') }}',
+                url: '{{ path('get_deja_paye_fidele_departement') }}',
                 type: 'POST',
                 data: { 
                     cotisation_id: cotisationId,

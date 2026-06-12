@@ -7,129 +7,142 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class DetailcotisationfamilleVoter extends Voter {
-
-    public const EDIT = 'POST_EDIT';
-    public const DETAILCOTISATIONFAMILLE_VIEW = 'cotiserfamille_detailfamille';
+class DetailcotisationfamilleVoter extends Voter 
+{
+    public const COTISATIONCELLULE_EDIT = 'detailcotisationfamille_edit';
+    public const COTISATIONCELLULE_VIEW = 'detailcotisationfamille_index';
+    public const COTISATIONCELLULE_DELETE = 'detailcotisationfamille_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $detailfamille): bool {
-        return in_array($attribute, [self::EDIT, self::DETAILCOTISATIONFAMILLE_VIEW]) 
-            && $detailfamille instanceof Detailcotisationfamille;
+    protected function supports(string $attribute, $detailcotisationfamille): bool 
+    {
+        return in_array($attribute, [
+            self::COTISATIONCELLULE_EDIT, 
+            self::COTISATIONCELLULE_VIEW, 
+            self::COTISATIONCELLULE_DELETE
+        ]) && $detailcotisationfamille instanceof Detailcotisationfamille;
     }
 
-    protected function voteOnAttribute(string $attribute, $detailfamille, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $detailcotisationfamille, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
-        
-        // ROLE_ADMIN a tous les droits
+
+        // Les admins ont tous les accès
         if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
         }
-        
-        // ROLE_SECRETAIRE a tous les droits
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
-        }
 
-        // Vérifier si la cotisation famille existe
-        $cotisationfamille = $detailfamille->getCotisationfamille();
-        if (null === $cotisationfamille) {
-            return false;
-        }
+        $famille = $detailcotisationfamille->getFamille();
         
-        // Vérifier si la famille existe
-        $famille = $cotisationfamille->getFamille();
         if (null === $famille) {
             return false;
         }
 
+        // Vérifier si l'utilisateur a accès à cette detailcotisation
+        if (!$this->canAccessDetailcotisation($user, $famille)) {
+            return false;
+        }
+
         switch ($attribute) {
-            case self::EDIT:
-                return $this->canEdit($detailfamille, $user);
-            case self::DETAILCOTISATIONFAMILLE_VIEW:
-                return $this->canViewDetail($detailfamille, $user);
+            case self::COTISATIONCELLULE_VIEW:
+                return true;
+                
+            case self::COTISATIONCELLULE_EDIT:
+                return $this->canEdit($user, $famille);
+                
+            case self::COTISATIONCELLULE_DELETE:
+                return $this->canDelete($user, $famille);
+                
+            default:
+                return false;
         }
+    }
 
+    /**
+     * Vérifie si l'utilisateur peut accéder à la detailcotisation
+     * Accès si : 
+     * - L'utilisateur appartient à la famille (User.famille)
+     * - OU l'utilisateur est responsable de la zone de cette famille (User.zone)
+     */
+    private function canAccessDetailcotisation(User $user, $famille): bool
+    {
+        // Cas 1: L'utilisateur est membre de la famille
+        if ($user->getFamille() && $user->getFamille()->getId() === $famille->getId()) {
+            return true;
+        }
+        
+        // Cas 2: L'utilisateur est responsable de la zone qui contient cette famille
+        $zone = $famille->getZone();
+        if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+            return true;
+        }
+        
         return false;
     }
 
-    private function canEdit(Detailcotisationfamille $detailfamille, User $user): bool {
-        $cotisationfamille = $detailfamille->getCotisationfamille();
-        $famille = $cotisationfamille->getFamille();
-        
-        // Responsable de zone
-        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            $zone = $famille->getZone();
-            if ($zone && $zone->getUsers()) {
-                return $user === $zone->getUsers();
-            }
-        }
-
-        // Vérifier si l'utilisateur est le responsable de la famille
-        if ($famille->getUsers() && $user === $famille->getUsers()) {
+    /**
+     * Vérifie si l'utilisateur peut modifier
+     * Modification possible si :
+     * - L'utilisateur est secrétaire
+     * - L'utilisateur est responsable de la zone
+     * - L'utilisateur est membre de la famille (si vous autorisez)
+     */
+    private function canEdit(User $user, $famille): bool
+    {
+        // Secrétaire peut tout modifier
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        // Vérifier si l'utilisateur appartient à la famille (si c'est une collection)
-        if (method_exists($famille, 'getUsers')) {
-            return $famille->getUsers()->contains($user);
-        }
-
-        // Vérifier dans les membres de la famille
-        if (method_exists($famille, 'getMembres')) {
-            foreach ($famille->getMembres() as $membre) {
-                if ($user === $membre) {
-                    return true;
-                }
+        
+        // Responsable de zone peut modifier les detailcotisations des familles de sa zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $famille->getZone();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+                return true;
             }
         }
-
+        
+        // Option: Les membres de la famille peuvent modifier
+        // Décommentez si vous voulez autoriser les membres à modifier
+        if ($user->getFamille() && $user->getFamille()->getId() === $famille->getId()) {
+            return true;
+        }
+        
         return false;
     }
 
-    private function canViewDetail(Detailcotisationfamille $detailfamille, User $user): bool {
-        $cotisationfamille = $detailfamille->getCotisationfamille();
-        $famille = $cotisationfamille->getFamille();
-        
-        // Responsable de zone
-        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            $zone = $famille->getZone();
-            if ($zone && $zone->getUsers()) {
-                return $user === $zone->getUsers();
-            }
-        }
-
-        // Vérifier si l'utilisateur est le responsable de la famille
-        if ($famille->getUsers() && $user === $famille->getUsers()) {
+    /**
+     * Vérifie si l'utilisateur peut supprimer
+     * Suppression possible seulement pour :
+     * - Secrétaire
+     * - Responsable de zone
+     */
+    private function canDelete(User $user, $famille): bool
+    {
+        // Secrétaire peut tout supprimer
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        // Vérifier si l'utilisateur appartient à la famille
-        if (method_exists($famille, 'getUsers')) {
-            return $famille->getUsers()->contains($user);
-        }
-
-        // Vérifier dans les membres de la famille
-        if (method_exists($famille, 'getMembres')) {
-            foreach ($famille->getMembres() as $membre) {
-                if ($user === $membre) {
-                    return true;
-                }
+        
+        // Responsable de zone peut supprimer les detailcotisations des familles de sa zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $famille->getZone();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+                return true;
             }
         }
-
+        
         return false;
     }
 }

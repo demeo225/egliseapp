@@ -7,119 +7,142 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class SeancegroupeVoter extends Voter {
-
-    public const SEANCECELLULE_EDIT = 'seancegroupe_edit';
-    public const SEANCECELLULE_VIEW = 'seancegroupe_index';
-    public const SEANCECELLULE_DELETE = 'seancegroupe_delete';
+class SeancegroupeVoter extends Voter 
+{
+    public const COTISATIONGROUPE_EDIT = 'seancegroupe_edit';
+    public const COTISATIONGROUPE_VIEW = 'seancegroupe_index';
+    public const COTISATIONGROUPE_DELETE = 'seancegroupe_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $seancegroupe): bool {
-        return in_array($attribute, [self::SEANCECELLULE_EDIT, self::SEANCECELLULE_VIEW, self::SEANCECELLULE_DELETE]) 
-            && $seancegroupe instanceof Seancegroupe;
+    protected function supports(string $attribute, $seancegroupe): bool 
+    {
+        return in_array($attribute, [
+            self::COTISATIONGROUPE_EDIT, 
+            self::COTISATIONGROUPE_VIEW, 
+            self::COTISATIONGROUPE_DELETE
+        ]) && $seancegroupe instanceof Seancegroupe;
     }
 
-    protected function voteOnAttribute(string $attribute, $seancegroupe, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $seancegroupe, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
 
-        // Admin a tous les droits
+        // Les admins ont tous les accès
         if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
         }
 
-        // Vérifier si la groupe existe
         $groupe = $seancegroupe->getGroupe();
+        
         if (null === $groupe) {
             return false;
         }
 
-        switch ($attribute) {
-            case self::SEANCECELLULE_EDIT:
-                return $this->canEdit($seancegroupe, $user);
-            case self::SEANCECELLULE_VIEW:
-                return $this->canView($seancegroupe, $user);
-            case self::SEANCECELLULE_DELETE:
-                return $this->canDelete($seancegroupe, $user);
+        // Vérifier si l'utilisateur a accès à cette seance
+        if (!$this->canAccessSeance($user, $groupe)) {
+            return false;
         }
 
+        switch ($attribute) {
+            case self::COTISATIONGROUPE_VIEW:
+                return true;
+                
+            case self::COTISATIONGROUPE_EDIT:
+                return $this->canEdit($user, $groupe);
+                
+            case self::COTISATIONGROUPE_DELETE:
+                return $this->canDelete($user, $groupe);
+                
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut accéder à la seance
+     * Accès si : 
+     * - L'utilisateur appartient à la groupe (User.groupe)
+     * - OU l'utilisateur est responsable de la departement de cette groupe (User.departement)
+     */
+    private function canAccessSeance(User $user, $groupe): bool
+    {
+        // Cas 1: L'utilisateur est membre de la groupe
+        if ($user->getGroupe() && $user->getGroupe()->getId() === $groupe->getId()) {
+            return true;
+        }
+        
+        // Cas 2: L'utilisateur est responsable de la departement qui contient cette groupe
+        $departement = $groupe->getDepartement();
+        if ($departement && $user->getDepartement() && $user->getDepartement()->getId() === $departement->getId()) {
+            return true;
+        }
+        
         return false;
     }
 
-    private function canEdit(Seancegroupe $seancegroupe, User $user): bool {
-        // Le secrétaire peut tout modifier
+    /**
+     * Vérifie si l'utilisateur peut modifier
+     * Modification possible si :
+     * - L'utilisateur est secrétaire
+     * - L'utilisateur est responsable de la departement
+     * - L'utilisateur est membre de la groupe (si vous autorisez)
+     */
+    private function canEdit(User $user, $groupe): bool
+    {
+        // Secrétaire peut tout modifier
         if ($this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        $groupe = $seancegroupe->getGroupe();
         
-        // Vérifier si l'utilisateur est responsable de departement
-        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+        // Responsable de departement peut modifier les seances des groupes de sa departement
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $departement = $groupe->getDepartement();
-            if ($departement && $departement->getUsers()) {
-                return $user === $departement->getUsers();
+            if ($departement && $user->getDepartement() && $user->getDepartement()->getId() === $departement->getId()) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur appartient à la groupe
-        return $groupe->getUsers()->contains($user);
+        
+        // Option: Les membres de la groupe peuvent modifier
+        // Décommentez si vous voulez autoriser les membres à modifier
+        if ($user->getGroupe() && $user->getGroupe()->getId() === $groupe->getId()) {
+            return true;
+        }
+        
+        return false;
     }
 
-    private function canView(Seancegroupe $seancegroupe, User $user): bool {
-        // Le secrétaire peut tout voir
+    /**
+     * Vérifie si l'utilisateur peut supprimer
+     * Suppression possible seulement pour :
+     * - Secrétaire
+     * - Responsable de departement
+     */
+    private function canDelete(User $user, $groupe): bool
+    {
+        // Secrétaire peut tout supprimer
         if ($this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        $groupe = $seancegroupe->getGroupe();
         
-        // Vérifier si l'utilisateur est responsable de departement
-        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+        // Responsable de departement peut supprimer les seances des groupes de sa departement
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $departement = $groupe->getDepartement();
-            if ($departement && $departement->getUsers()) {
-                return $user === $departement->getUsers();
+            if ($departement && $user->getDepartement() && $user->getDepartement()->getId() === $departement->getId()) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur appartient à la groupe
-        return $groupe->getUsers()->contains($user);
-    }
-
-    private function canDelete(Seancegroupe $seancegroupe, User $user): bool {
-        // Le secrétaire peut tout supprimer
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
-        }
-
-        $groupe = $seancegroupe->getGroupe();
         
-        // Vérifier si l'utilisateur est responsable de departement
-        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            $departement = $groupe->getDepartement();
-            if ($departement && $departement->getUsers()) {
-                return $user === $departement->getUsers();
-            }
-        }
-
-        // Option 1: Seul le responsable de la groupe peut supprimer
-        // Si vous avez un champ 'responsable' dans Groupe
-        // if ($groupe->getResponsable()) {
-        //     return $user === $groupe->getResponsable();
-        // }
-        
-        // Option 2: Tous les membres de la groupe peuvent supprimer
-        return $groupe->getUsers()->contains($user);
+        return false;
     }
 }

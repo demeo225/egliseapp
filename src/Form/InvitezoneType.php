@@ -20,14 +20,8 @@ class InvitezoneType extends AbstractType {
 
         $builder
                 ->add('nom', TextType::class, [
-                    'required' => false,
-                    'constraints' => [
-                        new Regex([
-                            'pattern' => '/^[0-9a-zA-Z-\s\'ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ]+$/',
-                            'match' => true,
-                            'message' => 'sont seulement acceptés: les chiffres, les lettres minuscules et majuscules avec ou sans accents, les espaces, les tirets et les apostrophes',
-                                ])
-                    ],
+                    'required' => true,
+               
                 ])
                 ->add('contact', TextType::class, [
                     'required' => false,

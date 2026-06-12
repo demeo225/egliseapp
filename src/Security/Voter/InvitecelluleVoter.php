@@ -7,130 +7,142 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class InvitecelluleVoter extends Voter {
-
-    public const SEANCECELLULE_EDIT = 'invitecellule_edit';
-    public const SEANCECELLULE_VIEW = 'invitecellule_index';
-    public const SEANCECELLULE_DELETE = 'invitecellule_delete';
+class InvitecelluleVoter extends Voter 
+{
+    public const COTISATIONCELLULE_EDIT = 'invitecellule_edit';
+    public const COTISATIONCELLULE_VIEW = 'invitecellule_index';
+    public const COTISATIONCELLULE_DELETE = 'invitecellule_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $invitecellule): bool {
+    protected function supports(string $attribute, $invitecellule): bool 
+    {
         return in_array($attribute, [
-            self::SEANCECELLULE_EDIT, 
-            self::SEANCECELLULE_VIEW, 
-            self::SEANCECELLULE_DELETE
+            self::COTISATIONCELLULE_EDIT, 
+            self::COTISATIONCELLULE_VIEW, 
+            self::COTISATIONCELLULE_DELETE
         ]) && $invitecellule instanceof Invitecellule;
     }
 
-    protected function voteOnAttribute(string $attribute, $invitecellule, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $invitecellule, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
-        
-        // ROLE_ADMIN a tous les droits
+
+        // Les admins ont tous les accès
         if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
         }
-        
-        // ROLE_SECRETAIRE a tous les droits
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
-        }
 
-        // Vérifier si la séance de cellule existe
-        $seancecellule = $invitecellule->getSeancecellule();
-        if (null === $seancecellule) {
-            return false;
-        }
+        $cellule = $invitecellule->getSeancecellule()->getCellule();
         
-        // Vérifier si la cellule existe
-        $cellule = $seancecellule->getCellule();
         if (null === $cellule) {
             return false;
         }
 
-        // Vérification commune : l'utilisateur appartient-il à la cellule ?
-        $isUserInCellule = $this->isUserInCellule($cellule, $user);
-        
-        // Vérification si l'utilisateur est responsable de la zone
-        $isUserZoneResponsable = $this->isUserZoneResponsable($cellule, $user);
-
-        switch ($attribute) {
-            case self::SEANCECELLULE_VIEW:
-                // Pour la vue, l'utilisateur doit être dans la cellule, responsable de zone, 
-                // ou être l'invité lui-même
-                return $isUserInCellule || $isUserZoneResponsable || $this->isInvitee($invitecellule, $user);
-                
-            case self::SEANCECELLULE_EDIT:
-                // Pour l'édition, l'utilisateur doit être dans la cellule ou responsable de zone
-                return $isUserInCellule || $isUserZoneResponsable;
-                
-            case self::SEANCECELLULE_DELETE:
-                // Pour la suppression, l'utilisateur doit être dans la cellule ou responsable de zone
-                return $isUserInCellule || $isUserZoneResponsable;
+        // Vérifier si l'utilisateur a accès à cette invite
+        if (!$this->canAccessInvite($user, $cellule)) {
+            return false;
         }
 
+        switch ($attribute) {
+            case self::COTISATIONCELLULE_VIEW:
+                return true;
+                
+            case self::COTISATIONCELLULE_EDIT:
+                return $this->canEdit($user, $cellule);
+                
+            case self::COTISATIONCELLULE_DELETE:
+                return $this->canDelete($user, $cellule);
+                
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut accéder à la invite
+     * Accès si : 
+     * - L'utilisateur appartient à la cellule (User.cellule)
+     * - OU l'utilisateur est responsable de la zone de cette cellule (User.zone)
+     */
+    private function canAccessInvite(User $user, $cellule): bool
+    {
+        // Cas 1: L'utilisateur est membre de la cellule
+        if ($user->getCellule() && $user->getCellule()->getId() === $cellule->getId()) {
+            return true;
+        }
+        
+        // Cas 2: L'utilisateur est responsable de la zone qui contient cette cellule
+        $zone = $cellule->getZone();
+        if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+            return true;
+        }
+        
         return false;
     }
 
     /**
-     * Vérifie si l'utilisateur appartient à la cellule
+     * Vérifie si l'utilisateur peut modifier
+     * Modification possible si :
+     * - L'utilisateur est secrétaire
+     * - L'utilisateur est responsable de la zone
+     * - L'utilisateur est membre de la cellule (si vous autorisez)
      */
-    private function isUserInCellule($cellule, User $user): bool
+    private function canEdit(User $user, $cellule): bool
     {
-        // Vérifier si la cellule a des utilisateurs
-        if (null === $cellule->getUsers()) {
-            return false;
+        // Secrétaire peut tout modifier
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
         }
         
-        // Vérifier si l'utilisateur est dans la collection des utilisateurs de la cellule
-        return $cellule->getUsers()->contains($user);
+        // Responsable de zone peut modifier les invites des cellules de sa zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $cellule->getZone();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+                return true;
+            }
+        }
+        
+        // Option: Les membres de la cellule peuvent modifier
+        // Décommentez si vous voulez autoriser les membres à modifier
+        if ($user->getCellule() && $user->getCellule()->getId() === $cellule->getId()) {
+            return true;
+        }
+        
+        return false;
     }
 
     /**
-     * Vérifie si l'utilisateur est responsable de la zone de la cellule
+     * Vérifie si l'utilisateur peut supprimer
+     * Suppression possible seulement pour :
+     * - Secrétaire
+     * - Responsable de zone
      */
-    private function isUserZoneResponsable($cellule, User $user): bool
+    private function canDelete(User $user, $cellule): bool
     {
-        // Vérifier si l'utilisateur a le rôle responsable de zone
-        if (!$this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            return false;
+        // Secrétaire peut tout supprimer
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
         }
         
-        $zone = $cellule->getZone();
-        if (null === $zone) {
-            return false;
+        // Responsable de zone peut supprimer les invites des cellules de sa zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $cellule->getZone();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+                return true;
+            }
         }
         
-        // Vérifier si l'utilisateur est le responsable de la zone
-        $zoneUser = $zone->getUsers();
-        if (null === $zoneUser) {
-            return false;
-        }
-        
-        return $user === $zoneUser;
-    }
-
-    /**
-     * Vérifie si l'utilisateur est l'invité lui-même
-     */
-    private function isInvitee(Invitecellule $invitecellule, User $user): bool
-    {
-        $invite = $invitecellule->getInvitecellule();
-        if (null === $invite) {
-            return false;
-        }
-        
-        return $user === $invite;
+        return false;
     }
 }

@@ -7,138 +7,138 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class PresencegroupeVoter extends Voter {
-
-    public const PRESENCE_VIEW = 'seancegroupe_presence';
-    public const PRESENCE_DELETE = 'seancegroupe_presence_delete';
+class PresencegroupeVoter extends Voter 
+{
+    public const COTISATIONGROUPE_EDIT = 'presencegroupe_edit';
+    public const COTISATIONGROUPE_VIEW = 'presencegroupe_index';
+    public const COTISATIONGROUPE_DELETE = 'presencegroupe_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $presencegroupe): bool {
-        return in_array($attribute, [self::PRESENCE_VIEW, self::PRESENCE_DELETE]) 
-            && $presencegroupe instanceof Presencegroupe;
+    protected function supports(string $attribute, $presencegroupe): bool 
+    {
+        return in_array($attribute, [
+            self::COTISATIONGROUPE_EDIT, 
+            self::COTISATIONGROUPE_VIEW, 
+            self::COTISATIONGROUPE_DELETE
+        ]) && $presencegroupe instanceof Presencegroupe;
     }
 
-    protected function voteOnAttribute(string $attribute, $presencegroupe, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $presencegroupe, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
-        
-        // ROLE_ADMIN, ROLE_PASTEUR, ROLE_SECRETAIRE voient TOUTES les présences
-        if ($this->security->isGranted('ROLE_ADMIN') || 
-            $this->security->isGranted('ROLE_PASTEUR') || 
-            $this->security->isGranted('ROLE_SECRETAIRE')) {
-            return $this->checkAttribute($attribute, $presencegroupe, $user);
+
+        // Les admins ont tous les accès
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            return true;
         }
-        
-        // ROLE_RESPONSABLE_DEPARTEMENT voit les présences des groupes de son département
-        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            return $this->canViewByDepartement($attribute, $presencegroupe, $user);
-        }
-        
-        // ROLE_RESPONSABLE_GROUPE voit uniquement les présences de son groupe
-        if ($this->security->isGranted('ROLE_RESPONSABLE_GROUPE')) {
-            return $this->canViewByGroupe($attribute, $presencegroupe, $user);
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Responsable de département : voit les présences des groupes de son département
-     */
-    private function canViewByDepartement(string $attribute, Presencegroupe $presencegroupe, User $user): bool {
+
         $groupe = $presencegroupe->getGroupe();
-        if (!$groupe) {
+        
+        if (null === $groupe) {
             return false;
         }
-        
-        $departement = $groupe->getDepartement();
-        if (!$departement) {
+
+        // Vérifier si l'utilisateur a accès à cette presence
+        if (!$this->canAccessPresence($user, $groupe)) {
             return false;
         }
-        
-        // Vérifier que le département appartient au responsable
-        $departementResponsable = $departement->getUsers();
-        if (!$departementResponsable || $departementResponsable !== $user) {
-            return false;
-        }
-        
-        return $this->checkAttribute($attribute, $presencegroupe, $user);
-    }
-    
-    /**
-     * Responsable de groupe : voit uniquement son groupe
-     */
-    private function canViewByGroupe(string $attribute, Presencegroupe $presencegroupe, User $user): bool {
-        $groupe = $presencegroupe->getGroupe();
-        if (!$groupe) {
-            return false;
-        }
-        
-        // Vérifier que l'utilisateur est responsable de ce groupe
-        $groupeResponsable = $groupe->getUsers();
-        if ($groupeResponsable && $groupeResponsable === $user) {
-            return $this->checkAttribute($attribute, $presencegroupe, $user);
-        }
-        
-        // Vérifier si l'utilisateur appartient au groupe (pour les membres)
-        if (method_exists($groupe, 'getUsers') && $groupe->getUsers()->contains($user)) {
-            return $this->checkAttribute($attribute, $presencegroupe, $user);
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Vérifie le type d'action
-     */
-    private function checkAttribute(string $attribute, Presencegroupe $presencegroupe, User $user): bool {
+
         switch ($attribute) {
-            case self::PRESENCE_VIEW:
+            case self::COTISATIONGROUPE_VIEW:
                 return true;
                 
-            case self::PRESENCE_DELETE:
-                return $this->canDelete($presencegroupe, $user);
+            case self::COTISATIONGROUPE_EDIT:
+                return $this->canEdit($user, $groupe);
+                
+            case self::COTISATIONGROUPE_DELETE:
+                return $this->canDelete($user, $groupe);
+                
+            default:
+                return false;
         }
-        return false;
     }
-    
+
     /**
-     * Vérifie si l'utilisateur peut supprimer
+     * Vérifie si l'utilisateur peut accéder à la presence
+     * Accès si : 
+     * - L'utilisateur appartient à la groupe (User.groupe)
+     * - OU l'utilisateur est responsable de la departement de cette groupe (User.departement)
      */
-    private function canDelete(Presencegroupe $presencegroupe, User $user): bool {
-        // Les rôles supérieurs peuvent tout supprimer
-        if ($this->security->isGranted('ROLE_ADMIN') || 
-            $this->security->isGranted('ROLE_PASTEUR') || 
-            $this->security->isGranted('ROLE_SECRETAIRE')) {
+    private function canAccessPresence(User $user, $groupe): bool
+    {
+        // Cas 1: L'utilisateur est membre de la groupe
+        if ($user->getGroupe() && $user->getGroupe()->getId() === $groupe->getId()) {
             return true;
         }
         
-        $groupe = $presencegroupe->getGroupe();
-        if (!$groupe) {
-            return false;
+        // Cas 2: L'utilisateur est responsable de la departement qui contient cette groupe
+        $departement = $groupe->getDepartement();
+        if ($departement && $user->getDepartement() && $user->getDepartement()->getId() === $departement->getId()) {
+            return true;
         }
         
-        // Responsable de département
+        return false;
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut modifier
+     * Modification possible si :
+     * - L'utilisateur est secrétaire
+     * - L'utilisateur est responsable de la departement
+     * - L'utilisateur est membre de la groupe (si vous autorisez)
+     */
+    private function canEdit(User $user, $groupe): bool
+    {
+        // Secrétaire peut tout modifier
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
+        
+        // Responsable de departement peut modifier les presences des groupes de sa departement
         if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
             $departement = $groupe->getDepartement();
-            if ($departement && $departement->getUsers() === $user) {
+            if ($departement && $user->getDepartement() && $user->getDepartement()->getId() === $departement->getId()) {
                 return true;
             }
         }
         
-        // Responsable de groupe
-        if ($this->security->isGranted('ROLE_RESPONSABLE_GROUPE')) {
-            if ($groupe->getUsers() === $user) {
+        // Option: Les membres de la groupe peuvent modifier
+        // Décommentez si vous voulez autoriser les membres à modifier
+        if ($user->getGroupe() && $user->getGroupe()->getId() === $groupe->getId()) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut supprimer
+     * Suppression possible seulement pour :
+     * - Secrétaire
+     * - Responsable de departement
+     */
+    private function canDelete(User $user, $groupe): bool
+    {
+        // Secrétaire peut tout supprimer
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
+        
+        // Responsable de departement peut supprimer les presences des groupes de sa departement
+        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            $departement = $groupe->getDepartement();
+            if ($departement && $user->getDepartement() && $user->getDepartement()->getId() === $departement->getId()) {
                 return true;
             }
         }

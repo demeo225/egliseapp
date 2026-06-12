@@ -1,36 +1,27 @@
 {% extends "home/index.html.twig" %}
 
-{% block title %}Activités de groupe{% endblock %}
+{% block title %}Activités de : {{ groupe.nom|upper }}{% endblock %}
 
 {% block body %}
 
 
     <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title">Gestion des activités de Cellule</h3>
+            <h3 class="card-title"> {{ groupe.nom|upper }} : Gestion des activités</h3>
         </div>
         <div class="card card-body">
             {{ form_start(form) }}
-            {{ form_errors(form) }}
-            {% for message in app.flashes('successgroupe') %}
-                <div class="primary">
-                    {{ message }}
+  <div class="offset-1 col-md-10 mt-2 mb-2">
+        {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} my-alert" role="alert">
+                    <h1 class="m-0 flash-text">{{ message }}</h1>
                 </div>
             {% endfor %}
-            {% for message in app.flashes('echec') %}
-                <div class="primary">
-                    {{ message }}
-                </div>
-            {% endfor %}
-            {% for message in app.flashes('echec2') %}
-                <div class="primary">
-                    {{ message }}
-                </div>
-            {% endfor %}
+        {% endfor %}
+    </div>
             <div class="row">
-                <div class="col-md-3">
-                    {{ form_row(form.groupe, {'label':'Groupe '}) }}
-                </div>
+               
                 <div class="col-md-3">
                     {{ form_row(form.objet, {'label':'Objet  '}) }}
                 </div>

@@ -28,17 +28,19 @@ class SeancegroupeController extends AbstractController {
     use ClientIp;
  
     #[Route('/', name: 'seancegroupe_index', methods: ['GET'])]
-    public function index(SeancegroupeRepository $seancegroupeRepository, Request $request): Response {
+    public function index(SeancegroupeRepository $seancegroupeRepository, Request $request, GroupeRepository $groupeRepository): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         if (!$this->isGranted('ROLE_RESPONSABLE_GROUPE')) {
             throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
         }
         $eglise = $this->getUser()->getEglise();
         $user = $this->getUser();
+         $groupe = $groupeRepository->findOneByUser($user);
         $seancegroupe = $seancegroupeRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
         $difference = $seancegroupeRepository->getSeanceByDates();
         return $this->render('seancegroupe/index.html.twig', [
                     'seancegroupes' => $seancegroupe,
+                    'groupe' => $groupe,
                     'differences' => $difference,
         ]);
     }
@@ -76,14 +78,14 @@ class SeancegroupeController extends AbstractController {
             $fideles = $fideleRepository->findFidelesByGroupe($groupe->getId());
 
             $form = $this->createForm(SeancegroupeType::class, $seancegroupe, [
-                'groupes' => [$groupe],   // ✅ clé correcte
+                //'groupes' => [$groupe],   // ✅ clé correcte
                 'fideles' => $fideles,    // ✅ clé correcte
             ]);
 
             $form->handleRequest($request);
 
             if ($form->isSubmitted() && $form->isValid()) {
- $groupe = $groupeRepository->findOneByUser($user);
+              $groupe = $groupeRepository->findOneByUser($user);
                 // Upload photo
                 $seancegroupe->setGroupe($groupe);
                 if ($photo = $form->get('photo')->getData()) {
@@ -126,6 +128,7 @@ class SeancegroupeController extends AbstractController {
                     return $this->redirectToRoute('seancegroupe_new');
                 }
 
+                $seancegroupe->setGroupe($groupe);
                 $entityManager->persist($seancegroupe);
                 $entityManager->flush();
 
@@ -139,6 +142,7 @@ class SeancegroupeController extends AbstractController {
 
             return $this->render('seancegroupe/new.html.twig', [
                 'seancegroupe' => $seancegroupe,
+                'groupe' => $groupe,
                 'form' => $form->createView(),
             ]);
         }
@@ -185,7 +189,7 @@ class SeancegroupeController extends AbstractController {
             }
             else {
                 $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les présences.');
-                return $this->redirectToRoute('dashboard');
+                return $this->redirectToRoute('home');
             }
             
             $presences = $qb->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();

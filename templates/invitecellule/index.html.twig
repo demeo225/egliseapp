@@ -44,7 +44,7 @@
                 </thead>
                 <tbody>
                     {% for invitecellule in invitecellules %}
-                        {% if is_granted("invitecellule_edit", invitecellule) %}
+                      
                             <tr>
                                 <td> {% if invitecellule.seancecellule is not empty %} {{ invitecellule.seancecellule.datesuper|date('d-m-Y') }} {% else %} {% endif %}</td>
                                 <td> {% if invitecellule.seancecellule is not empty %} {{ invitecellule.seancecellule.cellule.nom }} {% else %} {% endif %}</td>
@@ -73,7 +73,7 @@
                                 </form>
                             </td>
                             </tr>
-                        {% endif %}
+                     
                     {% endfor %}
                 </tbody>
             </table>

@@ -18,20 +18,35 @@ use Symfony\Component\Routing\Annotation\Route;
 class InvitegroupeController extends AbstractController {
 
     use ClientIp;
-
-    #[Route('/', name: 'app_invitegroupe_index', methods: ['GET'])]
-    public function index(InvitegroupeRepository $invitegroupeRepository): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_GROUPE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
-        }
-        $user = $this->getUser();
-        $eglise = $this->getUser()->getEglise();
-        $invitegroupe = $invitegroupeRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
-        return $this->render('invitegroupe/index.html.twig', [
-                    'invitegroupes' => $invitegroupe,
-        ]);
-    }
+#[Route('/', name: 'app_invitegroupe_index', methods: ['GET'])]
+public function index(InvitegroupeRepository $invitegroupeRepository, GroupeRepository $groupeRepo): Response 
+{
+    $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    
+    $user = $this->getUser();
+    $eglise = $user->getEglise();
+    
+    // Supprimer la double déclaration de $user et $eglise
+    $groupe = $groupeRepo->findOneByUser($user);
+    
+    // Récupérer les invites filtrées par les permissions
+    $invitegroupes = $invitegroupeRepository->createQueryBuilder('i')
+        ->where('i.eglise = :eglise')
+        ->andWhere('i.deletedAt IS NULL')
+        ->setParameter('eglise', $eglise)
+        ->getQuery()
+        ->getResult();
+    
+    // Filtrer les invites selon les permissions de l'utilisateur
+    $accessibleInvites = array_filter($invitegroupes, function($invite) {
+        return $this->isGranted('invitegroupe_index', $invite);
+    });
+    
+    return $this->render('invitegroupe/index.html.twig', [
+        'invitegroupes' => $accessibleInvites,
+        'groupe' => $groupe,
+    ]);
+}
 
    // #[Route('/{id}/edit', name: 'app_invitegroupe_edit', methods: ['GET', 'POST'])]
     #[Route('/new', name: 'app_invitegroupe_new', methods: ['GET', 'POST'])]
@@ -48,20 +63,22 @@ class InvitegroupeController extends AbstractController {
         }
         $eglise = $this->getUser()->getEglise();
         $type = $invitegroupe === null ? 'new' : 'edit';
-                $invitegroupe = $invitegroupe === null ? new Invitegroupe() : $invitegroupe;
+        $invitegroupe = $invitegroupe === null ? new Invitegroupe() : $invitegroupe;
 
         
-        $groupe = $$groupeRepo->findOneByUser($user);
-        $seancegroupe = $seancegroupeRepository->findBy(["groupe" => $groupe, "deletedAt" => NULL]);
+        $groupe = $groupeRepo->findOneByUser($user);
+        $seancegroupe = $seancegroupeRepository->findBy(["groupe" => $groupe, "deletedAt" => NULL], ["id" => "DESC"]);
         $form = $this->createForm(InvitegroupeType::class, $invitegroupe, ['seancegroupe' => $seancegroupe]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $groupe = $groupeRepo->findOneByUser($user);
 
             //Adresse ip de l'utilisateur
             if ($type === 'new') {
                 $invitegroupe->setCreatedFromIp($this->GetIp()) // remplacement de la function par le trait
                         ->setEglise($user->getEglise())
+                        ->setGroupe($groupe)
                         ->setCreatedBy($user)
                 ;
             } else {
@@ -83,6 +100,7 @@ class InvitegroupeController extends AbstractController {
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('invitegroupe/new.html.twig', [
                     'invitegroupe' => $invitegroupe,
+                    'groupe' => $groupe,
                     'form' => $form->createView(),
                     'response' => $response,
                         ], $response);

@@ -85,4 +85,18 @@ class CelluleRepository extends ServiceEntityRepository {
                 ->getQuery()
                 ->getOneOrNullResult();
         }
+
+         public function findAccessibleByUser(User $user): array
+    {
+        $qb = $this->createQueryBuilder('c');
+        
+        if ($user->getIdzone()) {
+            $qb->andWhere('c.idzone = :zoneId')
+               ->setParameter('zoneId', $user->getIdzone());
+        } else {
+            return []; // Pas de zone = pas de données
+        }
+        
+        return $qb->getQuery()->getResult();
+    }
 }

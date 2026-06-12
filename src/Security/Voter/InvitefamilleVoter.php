@@ -7,155 +7,142 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class InvitefamilleVoter extends Voter {
-
-    public const SEANCEFAMILLE_EDIT = 'invitefamille_edit';
-    public const SEANCEFAMILLE_VIEW = 'invitefamille_index';
-    public const SEANCEFAMILLE_DELETE = 'invitefamille_delete';
+class InvitefamilleVoter extends Voter 
+{
+    public const COTISATIONCELLULE_EDIT = 'invitefamille_edit';
+    public const COTISATIONCELLULE_VIEW = 'invitefamille_index';
+    public const COTISATIONCELLULE_DELETE = 'invitefamille_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $invitefamille): bool {
+    protected function supports(string $attribute, $invitefamille): bool 
+    {
         return in_array($attribute, [
-            self::SEANCEFAMILLE_EDIT, 
-            self::SEANCEFAMILLE_VIEW, 
-            self::SEANCEFAMILLE_DELETE
+            self::COTISATIONCELLULE_EDIT, 
+            self::COTISATIONCELLULE_VIEW, 
+            self::COTISATIONCELLULE_DELETE
         ]) && $invitefamille instanceof Invitefamille;
     }
 
-    protected function voteOnAttribute(string $attribute, $invitefamille, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $invitefamille, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
-        
-        // ROLE_ADMIN et ROLE_SECRETAIRE ont tous les droits
-        if ($this->security->isGranted('ROLE_ADMIN') || $this->security->isGranted('ROLE_SECRETAIRE')) {
+
+        // Les admins ont tous les accès
+        if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
         }
 
-        // Vérifier si la séance de famille existe
-        $seancefamille = $invitefamille->getSeancefamille();
-        if (null === $seancefamille) {
-            return false;
-        }
+        $famille = $invitefamille->getSeancefamille()->getFamille();
         
-        // Vérifier si la famille existe
-        $famille = $seancefamille->getFamille();
         if (null === $famille) {
             return false;
         }
 
-        // Vérifications communes
-        $isUserInFamille = $this->isUserInFamille($famille, $user);
-        $isFamilleResponsable = $this->isFamilleResponsable($famille, $user);
-        $isZoneResponsable = $this->isZoneResponsable($famille, $user);
-        $isInvitee = $this->isInvitee($invitefamille, $user);
-
-        switch ($attribute) {
-            case self::SEANCEFAMILLE_VIEW:
-                return $isUserInFamille || $isFamilleResponsable || $isZoneResponsable || $isInvitee;
-                
-            case self::SEANCEFAMILLE_EDIT:
-                return $isUserInFamille || $isFamilleResponsable || $isZoneResponsable;
-                
-            case self::SEANCEFAMILLE_DELETE:
-                // Seul le responsable de la famille ou le responsable de zone peut supprimer
-                return $isFamilleResponsable || $isZoneResponsable;
+        // Vérifier si l'utilisateur a accès à cette invite
+        if (!$this->canAccessInvite($user, $famille)) {
+            return false;
         }
 
+        switch ($attribute) {
+            case self::COTISATIONCELLULE_VIEW:
+                return true;
+                
+            case self::COTISATIONCELLULE_EDIT:
+                return $this->canEdit($user, $famille);
+                
+            case self::COTISATIONCELLULE_DELETE:
+                return $this->canDelete($user, $famille);
+                
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut accéder à la invite
+     * Accès si : 
+     * - L'utilisateur appartient à la famille (User.famille)
+     * - OU l'utilisateur est responsable de la zone de cette famille (User.zone)
+     */
+    private function canAccessInvite(User $user, $famille): bool
+    {
+        // Cas 1: L'utilisateur est membre de la famille
+        if ($user->getFamille() && $user->getFamille()->getId() === $famille->getId()) {
+            return true;
+        }
+        
+        // Cas 2: L'utilisateur est responsable de la zone qui contient cette famille
+        $zone = $famille->getZone();
+        if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+            return true;
+        }
+        
         return false;
     }
 
     /**
-     * Vérifie si l'utilisateur appartient à la famille
+     * Vérifie si l'utilisateur peut modifier
+     * Modification possible si :
+     * - L'utilisateur est secrétaire
+     * - L'utilisateur est responsable de la zone
+     * - L'utilisateur est membre de la famille (si vous autorisez)
      */
-    private function isUserInFamille($famille, User $user): bool
+    private function canEdit(User $user, $famille): bool
     {
-        // Vérifier via la collection getUsers
-        if (method_exists($famille, 'getUsers') && $famille->getUsers()) {
-            if ($famille->getUsers()->contains($user)) {
+        // Secrétaire peut tout modifier
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
+        
+        // Responsable de zone peut modifier les invites des familles de sa zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $famille->getZone();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
                 return true;
             }
         }
         
-        // Vérifier via la collection getMembres
-        if (method_exists($famille, 'getMembres') && $famille->getMembres()) {
-            foreach ($famille->getMembres() as $membre) {
-                if ($user === $membre) {
-                    return true;
-                }
-            }
+        // Option: Les membres de la famille peuvent modifier
+        // Décommentez si vous voulez autoriser les membres à modifier
+        if ($user->getFamille() && $user->getFamille()->getId() === $famille->getId()) {
+            return true;
         }
         
         return false;
     }
 
     /**
-     * Vérifie si l'utilisateur est responsable de la famille
+     * Vérifie si l'utilisateur peut supprimer
+     * Suppression possible seulement pour :
+     * - Secrétaire
+     * - Responsable de zone
      */
-    private function isFamilleResponsable($famille, User $user): bool
+    private function canDelete(User $user, $famille): bool
     {
-        if (!method_exists($famille, 'getUser')) {
-            return false;
+        // Secrétaire peut tout supprimer
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
         }
         
-        $responsable = $famille->getUsers();
-        if (null === $responsable) {
-            return false;
+        // Responsable de zone peut supprimer les invites des familles de sa zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $famille->getZone();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+                return true;
+            }
         }
         
-        return $user === $responsable;
-    }
-
-    /**
-     * Vérifie si l'utilisateur est responsable de la zone de la famille
-     */
-    private function isZoneResponsable($famille, User $user): bool
-    {
-        // Vérifier si l'utilisateur a le rôle responsable de zone
-        if (!$this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            return false;
-        }
-        
-        if (!method_exists($famille, 'getZone')) {
-            return false;
-        }
-        
-        $zone = $famille->getZone();
-        if (null === $zone) {
-            return false;
-        }
-        
-        if (!method_exists($zone, 'getUser')) {
-            return false;
-        }
-        
-        $zoneResponsable = $zone->getUsers();
-        if (null === $zoneResponsable) {
-            return false;
-        }
-        
-        return $user === $zoneResponsable;
-    }
-
-    /**
-     * Vérifie si l'utilisateur est l'invité lui-même
-     */
-    private function isInvitee(Invitefamille $invitefamille, User $user): bool
-    {
-        $invite = $invitefamille->getInvitefamille();
-        if (null === $invite) {
-            return false;
-        }
-        
-        return $user === $invite;
+        return false;
     }
 }

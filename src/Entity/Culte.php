@@ -132,6 +132,21 @@ class Culte extends AbstractEntity
      */
     private $photo;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $etat;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $tokenPresence = null;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private ?\DateTimeInterface $dateExpirationQr = null;
+
     public function __construct()
     {
         $this->invites = new ArrayCollection();
@@ -417,4 +432,37 @@ class Culte extends AbstractEntity
 
         return $this;
     }
+
+    public function getEtat(): ?bool
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(?bool $etat): self
+    {
+        $this->etat = $etat;
+
+        return $this;
+    }
+        public function getTokenPresence(): ?string
+        {
+            return $this->tokenPresence;
+        }
+
+        public function setTokenPresence(?string $tokenPresence): self
+        {
+            $this->tokenPresence = $tokenPresence;
+            return $this;
+        }
+
+        public function getDateExpirationQr(): ?\DateTimeInterface
+        {
+            return $this->dateExpirationQr;
+        }
+
+        public function setDateExpirationQr(?\DateTimeInterface $dateExpirationQr): self
+        {
+            $this->dateExpirationQr = $dateExpirationQr;
+            return $this;
+        }
 }

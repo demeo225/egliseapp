@@ -11,9 +11,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class SeancezoneVoter extends Voter {
 
-    public const SEANCEZONE_EDIT = 'seancezone_edit';
-    public const SEANCEZONE_VIEW = 'seancezone_index';
-    public const SEANCEZONE_DELETE = 'seancezone_delete';
+    public const SEANCE_VIEW = 'seancezone_view';
+    public const SEANCE_EDIT = 'seancezone_edit';
+    public const SEANCE_DELETE = 'seancezone_delete';
+    public const SEANCE_CREATE = 'seancezone_create';
 
     private Security $security;
 
@@ -22,97 +23,126 @@ class SeancezoneVoter extends Voter {
     }
 
     protected function supports(string $attribute, $seancezone): bool {
-        return in_array($attribute, [self::SEANCEZONE_EDIT, self::SEANCEZONE_VIEW, self::SEANCEZONE_DELETE]) 
-            && $seancezone instanceof Seancezone;
+        return in_array($attribute, [
+            self::SEANCE_VIEW, 
+            self::SEANCE_EDIT, 
+            self::SEANCE_DELETE,
+            self::SEANCE_CREATE
+        ]) && ($seancezone instanceof Seancezone || $seancezone === null);
     }
 
     protected function voteOnAttribute(string $attribute, $seancezone, TokenInterface $token): bool {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
         }
-
-        // Admin a tous les droits
-        if ($this->security->isGranted('ROLE_ADMIN')) {
-            return true;
+        
+        // ROLES SUPERIEURS : ROLE_ADMIN, ROLE_PASTEUR, ROLE_SECRETAIRE
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return $this->checkAttribute($attribute, $seancezone, $user);
         }
-
-        // Le secrétaire a tous les droits sur les séances de zone
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
+        
+        // ROLE_RESPONSABLE_ZONE : voit les séances de sa zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            return $this->canViewByZone($attribute, $seancezone, $user);
         }
-
-        // Vérifier si la zone existe
-        $zone = $seancezone->getZone();
-        if (null === $zone) {
+        
+        return false;
+    }
+    
+    /**
+     * Responsable de zone : voit les séances de sa zone
+     */
+    private function canViewByZone(string $attribute, ?Seancezone $seancezone, User $user): bool {
+        $zone = $user->getZone();
+        if (!$zone) {
             return false;
         }
-
+        
+        // Pour la création (pas de séance spécifique)
+        if ($seancezone === null) {
+            return $this->checkAttribute($attribute, null, $user);
+        }
+        
+        $seanceZone = $seancezone->getZone();
+        if (!$seanceZone || $seanceZone->getId() !== $zone->getId()) {
+            return false;
+        }
+        
+        return $this->checkAttribute($attribute, $seancezone, $user);
+    }
+    
+    /**
+     * Vérifie le type d'action
+     */
+    private function checkAttribute(string $attribute, ?Seancezone $seancezone, User $user): bool {
         switch ($attribute) {
-            case self::SEANCEZONE_EDIT:
+            case self::SEANCE_VIEW:
+                return true;
+                
+            case self::SEANCE_CREATE:
+                return $this->canCreate($seancezone, $user);
+                
+            case self::SEANCE_EDIT:
                 return $this->canEdit($seancezone, $user);
-            case self::SEANCEZONE_VIEW:
-                return $this->canView($seancezone, $user);
-            case self::SEANCEZONE_DELETE:
+                
+            case self::SEANCE_DELETE:
                 return $this->canDelete($seancezone, $user);
         }
-
+        
         return false;
     }
-
+    
+    /**
+     * Vérifie si l'utilisateur peut créer une séance
+     */
+    private function canCreate(?Seancezone $seancezone, User $user): bool {
+        // Les rôles supérieurs peuvent créer
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
+        
+        // Responsable de zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Vérifie si l'utilisateur peut modifier une séance
+     */
     private function canEdit(Seancezone $seancezone, User $user): bool {
-        $zone = $seancezone->getZone();
-        
-        // Le responsable de zone peut modifier
-        if ($zone->getUsers() && $user === $zone->getUsers()) {
+        // Les rôles supérieurs peuvent tout modifier
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        // Vérifier si l'utilisateur appartient à la zone (via les cellules)
-        foreach ($zone->getCellules() as $cellule) {
-            if ($cellule->getUsers()->contains($user)) {
+        
+        // Responsable de zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $user->getZone();
+            $seanceZone = $seancezone->getZone();
+            if ($zone && $seanceZone && $zone->getId() === $seanceZone->getId()) {
                 return true;
             }
         }
         
-        // Si la zone a une collection d'utilisateurs directe
-        if (method_exists($zone, 'getUsers')) {
-            return $zone->getUsers()->contains($user);
-        }
-        
         return false;
     }
-
-    private function canView(Seancezone $seancezone, User $user): bool {
-        $zone = $seancezone->getZone();
-        
-        // Le responsable de zone peut voir
-        if ($zone->getUsers() && $user === $zone->getUsers()) {
-            return true;
-        }
-
-        // Vérifier si l'utilisateur appartient à la zone (via les cellules)
-        foreach ($zone->getCellules() as $cellule) {
-            if ($cellule->getUsers()->contains($user)) {
-                return true;
-            }
-        }
-        
-        // Si la zone a une collection d'utilisateurs directe
-        if (method_exists($zone, 'getUsers')) {
-            return $zone->getUsers()->contains($user);
-        }
-        
-        return false;
-    }
-
+    
+    /**
+     * Vérifie si l'utilisateur peut supprimer une séance
+     */
     private function canDelete(Seancezone $seancezone, User $user): bool {
-        $zone = $seancezone->getZone();
-        
-        // Seul le responsable de zone peut supprimer
-        // (ou admin/secrétaire déjà géré plus haut)
-        return $zone->getUsers() && $user === $zone->getUsers();
+        // Même logique que l'édition
+        return $this->canEdit($seancezone, $user);
     }
 }

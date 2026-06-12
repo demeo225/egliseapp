@@ -9,6 +9,7 @@ use App\Repository\SoldezoneRepository;
 use App\Repository\CotisationzoneRepository;
 use App\Repository\ZoneRepository;
 use App\Repository\FideleRepository;
+use App\Repository\DetailcotisationzoneRepository;
 
 use App\Traits\ClientIp;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,23 +22,50 @@ class CotisationzoneController extends AbstractController {
 
     use ClientIp;
 
-    #[Route('/', name: 'app_cotisationzone_index', methods: ['GET'])]
-    public function index(CotisationzoneRepository $cotisationzoneRepository, ZoneRepository $zoneRepo, SoldezoneRepository $soldeRepo, ): Response {
+   #[Route('/', name: 'app_cotisationzone_index', methods: ['GET'])]
+    public function index(CotisationzoneRepository $cotisationzoneRepository, SoldezoneRepository $soldeRepo, ZoneRepository $zoneRepo): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
-        }
-        $eglise = $this->getUser()->getEglise();
+        
         $user = $this->getUser();
-        $zone = $this->getUser()->getZone();
-        $zone2 = $zoneRepo->findOneZone($zone);
-        $solde = $soldeRepo->findBy(['zone' => $zone2]);
-        $cotisationzone = $cotisationzoneRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
+        $eglise = $user->getEglise();
+        $zone = $user->getZone();
+        
+        // Vérifier les droits d'accès
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+            // Rôle supérieur : voit toutes les cotisations
+            $cotisations = $cotisationzoneRepository->findBy([
+                'eglise' => $eglise, 
+                'deletedAt' => NULL
+            ], ['createAt' => 'DESC']);
+        } 
+        elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE') && $zone) {
+            // Responsable de zone : voit uniquement les cotisations de sa zone
+            $cotisations = $cotisationzoneRepository->findBy([
+                'eglise' => $eglise, 
+                'zone' => $zone,
+                'deletedAt' => NULL
+            ], ['createAt' => 'DESC']);
+        } 
+        else {
+            $this->addFlash('warning', 'Vous n\'avez pas les droits pour voir les cotisations.');
+            return $this->redirectToRoute('home');
+        }
+        
+        // Récupération du solde
+        $solde = [];
+        if ($zone) {
+            $zone2 = $zoneRepo->findOneZone($zone);
+            if ($zone2) {
+                $solde = $soldeRepo->findBy(['zone' => $zone2]);
+            }
+        }
+        
         return $this->render('cotisationzone/index.html.twig', [
-                    'cotisationzones' => $cotisationzone,
-                    'soldes' => $solde,
+            'cotisationzones' => $cotisations,
+            'soldes' => $solde,
         ]);
     }
+
 
     #[Route('/{id}/edit', name: 'app_cotisationzone_edit', methods: ['GET', 'POST'])]
     #[Route('/new', name: 'app_cotisationzone_new', methods: ['GET', 'POST'])]
@@ -137,59 +165,135 @@ class CotisationzoneController extends AbstractController {
      
  
 
+// #[Route('/cotiser/{id}', name: 'cotisationzone_cotiser', methods: ['GET'])]
+// public function detailCotisationzone(
+//     int $id,
+//     CotiserzoneRepository $cotiserzoneRepository,
+//     CotisationzoneRepository $cotisationzoneRepo,
+//     FideleRepository $fideleRepository,
+//     ZoneRepository $zoneRepository
+// ): Response {
+//     $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    
+//     if (!$this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
+//         throw $this->createAccessDeniedException('Accès refusé, vous n\'avez pas les droits d\'accès ici!');
+//     }
+    
+//     // Récupérer la cotisation
+//     $cotisationzone = $cotisationzoneRepo->find($id);
+    
+//     if (!$cotisationzone) {
+//         $this->addFlash('danger', 'Cotisation non trouvée');
+//         return $this->redirectToRoute('cotisationzone_index');
+//     }
+    
+//     // Récupérer la zone
+//     $zone = $cotisationzone->getZone();
+    
+//     // Compter le nombre de membres de la zone
+//     $nbMembres = 0;
+//     $membres = [];
+//     if ($zone) {
+//         $membres = $fideleRepository->findBy(['zone' => $zone, 'deletedAt' => NULL]);
+//         $nbMembres = count($membres);
+//     }
+    
+//     // Calculer le montant prévu réel (nbMembres * montantCotisation)
+//     $montantCotisationUnitaire = $cotisationzone->getMontant() ?? 0;
+//     $montantTotalPrevu = $nbMembres * $montantCotisationUnitaire;
+    
+//     // Récupérer tous les paiements (Cotiserzone) pour cette cotisation
+//     $listeCotiserzone = $cotiserzoneRepository->findBy(
+//         ['cotisationzone' => $cotisationzone, 'deletedAt' => NULL],
+//         ['datecotiser' => 'DESC']
+//     );
+    
+//     // Calculer les totaux des paiements
+//     $totalPaye = 0;
+//     foreach ($listeCotiserzone as $paiement) {
+//         $totalPaye += $paiement->getMontantpayer() ?? 0;
+//     }
+    
+//     // Calculer le reste à payer
+//     $totalReste = $montantTotalPrevu - $totalPaye;
+    
+//     // Pour chaque fidèle, calculer s'il a payé ou non
+//     $paiementsParFidele = [];
+//     foreach ($listeCotiserzone as $paiement) {
+//         $fideleId = $paiement->getFidele() ? $paiement->getFidele()->getId() : null;
+//         if ($fideleId) {
+//             $paiementsParFidele[$fideleId] = $paiement;
+//         }
+//     }
+    
+//     // Statistiques par fidèle
+//     $statsParFidele = [];
+//     foreach ($membres as $membre) {
+//         $aPaye = isset($paiementsParFidele[$membre->getId()]);
+//         $montantPaye = $aPaye ? $paiementsParFidele[$membre->getId()]->getMontantpayer() : 0;
+        
+//         $statsParFidele[] = [
+//             'fidele' => $membre,
+//             'a_paye' => $aPaye,
+//             'montant_paye' => $montantPaye,
+//             'reste' => $montantCotisationUnitaire - $montantPaye
+//         ];
+//     }
+    
+//     return $this->render('cotisationzone/detail.html.twig', [
+//         'cotisationzone' => $cotisationzone,
+//         'cotiserzones' => $listeCotiserzone,
+//         'totalPaye' => $totalPaye,
+//         'totalReste' => $totalReste,
+//         'montantTotalPrevu' => $montantTotalPrevu,
+//         'montantUnitaire' => $montantCotisationUnitaire,
+//         'nbMembres' => $nbMembres,
+//         'nbPaiements' => count($listeCotiserzone),
+//         'membres' => $membres,
+//         'statsParFidele' => $statsParFidele,
+//         'zone' => $zone,
+//     ]);
+// }
+
+
 #[Route('/cotiser/{id}', name: 'cotisationzone_cotiser', methods: ['GET'])]
 public function detailCotisationzone(
     int $id,
     CotiserzoneRepository $cotiserzoneRepository,
     CotisationzoneRepository $cotisationzoneRepo,
-    FideleRepository $fideleRepository,
-    ZoneRepository $zoneRepository
+    FideleRepository $fideleRepository
 ): Response {
     $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
     
-    if (!$this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
-        throw $this->createAccessDeniedException('Accès refusé, vous n\'avez pas les droits d\'accès ici!');
+    if (!$this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+        throw $this->createAccessDeniedException('Accès refusé');
     }
     
-    // Récupérer la cotisation
     $cotisationzone = $cotisationzoneRepo->find($id);
-    
     if (!$cotisationzone) {
         $this->addFlash('danger', 'Cotisation non trouvée');
-        return $this->redirectToRoute('cotisationzone_index');
+        return $this->redirectToRoute('app_cotisationzone_index');
     }
     
-    // Récupérer la zone
     $zone = $cotisationzone->getZone();
+    $membres = $zone ? $fideleRepository->findBy(['zone' => $zone, 'deletedAt' => NULL]) : [];
+    $nbMembres = count($membres);
+    $montantUnitaire = $cotisationzone->getMontant() ?? 0;
+    $montantTotalPrevu = $nbMembres * $montantUnitaire;
     
-    // Compter le nombre de membres de la zone
-    $nbMembres = 0;
-    $membres = [];
-    if ($zone) {
-        $membres = $fideleRepository->findBy(['zone' => $zone, 'deletedAt' => NULL]);
-        $nbMembres = count($membres);
-    }
-    
-    // Calculer le montant prévu réel (nbMembres * montantCotisation)
-    $montantCotisationUnitaire = $cotisationzone->getMontant() ?? 0;
-    $montantTotalPrevu = $nbMembres * $montantCotisationUnitaire;
-    
-    // Récupérer tous les paiements (Cotiserzone) pour cette cotisation
+    // Récupérer tous les paiements
     $listeCotiserzone = $cotiserzoneRepository->findBy(
         ['cotisationzone' => $cotisationzone, 'deletedAt' => NULL],
         ['datecotiser' => 'DESC']
     );
     
-    // Calculer les totaux des paiements
     $totalPaye = 0;
     foreach ($listeCotiserzone as $paiement) {
         $totalPaye += $paiement->getMontantpayer() ?? 0;
     }
-    
-    // Calculer le reste à payer
     $totalReste = $montantTotalPrevu - $totalPaye;
     
-    // Pour chaque fidèle, calculer s'il a payé ou non
+    // Paiements par fidèle
     $paiementsParFidele = [];
     foreach ($listeCotiserzone as $paiement) {
         $fideleId = $paiement->getFidele() ? $paiement->getFidele()->getId() : null;
@@ -203,12 +307,11 @@ public function detailCotisationzone(
     foreach ($membres as $membre) {
         $aPaye = isset($paiementsParFidele[$membre->getId()]);
         $montantPaye = $aPaye ? $paiementsParFidele[$membre->getId()]->getMontantpayer() : 0;
-        
         $statsParFidele[] = [
             'fidele' => $membre,
             'a_paye' => $aPaye,
             'montant_paye' => $montantPaye,
-            'reste' => $montantCotisationUnitaire - $montantPaye
+            'reste' => $montantUnitaire - $montantPaye,
         ];
     }
     
@@ -218,12 +321,47 @@ public function detailCotisationzone(
         'totalPaye' => $totalPaye,
         'totalReste' => $totalReste,
         'montantTotalPrevu' => $montantTotalPrevu,
-        'montantUnitaire' => $montantCotisationUnitaire,
+        'montantUnitaire' => $montantUnitaire,
         'nbMembres' => $nbMembres,
         'nbPaiements' => count($listeCotiserzone),
-        'membres' => $membres,
         'statsParFidele' => $statsParFidele,
-        'zone' => $zone,
+    ]);
+}
+
+       #[Route('/detail-paiement/{id}', name: 'detail_paiement_zone', methods: ['POST'])]
+public function detailPaiement(int $id, DetailcotisationzoneRepository $detailcotisationzoneRepository, CotiserzoneRepository $cotiserzoneRepository ): Response
+{
+    $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    
+    // Alternative: chercher par cotisationzone_id et fidele_id
+    $cotiserzone = $cotiserzoneRepository->find($id);
+    
+    if (!$cotiserzone) {
+        return $this->json(['error' => 'Paiement non trouvé'], 404);
+    }
+    
+    // Chercher les détails par cotisationzone et fidele
+    $details = $detailcotisationzoneRepository->findBy([
+        'cotisationzone' => $cotiserzone->getCotisationzone(),
+        'fidele' => $cotiserzone->getFidele(),
+        'deletedAt' => NULL
+    ], ['datedetail' => 'DESC']);
+    
+    $totalMontant = 0;
+    $totalPaye = 0;
+    $totalReste = 0;
+    foreach ($details as $detail) {
+        $totalMontant += $detail->getMontant() ?? 0;
+        $totalPaye += $detail->getMontantpayer() ?? 0;
+        $totalReste += $detail->getReste() ?? 0;
+    }
+    
+    return $this->render('cotisationzone/_detail_paiement_modal.html.twig', [
+        'details' => $details,
+        'cotiserzone' => $cotiserzone,
+        'totalMontant' => $totalMontant,
+        'totalPaye' => $totalPaye,
+        'totalReste' => $totalReste,
     ]);
 }
 

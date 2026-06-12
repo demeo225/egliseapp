@@ -8,9 +8,17 @@
         <h3 class="card-title">
             <i class="fas fa-users"></i> Liste de présence des departements
         </h3>
+        
     </div>
-    
+     
     <div class="card-body">
+       <a href="{{ path('seancedepartement_presence') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouvelle présence
+        </a>
+        <a href="{{ path('seancedepartement_index') }}" class="btn btn-success">
+            <i class="fas fa-list"></i> Liste des activités
+        </a>
+           <hr />
         {% if presencesParDateEtDepartement is empty %}
             <div class="alert alert-info">
                 <i class="fas fa-info-circle"></i> Aucune présence enregistrée.
@@ -105,13 +113,13 @@
                                             </thead>
                                             <tbody>
                                                 {% for presence in departementData.presences %}
-                                                    {% if is_granted("seancedepartement_presence", presence) %}
+                                                    {% if is_granted("presencedepartement_edit", presence) %}
                                                         <tr>
                                                             <td>{{ loop.index }}</td>
                                                             <td>{{ presence.fidele.nomfidele }}</td>
                                                             <td>{{ presence.fidele.contact1|default('-') }}</td>
                                                             <td class="text-center">
-                                                                {% if is_granted("POST_EDIT", presence) %}
+                                                                {% if is_granted("presencedepartement_edit", presence) %}
                                                                     <form method="post" action="{{ path('presencedepartement_delete', {'id': presence.id}) }}" 
                                                                           onsubmit="return confirm('Supprimer cette présence ?');">
                                                                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ presence.id) }}">

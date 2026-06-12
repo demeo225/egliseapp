@@ -11,9 +11,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class InvitedepartementVoter extends Voter {
 
-    public const SEANCEDEPARTEMENT_EDIT = 'invitedepartement_edit';
-    public const SEANCEDEPARTEMENT_VIEW = 'invitedepartement_index';
-    public const SEANCEDEPARTEMENT_DELETE = 'invitedepartement_delete';
+    public const INVITE_VIEW = 'invitedepartement_view';
+    public const INVITE_EDIT = 'invitedepartement_edit';
+    public const INVITE_DELETE = 'invitedepartement_delete';
+    public const INVITE_CREATE = 'invitedepartement_create';
 
     private Security $security;
 
@@ -23,10 +24,11 @@ class InvitedepartementVoter extends Voter {
 
     protected function supports(string $attribute, $invitedepartement): bool {
         return in_array($attribute, [
-            self::SEANCEDEPARTEMENT_EDIT, 
-            self::SEANCEDEPARTEMENT_VIEW, 
-            self::SEANCEDEPARTEMENT_DELETE
-        ]) && $invitedepartement instanceof Invitedepartement;
+            self::INVITE_VIEW, 
+            self::INVITE_EDIT, 
+            self::INVITE_DELETE,
+            self::INVITE_CREATE
+        ]) && ($invitedepartement instanceof Invitedepartement || $invitedepartement === null);
     }
 
     protected function voteOnAttribute(string $attribute, $invitedepartement, TokenInterface $token): bool {
@@ -36,91 +38,119 @@ class InvitedepartementVoter extends Voter {
             return false;
         }
         
-        // ROLE_ADMIN et ROLE_SECRETAIRE ont tous les droits
-        if ($this->security->isGranted('ROLE_ADMIN') || $this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
-        }
-
-        // Vérifier si la séance de département existe
-        $seancedepartement = $invitedepartement->getSeancedepartement();
-        if (null === $seancedepartement) {
-            return false;
+        // ROLES SUPERIEURS : ROLE_ADMIN, ROLE_PASTEUR, ROLE_SECRETAIRE
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return $this->checkAttribute($attribute, $invitedepartement, $user);
         }
         
-        // Vérifier si le département existe
-        $departement = $seancedepartement->getDepartement();
-        if (null === $departement) {
-            return false;
+        // ROLE_RESPONSABLE_DEPARTEMENT : voit les invités des séances de sa departement
+        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            return $this->canViewByDepartement($attribute, $invitedepartement, $user);
         }
-
-        // Vérifications communes
-        $isUserInDepartement = $this->isUserInDepartement($departement, $user);
-        $isDepartementResponsable = $this->isDepartementResponsable($departement, $user);
-        $isInvitee = $this->isInvitee($invitedepartement, $user);
-
-        switch ($attribute) {
-            case self::SEANCEDEPARTEMENT_VIEW:
-                return $isUserInDepartement || $isDepartementResponsable || $isInvitee;
-                
-            case self::SEANCEDEPARTEMENT_EDIT:
-            case self::SEANCEDEPARTEMENT_DELETE:
-                return $isUserInDepartement || $isDepartementResponsable;
-        }
-
+        
         return false;
     }
-
+    
     /**
-     * Vérifie si l'utilisateur appartient au département
+     * Responsable de departement : voit les invités des séances de sa departement
      */
-    private function isUserInDepartement($departement, User $user): bool
-    {
-        // Vérifier si la méthode getUsers existe
-        if (!method_exists($departement, 'getUsers')) {
+    private function canViewByDepartement(string $attribute, ?Invitedepartement $invitedepartement, User $user): bool {
+        $departement = $user->getDepartement();
+        if (!$departement) {
             return false;
         }
         
-        $users = $departement->getUsers();
-        if (null === $users) {
+        // Pour la création (pas d'invité spécifique)
+        if ($invitedepartement === null) {
+            return $this->checkAttribute($attribute, null, $user);
+        }
+        
+        $seancedepartement = $invitedepartement->getSeancedepartement();
+        if (!$seancedepartement) {
             return false;
         }
         
-        return $users->contains($user);
+        $seanceDepartement = $seancedepartement->getDepartement();
+        if (!$seanceDepartement || $seanceDepartement->getId() !== $departement->getId()) {
+            return false;
+        }
+        
+        return $this->checkAttribute($attribute, $invitedepartement, $user);
     }
-
+    
     /**
-     * Vérifie si l'utilisateur est responsable du département
+     * Vérifie le type d'action
      */
-    private function isDepartementResponsable($departement, User $user): bool
-    {
-        // Vérifier si l'utilisateur a le rôle responsable de département
-        if (!$this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            return false;
+    private function checkAttribute(string $attribute, ?Invitedepartement $invitedepartement, User $user): bool {
+        switch ($attribute) {
+            case self::INVITE_VIEW:
+                return true;
+                
+            case self::INVITE_CREATE:
+                return $this->canCreate($invitedepartement, $user);
+                
+            case self::INVITE_EDIT:
+                return $this->canEdit($invitedepartement, $user);
+                
+            case self::INVITE_DELETE:
+                return $this->canDelete($invitedepartement, $user);
         }
         
-        // Vérifier si la méthode getUser existe
-        if (!method_exists($departement, 'getUser')) {
-            return false;
-        }
-        
-        $departementUser = $departement->getUsers();
-        if (null === $departementUser) {
-            return false;
-        }
-        
-        return $user === $departementUser;
+        return false;
     }
-
+    
     /**
-     * Vérifie si l'utilisateur est l'invité lui-même
+     * Vérifie si l'utilisateur peut créer un invité
      */
-    private function isInvitee(Invitedepartement $invitedepartement, User $user): bool
-    {
-        $invite = $invitedepartement->getInvitedepartement();
-        if (null === $invite) {
-            return false;
+    private function canCreate(?Invitedepartement $invitedepartement, User $user): bool {
+        // Les rôles supérieurs peuvent créer
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
         }
         
-        return $user === $invite;
+        // Responsable de departement
+        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Vérifie si l'utilisateur peut modifier un invité
+     */
+    private function canEdit(Invitedepartement $invitedepartement, User $user): bool {
+        // Les rôles supérieurs peuvent tout modifier
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
+        
+        // Responsable de departement
+        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            $departement = $user->getDepartement();
+            $seancedepartement = $invitedepartement->getSeancedepartement();
+            if ($departement && $seancedepartement) {
+                $seanceDepartement = $seancedepartement->getDepartement();
+                if ($seanceDepartement && $seanceDepartement->getId() === $departement->getId()) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Vérifie si l'utilisateur peut supprimer un invité
+     */
+    private function canDelete(Invitedepartement $invitedepartement, User $user): bool {
+        // Même logique que l'édition
+        return $this->canEdit($invitedepartement, $user);
     }
 }

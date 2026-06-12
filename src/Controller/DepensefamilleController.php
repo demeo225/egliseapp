@@ -22,24 +22,71 @@ class DepensefamilleController extends AbstractController {
 
     use ClientIp;
 
-    #[Route('/', name: 'app_depensefamille_index', methods: ['GET'])]
-    public function index(DepensefamilleRepository $depensefamilleRepository, SoldefamilleRepository $soldeRepo, FamilleRepository $familleRepo): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_FAMILLE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+// Dans DepensefamilleController.php
+
+#[Route('/', name: 'app_depensefamille_index', methods: ['GET'])]
+public function index(DepensefamilleRepository $depensefamilleRepository, SoldefamilleRepository $soldeRepo, FamilleRepository $familleRepo): Response {
+    $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    
+    $user = $this->getUser();
+    $eglise = $user->getEglise();
+    
+    // Construction de la requête selon le rôle
+    $qb = $depensefamilleRepository->createQueryBuilder('d')
+        ->leftJoin('d.famille', 'f')
+        ->leftJoin('f.zone', 'z')
+        ->where('d.eglise = :eglise')
+        ->andWhere('d.deletedAt IS NULL')
+        ->setParameter('eglise', $eglise);
+    
+    // Filtres selon les rôles
+    if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+        // Ces rôles voient toutes les dépenses
+        // Pas de filtre supplémentaire
+    } 
+    elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+        $zone = $user->getZone();
+        if ($zone) {
+            $qb->andWhere('z.id = :zoneId')
+               ->setParameter('zoneId', $zone->getId());
+        } else {
+            $this->addFlash('warning', 'Aucune zone associée à votre compte.');
+            return $this->redirectToRoute('app_home');
         }
-//         $user = $this->getUser();
-        $famille = $this->getUser()->getFamille();
-        $famille2 = $familleRepo->findOneFamille($famille);
-
-        $solde = $soldeRepo->findBy(['famille' => $famille2]);
-        $depense = $depensefamilleRepository->findBy(['famille' => $famille2, "deletedAt" => NULL]);
-        return $this->render('depensefamille/index.html.twig', [
-                    'depensefamilles' => $depense,
-                    'soldes' => $solde,
-        ]);
     }
-
+    elseif ($this->isGranted('ROLE_RESPONSABLE_FAMILLE')) {
+        $famille = $user->getFamille();
+        if ($famille) {
+            $qb->andWhere('f.id = :familleId')
+               ->setParameter('familleId', $famille->getId());
+        } else {
+            $this->addFlash('warning', 'Aucune famille associée à votre compte.');
+            return $this->redirectToRoute('app_home');
+        }
+    }
+    else {
+        $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les dépenses.');
+        return $this->redirectToRoute('app_home');
+    }
+    
+    // Exécution de la requête
+    $depenses = $qb->orderBy('d.datedepense', 'DESC')->getQuery()->getResult();
+    
+    // Récupération du solde pour la famille (uniquement si l'utilisateur a une famille)
+    $solde = [];
+    $famille = $user->getFamille();
+    if ($famille) {
+        $famille2 = $familleRepo->findOneFamille($famille);
+        if ($famille2) {
+            $solde = $soldeRepo->findBy(['famille' => $famille2]);
+        }
+    }
+    
+    return $this->render('depensefamille/index.html.twig', [
+        'depensefamilles' => $depenses,
+        'soldes' => $solde,
+    ]);
+}
     #[Route('/new', name: 'app_depensefamille_new', methods: ['GET', 'POST'])]
     public function new(Request $request, DepensefamilleRepository $depensefamilleRepository, EntityManagerInterface $entityManager, FamilleRepository $familleRepo, SoldefamilleRepository $soldeRepo): Response {
         if (!$this->isGranted('ROLE_RESPONSABLE_FAMILLE')) {

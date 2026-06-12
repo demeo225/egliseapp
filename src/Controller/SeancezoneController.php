@@ -26,22 +26,68 @@ use Symfony\Component\Serializer\SerializerInterface;
 class SeancezoneController extends AbstractController {
 
     use ClientIp;
-
+    
     #[Route('/', name: 'app_seancezone_index', methods: ['GET'])]
-    public function index(SeancezoneRepository $seancezoneRepository): Response {
+    public function index(SeancezoneRepository $seancezoneRepository, SoldezoneRepository $soldeRepo, ZoneRepository $zoneRepo): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
-        }
-        $eglise = $this->getUser()->getEglise();
+        
         $user = $this->getUser();
-        $seancezone = $seancezoneRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
+        $eglise = $user->getEglise();
+        
+        // Construction de la requête selon le rôle
+        $qb = $seancezoneRepository->createQueryBuilder('s')
+            ->leftJoin('s.zone', 'z')
+            ->where('s.eglise = :eglise')
+            ->andWhere('s.deletedAt IS NULL')
+            ->setParameter('eglise', $eglise);
+        
+        // Filtres selon les rôles
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+            // Ces rôles voient toutes les séances
+            // Pas de filtre supplémentaire
+        } 
+        elseif ($this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $user->getZone();
+            if ($zone) {
+                $qb->andWhere('z.id = :zoneId')
+                ->setParameter('zoneId', $zone->getId());
+            } else {
+                $this->addFlash('warning', 'Aucune zone associée à votre compte.');
+                return $this->redirectToRoute('home');
+            }
+        }
+        else {
+            // Pour ROLE_RESPONSABLE_CELLULE, on redirige car ce n'est pas son niveau
+            if ($this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
+                $this->addFlash('warning', 'Vous n\'avez pas les droits pour voir les séances de zone.');
+            } else {
+                $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les séances.');
+            }
+            return $this->redirectToRoute('home');
+        }
+        
+        $seancezones = $qb->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();
+        
+        // Récupération des différences de dates
         $difference = $seancezoneRepository->getSeanceByDates();
+        
+        // Récupération du solde
+        $solde = [];
+        $zone = $user->getZone();
+        if ($zone) {
+            $zone2 = $zoneRepo->findOneZone($zone);
+            if ($zone2) {
+                $solde = $soldeRepo->findBy(['zone' => $zone2]);
+            }
+        }
+        
         return $this->render('seancezone/index.html.twig', [
-                    'seancezones' => $seancezone,
-                    'differences' => $difference,
+            'seancezones' => $seancezones,
+            'differences' => $difference,
+            'soldes' => $solde,
         ]);
     }
+
 
     #[Route('/{id}/edit', name: 'app_seancezone_edit', methods: ['GET', 'POST'])]
     #[Route('/new', name: 'app_seancezone_new', methods: ['GET', 'POST'])]
@@ -143,7 +189,7 @@ class SeancezoneController extends AbstractController {
                         ], $response);
     }
 
-                #[Route('/listeparticipantzone', name: 'app_seancezone_listeparticipant', methods: ['GET'])]
+       #[Route('/listeparticipantzone', name: 'app_seancezone_listeparticipant', methods: ['GET'])]
             public function indexpresence(
                 PresencezoneRepository $presenceRepository,
                 FideleRepository $fideleRepository,
@@ -174,12 +220,12 @@ class SeancezoneController extends AbstractController {
                         ->setParameter('zoneId', $zone->getId());
                     } else {
                         $this->addFlash('warning', 'Aucune zone associée à votre compte.');
-                        return $this->redirectToRoute('dashboard');
+                        return $this->redirectToRoute('home');
                     }
                 }
                 else {
                     $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les présences.');
-                    return $this->redirectToRoute('dashboard');
+                    return $this->redirectToRoute('home');
                 }
                 
                 $presences = $qb->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();

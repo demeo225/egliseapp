@@ -9,6 +9,8 @@ use App\Repository\CotiserfamilleRepository;
 use App\Repository\FamilleRepository;
 use App\Repository\SoldefamilleRepository;
 use App\Repository\FideleRepository;
+use App\Repository\DetailcotisationfamilleRepository;
+
 
 use App\Traits\ClientIp;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -97,62 +99,45 @@ class CotisationfamilleController extends AbstractController {
                         ], $response);
     }
 
-    
-           
-
+  
 #[Route('/cotiser/{id}', name: 'cotisationfamille_cotiser', methods: ['GET'])]
 public function detailCotisationfamille(
     int $id,
     CotiserfamilleRepository $cotiserfamilleRepository,
     CotisationfamilleRepository $cotisationfamilleRepo,
-    FideleRepository $fideleRepository,
-    FamilleRepository $familleRepository
+    FideleRepository $fideleRepository
 ): Response {
     $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
     
-    if (!$this->isGranted('ROLE_RESPONSABLE_FAMILLE')) {
-        throw $this->createAccessDeniedException('Accès refusé, vous n\'avez pas les droits d\'accès ici!');
+    if (!$this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+        throw $this->createAccessDeniedException('Accès refusé');
     }
     
-    // Récupérer la cotisation
     $cotisationfamille = $cotisationfamilleRepo->find($id);
-    
     if (!$cotisationfamille) {
         $this->addFlash('danger', 'Cotisation non trouvée');
-        return $this->redirectToRoute('cotisationfamille_index');
+        return $this->redirectToRoute('app_cotisationfamille_index');
     }
     
-    // Récupérer la famille
     $famille = $cotisationfamille->getFamille();
+    $membres = $famille ? $fideleRepository->findBy(['famille' => $famille, 'deletedAt' => NULL]) : [];
+    $nbMembres = count($membres);
+    $montantUnitaire = $cotisationfamille->getMontant() ?? 0;
+    $montantTotalPrevu = $nbMembres * $montantUnitaire;
     
-    // Compter le nombre de membres de la famille
-    $nbMembres = 0;
-    $membres = [];
-    if ($famille) {
-        $membres = $fideleRepository->findBy(['famille' => $famille, 'deletedAt' => NULL]);
-        $nbMembres = count($membres);
-    }
-    
-    // Calculer le montant prévu réel (nbMembres * montantCotisation)
-    $montantCotisationUnitaire = $cotisationfamille->getMontant() ?? 0;
-    $montantTotalPrevu = $nbMembres * $montantCotisationUnitaire;
-    
-    // Récupérer tous les paiements (Cotiserfamille) pour cette cotisation
+    // Récupérer tous les paiements
     $listeCotiserfamille = $cotiserfamilleRepository->findBy(
         ['cotisationfamille' => $cotisationfamille, 'deletedAt' => NULL],
         ['datecotiser' => 'DESC']
     );
     
-    // Calculer les totaux des paiements
     $totalPaye = 0;
     foreach ($listeCotiserfamille as $paiement) {
         $totalPaye += $paiement->getMontantpayer() ?? 0;
     }
-    
-    // Calculer le reste à payer
     $totalReste = $montantTotalPrevu - $totalPaye;
     
-    // Pour chaque fidèle, calculer s'il a payé ou non
+    // Paiements par fidèle
     $paiementsParFidele = [];
     foreach ($listeCotiserfamille as $paiement) {
         $fideleId = $paiement->getFidele() ? $paiement->getFidele()->getId() : null;
@@ -166,12 +151,11 @@ public function detailCotisationfamille(
     foreach ($membres as $membre) {
         $aPaye = isset($paiementsParFidele[$membre->getId()]);
         $montantPaye = $aPaye ? $paiementsParFidele[$membre->getId()]->getMontantpayer() : 0;
-        
         $statsParFidele[] = [
             'fidele' => $membre,
             'a_paye' => $aPaye,
             'montant_paye' => $montantPaye,
-            'reste' => $montantCotisationUnitaire - $montantPaye
+            'reste' => $montantUnitaire - $montantPaye,
         ];
     }
     
@@ -181,15 +165,49 @@ public function detailCotisationfamille(
         'totalPaye' => $totalPaye,
         'totalReste' => $totalReste,
         'montantTotalPrevu' => $montantTotalPrevu,
-        'montantUnitaire' => $montantCotisationUnitaire,
+        'montantUnitaire' => $montantUnitaire,
         'nbMembres' => $nbMembres,
         'nbPaiements' => count($listeCotiserfamille),
-        'membres' => $membres,
         'statsParFidele' => $statsParFidele,
-        'famille' => $famille,
     ]);
 }
 
+       #[Route('/detail-paiement/{id}', name: 'detail_paiement_famille', methods: ['POST'])]
+public function detailPaiement(int $id, DetailcotisationfamilleRepository $detailcotisationfamilleRepository, CotiserfamilleRepository $cotiserfamilleRepository ): Response
+{
+    $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    
+    // Alternative: chercher par cotisationfamille_id et fidele_id
+    $cotiserfamille = $cotiserfamilleRepository->find($id);
+    
+    if (!$cotiserfamille) {
+        return $this->json(['error' => 'Paiement non trouvé'], 404);
+    }
+    
+    // Chercher les détails par cotisationfamille et fidele
+    $details = $detailcotisationfamilleRepository->findBy([
+        'cotisationfamille' => $cotiserfamille->getCotisationfamille(),
+        'fidele' => $cotiserfamille->getFidele(),
+        'deletedAt' => NULL
+    ], ['datedetail' => 'DESC']);
+    
+    $totalMontant = 0;
+    $totalPaye = 0;
+    $totalReste = 0;
+    foreach ($details as $detail) {
+        $totalMontant += $detail->getMontant() ?? 0;
+        $totalPaye += $detail->getMontantpayer() ?? 0;
+        $totalReste += $detail->getReste() ?? 0;
+    }
+    
+    return $this->render('cotisationfamille/_detail_paiement_modal.html.twig', [
+        'details' => $details,
+        'cotiserfamille' => $cotiserfamille,
+        'totalMontant' => $totalMontant,
+        'totalPaye' => $totalPaye,
+        'totalReste' => $totalReste,
+    ]);
+}
     
     #[Route('/{id}/toggle', name: 'cotisationfamille_toggle', methods: ['POST'])]
     public function toggle(Request $request, Cotisationfamille $cotisationfamille): Response

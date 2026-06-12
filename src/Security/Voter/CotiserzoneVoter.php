@@ -11,9 +11,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class CotiserzoneVoter extends Voter {
 
-    public const COTISATIONZONE_EDIT = 'cotiserzone_edit';
-    public const COTISATIONZONE_VIEW = 'cotiserzone_index';
-    public const COTISATIONZONE_DELETE = 'cotiserzone_delete';
+    public const PAIEMENT_VIEW = 'cotiserzone_view';
+    public const PAIEMENT_EDIT = 'cotiserzone_edit';
+    public const PAIEMENT_DELETE = 'cotiserzone_delete';
+    public const PAIEMENT_CREATE = 'cotiserzone_create';
 
     private Security $security;
 
@@ -22,90 +23,139 @@ class CotiserzoneVoter extends Voter {
     }
 
     protected function supports(string $attribute, $cotiserzone): bool {
-        return in_array($attribute, [self::COTISATIONZONE_EDIT, self::COTISATIONZONE_VIEW, self::COTISATIONZONE_DELETE]) 
-            && $cotiserzone instanceof Cotiserzone;
+        return in_array($attribute, [
+            self::PAIEMENT_VIEW, 
+            self::PAIEMENT_EDIT, 
+            self::PAIEMENT_DELETE,
+            self::PAIEMENT_CREATE
+        ]) && ($cotiserzone instanceof Cotiserzone || $cotiserzone === null);
     }
 
     protected function voteOnAttribute(string $attribute, $cotiserzone, TokenInterface $token): bool {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
         }
-
-        // Admin et secrétaire ont tous les droits
-        if ($this->security->isGranted('ROLE_ADMIN') || $this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
+        
+        // ROLES SUPERIEURS : ROLE_ADMIN, ROLE_PASTEUR, ROLE_SECRETAIRE
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return $this->checkAttribute($attribute, $cotiserzone, $user);
         }
-
-        // Vérifier si la zone existe
-        $zone = $cotiserzone->getZone();
-        if (null === $zone) {
+        
+        // ROLE_RESPONSABLE_ZONE : voit les paiements des cotisations de sa zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            return $this->canViewByZone($attribute, $cotiserzone, $user);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Responsable de zone : voit les paiements des cotisations de sa zone
+     */
+    private function canViewByZone(string $attribute, ?Cotiserzone $cotiserzone, User $user): bool {
+        $zone = $user->getZone();
+        if (!$zone) {
             return false;
         }
-
+        
+        // Pour la création (pas de paiement spécifique)
+        if ($cotiserzone === null) {
+            return $this->checkAttribute($attribute, null, $user);
+        }
+        
+        // Vérifier via la cotisation associée
+        $cotisationzone = $cotiserzone->getCotisationzone();
+        if ($cotisationzone) {
+            $cotisationZone = $cotisationzone->getZone();
+            if ($cotisationZone && $cotisationZone->getId() === $zone->getId()) {
+                return $this->checkAttribute($attribute, $cotiserzone, $user);
+            }
+        }
+        
+        // Vérifier via la zone directe
+        $paiementZone = $cotiserzone->getZone();
+        if ($paiementZone && $paiementZone->getId() === $zone->getId()) {
+            return $this->checkAttribute($attribute, $cotiserzone, $user);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Vérifie le type d'action
+     */
+    private function checkAttribute(string $attribute, ?Cotiserzone $cotiserzone, User $user): bool {
         switch ($attribute) {
-            case self::COTISATIONZONE_EDIT:
+            case self::PAIEMENT_VIEW:
+                return true;
+                
+            case self::PAIEMENT_CREATE:
+                return $this->canCreate($cotiserzone, $user);
+                
+            case self::PAIEMENT_EDIT:
                 return $this->canEdit($cotiserzone, $user);
-            case self::COTISATIONZONE_VIEW:
-                return $this->canView($cotiserzone, $user);
-            case self::COTISATIONZONE_DELETE:
+                
+            case self::PAIEMENT_DELETE:
                 return $this->canDelete($cotiserzone, $user);
         }
-
+        
         return false;
     }
-
-    private function canEdit(Cotiserzone $cotiserzone, User $user): bool {
-        $zone = $cotiserzone->getZone();
-        
-        // Vérifier si l'utilisateur est responsable de zone
-        if ($zone->getUsers() && $user === $zone->getUsers()) {
-            return true;
-        }
-
-        // Vérifier si l'utilisateur appartient à la zone via les cellules
-        return $this->isUserInZone($zone, $user);
-    }
-
-    private function canView(Cotiserzone $cotiserzone, User $user): bool {
-        $zone = $cotiserzone->getZone();
-        
-        // Vérifier si l'utilisateur est responsable de zone
-        if ($zone->getUsers() && $user === $zone->getUsers()) {
-            return true;
-        }
-
-        // Vérifier si l'utilisateur appartient à la zone
-        return $this->isUserInZone($zone, $user);
-    }
-
-    private function canDelete(Cotiserzone $cotiserzone, User $user): bool {
-        $zone = $cotiserzone->getZone();
-        
-        // Seul le responsable de zone peut supprimer
-        return $zone->getUsers() && $user === $zone->getUsers();
-    }
-
+    
     /**
-     * Vérifie si un utilisateur appartient à une zone
+     * Vérifie si l'utilisateur peut créer un paiement
      */
-    private function isUserInZone($zone, User $user): bool {
-        // Si la zone a une collection d'utilisateurs directe
-        if (method_exists($zone, 'getUsers')) {
-            if ($zone->getUsers()->contains($user)) {
-                return true;
-            }
+    private function canCreate(?Cotiserzone $cotiserzone, User $user): bool {
+        // Les rôles supérieurs peuvent créer
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
         }
         
-        // Vérifier dans les cellules de la zone
-        foreach ($zone->getCellules() as $cellule) {
-            if ($cellule->getUsers()->contains($user)) {
-                return true;
+        // Responsable de zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Vérifie si l'utilisateur peut modifier un paiement
+     */
+    private function canEdit(Cotiserzone $cotiserzone, User $user): bool {
+        // Les rôles supérieurs peuvent tout modifier
+        if ($this->security->isGranted('ROLE_ADMIN') || 
+            $this->security->isGranted('ROLE_PASTEUR') || 
+            $this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
+        
+        // Responsable de zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $user->getZone();
+            $cotisationzone = $cotiserzone->getCotisationzone();
+            if ($cotisationzone) {
+                $cotisationZone = $cotisationzone->getZone();
+                if ($zone && $cotisationZone && $zone->getId() === $cotisationZone->getId()) {
+                    return true;
+                }
             }
         }
         
         return false;
+    }
+    
+    /**
+     * Vérifie si l'utilisateur peut supprimer un paiement
+     */
+    private function canDelete(Cotiserzone $cotiserzone, User $user): bool {
+        // Même logique que l'édition
+        return $this->canEdit($cotiserzone, $user);
     }
 }

@@ -7,128 +7,142 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class SeancefamilleVoter extends Voter {
-
-    public const SEANCEFAMILLE_EDIT = 'seancefamille_edit';
-    public const SEANCEFAMILLE_VIEW = 'seancefamille_index';
-    public const SEANCEFAMILLE_DELETE = 'seancefamille_delete';
+class SeancefamilleVoter extends Voter 
+{
+    public const COTISATIONCELLULE_EDIT = 'seancefamille_edit';
+    public const COTISATIONCELLULE_VIEW = 'seancefamille_index';
+    public const COTISATIONCELLULE_DELETE = 'seancefamille_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $seancefamille): bool {
-        return in_array($attribute, [self::SEANCEFAMILLE_EDIT, self::SEANCEFAMILLE_VIEW, self::SEANCEFAMILLE_DELETE]) 
-            && $seancefamille instanceof Seancefamille;
+    protected function supports(string $attribute, $seancefamille): bool 
+    {
+        return in_array($attribute, [
+            self::COTISATIONCELLULE_EDIT, 
+            self::COTISATIONCELLULE_VIEW, 
+            self::COTISATIONCELLULE_DELETE
+        ]) && $seancefamille instanceof Seancefamille;
     }
 
-    protected function voteOnAttribute(string $attribute, $seancefamille, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $seancefamille, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
-        
-        // Admin a tous les droits
+
+        // Les admins ont tous les accès
         if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
         }
 
-        // Vérifier si la famille existe
         $famille = $seancefamille->getFamille();
+        
         if (null === $famille) {
             return false;
         }
 
-        switch ($attribute) {
-            case self::SEANCEFAMILLE_EDIT:
-                return $this->canEdit($seancefamille, $user);
-            case self::SEANCEFAMILLE_VIEW:
-                return $this->canView($seancefamille, $user);
-            case self::SEANCEFAMILLE_DELETE:
-                return $this->canDelete($seancefamille, $user);
+        // Vérifier si l'utilisateur a accès à cette seance
+        if (!$this->canAccessSeance($user, $famille)) {
+            return false;
         }
 
+        switch ($attribute) {
+            case self::COTISATIONCELLULE_VIEW:
+                return true;
+                
+            case self::COTISATIONCELLULE_EDIT:
+                return $this->canEdit($user, $famille);
+                
+            case self::COTISATIONCELLULE_DELETE:
+                return $this->canDelete($user, $famille);
+                
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut accéder à la seance
+     * Accès si : 
+     * - L'utilisateur appartient à la famille (User.famille)
+     * - OU l'utilisateur est responsable de la zone de cette famille (User.zone)
+     */
+    private function canAccessSeance(User $user, $famille): bool
+    {
+        // Cas 1: L'utilisateur est membre de la famille
+        if ($user->getFamille() && $user->getFamille()->getId() === $famille->getId()) {
+            return true;
+        }
+        
+        // Cas 2: L'utilisateur est responsable de la zone qui contient cette famille
+        $zone = $famille->getZone();
+        if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+            return true;
+        }
+        
         return false;
     }
 
-    private function canEdit(Seancefamille $seancefamille, User $user): bool {
-        // Le secrétaire peut tout modifier
+    /**
+     * Vérifie si l'utilisateur peut modifier
+     * Modification possible si :
+     * - L'utilisateur est secrétaire
+     * - L'utilisateur est responsable de la zone
+     * - L'utilisateur est membre de la famille (si vous autorisez)
+     */
+    private function canEdit(User $user, $famille): bool
+    {
+        // Secrétaire peut tout modifier
         if ($this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        $famille = $seancefamille->getFamille();
         
-        // Vérifier si l'utilisateur est responsable de zone
+        // Responsable de zone peut modifier les seances des familles de sa zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $famille->getZone();
-            if ($zone && $zone->getUsers()) {
-                return $user === $zone->getUsers();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur est le responsable de la famille (si cette notion existe)
-        if (method_exists($famille, 'getUsers') && $famille->getUsers()) {
-            return $user === $famille->getUsers();
+        
+        // Option: Les membres de la famille peuvent modifier
+        // Décommentez si vous voulez autoriser les membres à modifier
+        if ($user->getFamille() && $user->getFamille()->getId() === $famille->getId()) {
+            return true;
         }
-
-        // Vérifier si l'utilisateur appartient à la famille
-        return $famille->getUsers()->contains($user);
+        
+        return false;
     }
 
-    private function canView(Seancefamille $seancefamille, User $user): bool {
-        // Le secrétaire peut tout voir
+    /**
+     * Vérifie si l'utilisateur peut supprimer
+     * Suppression possible seulement pour :
+     * - Secrétaire
+     * - Responsable de zone
+     */
+    private function canDelete(User $user, $famille): bool
+    {
+        // Secrétaire peut tout supprimer
         if ($this->security->isGranted('ROLE_SECRETAIRE')) {
             return true;
         }
-
-        $famille = $seancefamille->getFamille();
         
-        // Vérifier si l'utilisateur est responsable de zone
+        // Responsable de zone peut supprimer les seances des familles de sa zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $famille->getZone();
-            if ($zone && $zone->getUsers()) {
-                return $user === $zone->getUsers();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur est le responsable de la famille
-        if (method_exists($famille, 'getUsers') && $famille->getUsers()) {
-            return $user === $famille->getUsers();
-        }
-
-        // Vérifier si l'utilisateur appartient à la famille
-        return $famille->getUsers()->contains($user);
-    }
-
-    private function canDelete(Seancefamille $seancefamille, User $user): bool {
-        // Le secrétaire peut tout supprimer
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
-        }
-
-        $famille = $seancefamille->getFamille();
         
-        // Vérifier si l'utilisateur est responsable de zone
-        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            $zone = $famille->getZone();
-            if ($zone && $zone->getUsers()) {
-                return $user === $zone->getUsers();
-            }
-        }
-
-        // Pour la suppression, on peut limiter au responsable de la famille uniquement
-        if (method_exists($famille, 'getUsers') && $famille->getUsers()) {
-            return $user === $famille->getUsers();
-        }
-
-        // Ou alors tous les membres peuvent supprimer (selon votre logique)
-        return $famille->getUsers()->contains($user);
+        return false;
     }
 }

@@ -137,7 +137,7 @@
                                             </thead>
                                             <tbody>
                                                 {% for presence in celluleData.presences %}
-                                                    {% if is_granted("seancecellule_presence", presence) %}
+                                                    {% if is_granted("presencecellule_edit", presence) %}
                                                         <tr>
                                                             <td>{{ loop.index }}</td>
                                                             <td>
@@ -166,7 +166,7 @@
                                                                 {% endif %}
                                                             </td>
                                                             <td class="text-center">
-                                                                {% if is_granted("seancecellule_presence_delete", presence) %}
+                                                                {% if is_granted("presencecellule_edit", presence) %}
                                                                     <form method="post" action="{{ path('presencecellule_delete', {'id': presence.id}) }}" 
                                                                           onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette présence ?');">
                                                                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ presence.id) }}">

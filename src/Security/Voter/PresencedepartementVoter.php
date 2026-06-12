@@ -7,96 +7,125 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class PresencedepartementVoter extends Voter {
-
-    public const PRESENCE_VIEW = 'seancedepartement_presence';
-    public const PRESENCE_DELETE = 'seancedepartement_presence_delete';
+class PresencedepartementVoter extends Voter 
+{
+    public const COTISATIONDEPARTEMENT_EDIT = 'presencedepartement_edit';
+    public const COTISATIONDEPARTEMENT_VIEW = 'presencedepartement_index';
+    public const COTISATIONDEPARTEMENT_DELETE = 'presencedepartement_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $presencedepartement): bool {
-        return in_array($attribute, [self::PRESENCE_VIEW, self::PRESENCE_DELETE]) 
-            && $presencedepartement instanceof Presencedepartement;
+    protected function supports(string $attribute, $presencedepartement): bool 
+    {
+        return in_array($attribute, [
+            self::COTISATIONDEPARTEMENT_EDIT, 
+            self::COTISATIONDEPARTEMENT_VIEW, 
+            self::COTISATIONDEPARTEMENT_DELETE
+        ]) && $presencedepartement instanceof Presencedepartement;
     }
 
-    protected function voteOnAttribute(string $attribute, $presencedepartement, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $presencedepartement, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
-        
-        // ROLE_ADMIN, ROLE_PASTEUR, ROLE_SECRETAIRE voient TOUTES les présences
-        if ($this->security->isGranted('ROLE_ADMIN') || 
-            $this->security->isGranted('ROLE_PASTEUR') || 
-            $this->security->isGranted('ROLE_SECRETAIRE')) {
-            return $this->checkAttribute($attribute, $presencedepartement, $user);
+
+        // Les admins ont tous les accès
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            return true;
         }
-        
-        // ROLE_RESPONSABLE_DEPARTEMENT voit uniquement les présences de son département
-        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            return $this->canViewByDepartement($attribute, $presencedepartement, $user);
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Responsable de département : voit uniquement son département
-     */
-    private function canViewByDepartement(string $attribute, Presencedepartement $presencedepartement, User $user): bool {
+
         $departement = $presencedepartement->getDepartement();
-        if (!$departement) {
+        
+        if (null === $departement) {
             return false;
         }
-        
-        // Vérifier que l'utilisateur est responsable de ce département
-        $departementResponsable = $departement->getUsers();
-        if (!$departementResponsable || $departementResponsable !== $user) {
+
+        // Vérifier si l'utilisateur a accès à cette presence
+        if (!$this->canAccessPresence($user, $departement)) {
             return false;
         }
-        
-        return $this->checkAttribute($attribute, $presencedepartement, $user);
-    }
-    
-    /**
-     * Vérifie le type d'action
-     */
-    private function checkAttribute(string $attribute, Presencedepartement $presencedepartement, User $user): bool {
+
         switch ($attribute) {
-            case self::PRESENCE_VIEW:
+            case self::COTISATIONDEPARTEMENT_VIEW:
                 return true;
                 
-            case self::PRESENCE_DELETE:
-                return $this->canDelete($presencedepartement, $user);
+            case self::COTISATIONDEPARTEMENT_EDIT:
+                return $this->canEdit($user, $departement);
+                
+            case self::COTISATIONDEPARTEMENT_DELETE:
+                return $this->canDelete($user, $departement);
+                
+            default:
+                return false;
         }
-        return false;
     }
-    
+
     /**
-     * Vérifie si l'utilisateur peut supprimer
+     * Vérifie si l'utilisateur peut accéder à la presence
+     * Accès si : 
+     * - L'utilisateur appartient au departement (User.departement)
+     * - OU l'utilisateur est responsable de la Departement de cette departement (User.Departement)
      */
-    private function canDelete(Presencedepartement $presencedepartement, User $user): bool {
-        // Les rôles supérieurs peuvent tout supprimer
-        if ($this->security->isGranted('ROLE_ADMIN') || 
-            $this->security->isGranted('ROLE_PASTEUR') || 
-            $this->security->isGranted('ROLE_SECRETAIRE')) {
+    private function canAccessPresence(User $user, $departement): bool
+    {
+        // Cas 1: L'utilisateur est membre de la departement
+        if ($user->getDepartement() && $user->getDepartement()->getId() === $departement->getId()) {
             return true;
         }
         
-        // Responsable de département
-        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            $departement = $presencedepartement->getDepartement();
-            if ($departement && $departement->getUsers() === $user) {
-                return true;
-            }
+      
+        
+        return false;
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut modifier
+     * Modification possible si :
+     * - L'utilisateur est secrétaire
+     * - L'utilisateur est responsable de la Departement
+     * - L'utilisateur est membre de la departement (si vous autorisez)
+     */
+    private function canEdit(User $user, $departement): bool
+    {
+        // Secrétaire peut tout modifier
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
         }
+        
+      
+        
+        // Option: Les membres de la departement peuvent modifier
+        // Décommentez si vous voulez autoriser les membres à modifier
+        if ($user->getDepartement() && $user->getDepartement()->getId() === $departement->getId()) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut supprimer
+     * Suppression possible seulement pour :
+     * - Secrétaire
+     * - Responsable de Departement
+     */
+    private function canDelete(User $user, $departement): bool
+    {
+        // Secrétaire peut tout supprimer
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
+        
+       
         
         return false;
     }

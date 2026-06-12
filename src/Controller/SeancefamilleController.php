@@ -183,7 +183,7 @@ class SeancefamilleController extends AbstractController {
                     $qb->andWhere('z.id = :zoneId')->setParameter('zoneId', $zone->getId());
                 } else {
                     $this->addFlash('warning', 'Aucune zone associée à votre compte.');
-                    return $this->redirectToRoute('dashboard');
+                    return $this->redirectToRoute('home');
                 }
             }
             elseif ($this->isGranted('ROLE_RESPONSABLE_FAMILLE')) {
@@ -192,12 +192,12 @@ class SeancefamilleController extends AbstractController {
                     $qb->andWhere('c.id = :familleId')->setParameter('familleId', $famille->getId());
                 } else {
                     $this->addFlash('warning', 'Aucune famille associée à votre compte.');
-                    return $this->redirectToRoute('dashboard');
+                    return $this->redirectToRoute('home');
                 }
             }
             else {
                 $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les présences.');
-                return $this->redirectToRoute('dashboard');
+                return $this->redirectToRoute('home');
             }
             
             $presences = $qb->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();

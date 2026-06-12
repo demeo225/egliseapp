@@ -5,7 +5,7 @@
 {% block body %}
        <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title">Gestion des invités de departement</h3>
+            <h3 class="card-title"> {{ departement.nom|upper }} : Gestion des invités de departement </h3>
         </div>
 
     {{ include('invitedepartement/_form.html.twig') }}

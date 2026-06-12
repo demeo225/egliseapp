@@ -7,150 +7,144 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class InvitegroupeVoter extends Voter {
-
-    public const SEANCEGROUPE_EDIT = 'invitegroupe_edit';
-    public const SEANCEGROUPE_VIEW = 'invitegroupe_index';
-    public const SEANCEGROUPE_DELETE = 'invitegroupe_delete';
+class InvitegroupeVoter extends Voter 
+{
+    public const INVITEGROUPE_EDIT = 'invitegroupe_edit';
+    public const INVITEGROUPE_VIEW = 'invitegroupe_index';
+    public const INVITEGROUPE_DELETE = 'invitegroupe_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $invitegroupe): bool {
+    protected function supports(string $attribute, $invitegroupe): bool 
+    {
         return in_array($attribute, [
-            self::SEANCEGROUPE_EDIT, 
-            self::SEANCEGROUPE_VIEW, 
-            self::SEANCEGROUPE_DELETE
+            self::INVITEGROUPE_EDIT, 
+            self::INVITEGROUPE_VIEW, 
+            self::INVITEGROUPE_DELETE
         ]) && $invitegroupe instanceof Invitegroupe;
     }
 
-    protected function voteOnAttribute(string $attribute, $invitegroupe, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $invitegroupe, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
-        
-        // ROLE_ADMIN et ROLE_SECRETAIRE ont tous les droits
-        if ($this->security->isGranted('ROLE_ADMIN') || $this->security->isGranted('ROLE_SECRETAIRE')) {
+
+        // Les admins ont tous les accès
+        if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
         }
 
-        // Vérifier si la séance de groupe existe
-        $seancegroupe = $invitegroupe->getSeancegroupe();
-        if (null === $seancegroupe) {
-            return false;
-        }
+        $groupe = $invitegroupe->getGroupe();
         
-        // Vérifier si le groupe existe
-        $groupe = $seancegroupe->getGroupe();
         if (null === $groupe) {
             return false;
         }
 
-        // Vérifications communes
-        $isUserInGroupe = $this->isUserInGroupe($groupe, $user);
-        $isGroupeResponsable = $this->isGroupeResponsable($groupe, $user);
-        $isDepartementResponsable = $this->isDepartementResponsable($groupe, $user);
-        $isInvitee = $this->isInvitee($invitegroupe, $user);
-
-        switch ($attribute) {
-            case self::SEANCEGROUPE_VIEW:
-                return $isUserInGroupe || $isGroupeResponsable || $isDepartementResponsable || $isInvitee;
-                
-            case self::SEANCEGROUPE_EDIT:
-                return $isUserInGroupe || $isGroupeResponsable || $isDepartementResponsable;
-                
-            case self::SEANCEGROUPE_DELETE:
-                // Seul le responsable du groupe ou le responsable du département peut supprimer
-                return $isGroupeResponsable || $isDepartementResponsable;
+        // Vérifier si l'utilisateur a accès à cette invite
+        if (!$this->canAccessInvite($user, $invitegroupe)) {
+            return false;
         }
 
+        switch ($attribute) {
+            case self::INVITEGROUPE_VIEW:
+                return true;
+                
+            case self::INVITEGROUPE_EDIT:
+                return $this->canEdit($user, $groupe);
+                
+            case self::INVITEGROUPE_DELETE:
+                return $this->canDelete($user, $groupe);
+                
+            default:
+                return false;
+        }
+    }
+
+    private function canAccessInvite(User $user, Invitegroupe $invitegroupe): bool
+    {
+        $groupe = $invitegroupe->getGroupe();
+        
+        // Cas 1: L'utilisateur est membre du groupe (TOUS les membres)
+        if ($user->getGroupe() && $user->getGroupe()->getId() === $groupe->getId()) {
+            return true;
+        }
+        
+        // Cas 2: L'utilisateur est responsable du département
+        $departement = $groupe->getDepartement();
+        if ($departement && $user->getDepartement() && $user->getDepartement()->getId() === $departement->getId()) {
+            return true;
+        }
+        
+        // Cas 3: L'utilisateur a le rôle RESPONSABLE_GROUPE (même s'il n'est pas membre?)
+        // Si vous voulez que le responsable groupe voit tous les groupes, décommentez :
+        // if ($this->security->isGranted('ROLE_RESPONSABLE_GROUPE')) {
+        //     return true;
+        // }
+        
         return false;
     }
 
-    /**
-     * Vérifie si l'utilisateur appartient au groupe
-     */
-    private function isUserInGroupe($groupe, User $user): bool
+    private function canEdit(User $user, $groupe): bool
     {
-        // Vérifier via la collection getUsers
-        if (!method_exists($groupe, 'getUsers')) {
-            return false;
+        // Secrétaire peut tout modifier
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
         }
         
-        $users = $groupe->getUsers();
-        if (null === $users) {
-            return false;
+        // Responsable de département peut modifier
+        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            $departement = $groupe->getDepartement();
+            if ($departement && $user->getDepartement() && $user->getDepartement()->getId() === $departement->getId()) {
+                return true;
+            }
         }
         
-        return $users->contains($user);
+        // Responsable de groupe peut modifier son groupe
+        if ($this->security->isGranted('ROLE_RESPONSABLE_GROUPE')) {
+            // Vérifier si le responsable est bien attaché à ce groupe
+            if ($user->getGroupe() && $user->getGroupe()->getId() === $groupe->getId()) {
+                return true;
+            }
+        }
+        
+        // Les membres du groupe peuvent modifier
+        if ($user->getGroupe() && $user->getGroupe()->getId() === $groupe->getId()) {
+            return true;
+        }
+        
+        return false;
     }
 
-    /**
-     * Vérifie si l'utilisateur est responsable du groupe
-     */
-    private function isGroupeResponsable($groupe, User $user): bool
+    private function canDelete(User $user, $groupe): bool
     {
-        // Vérifier si la méthode getUsers existe
-        if (!method_exists($groupe, 'getUsers')) {
-            return false;
+        // Seulement secrétaire et responsable département peuvent supprimer
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
         }
         
-        $responsable = $groupe->getUsers();
-        if (null === $responsable) {
-            return false;
+        if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            $departement = $groupe->getDepartement();
+            if ($departement && $user->getDepartement() && $user->getDepartement()->getId() === $departement->getId()) {
+                return true;
+            }
         }
         
-        return $user === $responsable;
-    }
-
-    /**
-     * Vérifie si l'utilisateur est responsable du département du groupe
-     */
-    private function isDepartementResponsable($groupe, User $user): bool
-    {
-        // Vérifier si l'utilisateur a le rôle responsable de département
-        if (!$this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            return false;
-        }
+        // Option: Responsable de groupe peut supprimer (si vous le souhaitez)
+        // if ($this->security->isGranted('ROLE_RESPONSABLE_GROUPE')) {
+        //     if ($user->getGroupe() && $user->getGroupe()->getId() === $groupe->getId()) {
+        //         return true;
+        //     }
+        // }
         
-        if (!method_exists($groupe, 'getDepartement')) {
-            return false;
-        }
-        
-        $departement = $groupe->getDepartement();
-        if (null === $departement) {
-            return false;
-        }
-        
-        if (!method_exists($departement, 'getUser')) {
-            return false;
-        }
-        
-        $departementResponsable = $departement->getUsers();
-        if (null === $departementResponsable) {
-            return false;
-        }
-        
-        return $user === $departementResponsable;
-    }
-
-    /**
-     * Vérifie si l'utilisateur est l'invité lui-même
-     */
-    private function isInvitee(Invitegroupe $invitegroupe, User $user): bool
-    {
-        $invite = $invitegroupe->getInvitegroupe();
-        if (null === $invite) {
-            return false;
-        }
-        
-        return $user === $invite;
+        return false;
     }
 }

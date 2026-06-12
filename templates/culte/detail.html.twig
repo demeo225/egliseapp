@@ -75,8 +75,27 @@
                         <th>Notes</th>
                         <td>{{ culte.message|raw}}</td>
                     </tr>
+                    <tr>
+                    {% if culte.etat == 1 %}
+                    
+
+                    <td><img
+                        src="{{ asset('qrcode/culte_' ~ culte.id ~ '.png') }}"
+                        width="250"
+                    >
+
+                    <br><br>
+
+                    <button onclick="window.print()"
+                            class="btn btn-success">
+                        Imprimer le QR Code
+                    </button> </td>
+                    </tr>
+
+                    {% else %}
+                        {% endif %}
                 </tbody>
-                </td>
+                
      
             </table>
 

@@ -62,6 +62,8 @@
                     </thead>
                     <tbody>
                         {% for depensecellule in depensecellules %}
+                           {% if is_granted("depensecellule_edit", depensecellule) %}
+
                             <tr>
                                 <td> {% if depensecellule.cellule is not empty %}  {{ depensecellule.cellule.nom }} {% else %} {% endif %}</td>
                                 <td>{{ depensecellule.datedepense ? date_format(depensecellule.datedepense) }}</td>
@@ -69,16 +71,14 @@
                                 <td>{{ depensecellule.montant|number_format(0, '.', ' ')  }}</td>
 
                                 <td>
-                                    <a href="{{ path('app_depensecellule_show', {'id': depensecellule.id}) }}">      <span style="font-size: 1em; color: Dodgerblue;">
-                                            <i class="fas fa-list" title="Details"></i>
-                                        </span></a>
+                                   
                                     <a href="{{ path('app_depensecellule_edit', {'id': depensecellule.id}) }}">          <span style="font-size: 1em; color: Dodgerblue;">
                                             <i class="fas fa-edit" title="Modification"></i>
                                         </span></a>
                                 </td>
                             </tr>
                      
-
+                            {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>

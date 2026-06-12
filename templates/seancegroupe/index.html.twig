@@ -1,13 +1,18 @@
 {% extends "home/index.html.twig" %}
 
-{% block title %}Liste des activités de groupe{% endblock %}
+{% block title %}Liste des activités {% if app.user.groupe is not null %}
+    {{ app.user.groupe.nom|upper }}
+{% endif %} {% endblock %}
 
 {% block body %}
 
 
     <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title">Activités des groupes</h3>
+            <h3 class="card-title">   {% if app.user.groupe is not null %}
+    {{ app.user.groupe.nom|upper }} : Activités {% else %}
+        Liste des activités des groupes
+{% endif %}</h3>
         </div>
   <div class="offset-1 col-md-10 mt-2 mb-2">
         {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}

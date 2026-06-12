@@ -23,23 +23,52 @@ class DepensedepartementController extends AbstractController {
     use ClientIp;
 
     #[Route('/', name: 'app_depensedepartement_index', methods: ['GET'])]
-    public function index(DepensedepartementRepository $depensedepartementRepository, SoldedepartementRepository $soldeRepo, DepartementRepository $departementRepo): Response {
+   public function index(DepensedepartementRepository $depensedepartementRepository, SoldedepartementRepository $soldeRepo, DepartementRepository $departementRepository): Response
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+        
+        $user = $this->getUser();
+        $eglise = $user->getEglise();
+        
+        // Construction de la requête selon le rôle
+        $qb = $depensedepartementRepository->createQueryBuilder('d')
+            ->leftJoin('d.departement', 'c')
+           // ->leftJoin('c.zone', 'z')
+            ->where('d.eglise = :eglise')
+            ->andWhere('d.deletedAt IS NULL')
+            ->setParameter('eglise', $eglise);
+        
+        // Filtres selon les rôles
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_PASTEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
+            // Ces rôles voient toutes les dépenses
+        } 
+      
+        elseif ($this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
+            $departement = $user->getDepartement();
+            if ($departement) {
+                $qb->andWhere('c.id = :departementId')
+                   ->setParameter('departementId', $departement->getId());
+            } else {
+                $this->addFlash('warning', 'Aucune departement associée à votre compte.');
+                return $this->redirectToRoute('home');
+            }
         }
-//         $user = $this->getUser();
-        $departement = $this->getUser()->getDepartement();
-        $departement2 = $departementRepo->findOneDepartement($departement);
+        else {
+            $this->addFlash('error', 'Vous n\'avez pas les droits pour voir les dépenses.');
+            return $this->redirectToRoute('home');
+        }
+        
+        $depenses = $qb->orderBy('d.datedepense', 'DESC')->getQuery()->getResult();
 
-        $solde = $soldeRepo->findBy(['departement' => $departement2]);
-        $depense = $depensedepartementRepository->findBy(['departement' => $departement2, "deletedAt" => NULL]);
+              $user = $this->getUser();
+              $departement = $user->getDepartement();
+        $solde = $soldeRepo->findBy(['departement' => $departement]);
+        
         return $this->render('depensedepartement/index.html.twig', [
-                    'depensedepartements' => $depense,
-                    'soldes' => $solde,
+            'depensedepartements' => $depenses,
+             'soldes' => $solde,
         ]);
     }
-
     #[Route('/new', name: 'app_depensedepartement_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, DepensedepartementRepository $depensedepartementRepository, DepartementRepository $departementRepo, SoldedepartementRepository $soldeRepo): Response {
         if (!$this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
@@ -121,14 +150,14 @@ class DepensedepartementController extends AbstractController {
         if (!$this->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
             throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici! Veuillez vous adresser au secretariat');
         }
-        $user = $this->getUser();
-        $departement = $departementRepo->findBy(["user" => $user, "deletedAt" => NULL]);
-        $form = $this->createForm(UpdatedepensedepartementType::class, $depensedepartement, ['departement' => $departement]);
+        $user = $this->getUser(); 
+      //  $departement = $departementRepo->findBy(["user" => $user, "deletedAt" => NULL]);
+        $form = $this->createForm(UpdatedepensedepartementType::class, $depensedepartement,);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $idgpe = $form['departement']->getData();
+            $idgpe = $departementRepo->findOneByUser($user);
 
             $depensedepartement->setUpdatedFromIp($this->GetIp());
 //            $user = $this->getUser();

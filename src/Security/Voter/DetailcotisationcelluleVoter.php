@@ -7,101 +7,142 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class DetailcotisationcelluleVoter extends Voter {
-
-    public const EDIT = 'POST_EDIT';
-    public const DETAILCOTISATIONCELLULE_VIEW = 'cotisercellule_detailcellule';
+class DetailcotisationcelluleVoter extends Voter 
+{
+    public const COTISATIONCELLULE_EDIT = 'detailcotisationcellule_edit';
+    public const COTISATIONCELLULE_VIEW = 'detailcotisationcellule_index';
+    public const COTISATIONCELLULE_DELETE = 'detailcotisationcellule_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $detailcellule): bool {
-        return in_array($attribute, [self::EDIT, self::DETAILCOTISATIONCELLULE_VIEW]) 
-            && $detailcellule instanceof Detailcotisationcellule;
+    protected function supports(string $attribute, $detailcotisationcellule): bool 
+    {
+        return in_array($attribute, [
+            self::COTISATIONCELLULE_EDIT, 
+            self::COTISATIONCELLULE_VIEW, 
+            self::COTISATIONCELLULE_DELETE
+        ]) && $detailcotisationcellule instanceof Detailcotisationcellule;
     }
 
-    protected function voteOnAttribute(string $attribute, $detailcellule, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $detailcotisationcellule, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        // if the user is anonymous, do not grant access
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
-        
-        // ROLE_ADMIN a tous les droits
+
+        // Les admins ont tous les accès
         if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
         }
-        
-        // ROLE_SECRETAIRE a tous les droits
-        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
-            return true;
-        }
 
-        // Vérifier si la cotisation cellule existe
-        $cotisationcellule = $detailcellule->getCotisationcellule();
-        if (null === $cotisationcellule) {
-            return false;
-        }
+        $cellule = $detailcotisationcellule->getCellule();
         
-        // Vérifier si la cellule existe
-        $cellule = $cotisationcellule->getCellule();
         if (null === $cellule) {
             return false;
         }
 
-        switch ($attribute) {
-            case self::EDIT:
-                return $this->canEdit($detailcellule, $user);
-            case self::DETAILCOTISATIONCELLULE_VIEW:
-                return $this->canViewDetail($detailcellule, $user);
+        // Vérifier si l'utilisateur a accès à cette detailcotisation
+        if (!$this->canAccessDetailcotisation($user, $cellule)) {
+            return false;
         }
 
+        switch ($attribute) {
+            case self::COTISATIONCELLULE_VIEW:
+                return true;
+                
+            case self::COTISATIONCELLULE_EDIT:
+                return $this->canEdit($user, $cellule);
+                
+            case self::COTISATIONCELLULE_DELETE:
+                return $this->canDelete($user, $cellule);
+                
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut accéder à la detailcotisation
+     * Accès si : 
+     * - L'utilisateur appartient à la cellule (User.cellule)
+     * - OU l'utilisateur est responsable de la zone de cette cellule (User.zone)
+     */
+    private function canAccessDetailcotisation(User $user, $cellule): bool
+    {
+        // Cas 1: L'utilisateur est membre de la cellule
+        if ($user->getCellule() && $user->getCellule()->getId() === $cellule->getId()) {
+            return true;
+        }
+        
+        // Cas 2: L'utilisateur est responsable de la zone qui contient cette cellule
+        $zone = $cellule->getZone();
+        if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+            return true;
+        }
+        
         return false;
     }
 
-    private function canEdit(Detailcotisationcellule $detailcellule, User $user): bool {
-        $cellule = $detailcellule->getCotisationcellule()->getCellule();
+    /**
+     * Vérifie si l'utilisateur peut modifier
+     * Modification possible si :
+     * - L'utilisateur est secrétaire
+     * - L'utilisateur est responsable de la zone
+     * - L'utilisateur est membre de la cellule (si vous autorisez)
+     */
+    private function canEdit(User $user, $cellule): bool
+    {
+        // Secrétaire peut tout modifier
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
         
-        // Responsable de zone
+        // Responsable de zone peut modifier les detailcotisations des cellules de sa zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $cellule->getZone();
-            if ($zone && $zone->getUsers()) {
-                return $user === $zone->getUsers();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur est le responsable de la cellule (si cette notion existe)
-        if (method_exists($cellule, 'getUsers') && $cellule->getUsers()) {
-            return $user === $cellule->getUsers();
+        
+        // Option: Les membres de la cellule peuvent modifier
+        // Décommentez si vous voulez autoriser les membres à modifier
+        if ($user->getCellule() && $user->getCellule()->getId() === $cellule->getId()) {
+            return true;
         }
-
-        // Vérifier si l'utilisateur appartient à la cellule
-        return $cellule->getUsers()->contains($user);
+        
+        return false;
     }
 
-    private function canViewDetail(Detailcotisationcellule $detailcellule, User $user): bool {
-        $cellule = $detailcellule->getCotisationcellule()->getCellule();
+    /**
+     * Vérifie si l'utilisateur peut supprimer
+     * Suppression possible seulement pour :
+     * - Secrétaire
+     * - Responsable de zone
+     */
+    private function canDelete(User $user, $cellule): bool
+    {
+        // Secrétaire peut tout supprimer
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
         
-        // Responsable de zone
+        // Responsable de zone peut supprimer les detailcotisations des cellules de sa zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $cellule->getZone();
-            if ($zone && $zone->getUsers()) {
-                return $user === $zone->getUsers();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+                return true;
             }
         }
-
-        // Vérifier si l'utilisateur est le responsable de la cellule
-        if (method_exists($cellule, 'getUsers') && $cellule->getUsers()) {
-            return $user === $cellule->getUsers();
-        }
-
-        // Vérifier si l'utilisateur appartient à la cellule
-        return $cellule->getUsers()->contains($user);
+        
+        return false;
     }
 }

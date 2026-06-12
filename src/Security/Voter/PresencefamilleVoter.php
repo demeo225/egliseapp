@@ -7,142 +7,138 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-class PresencefamilleVoter extends Voter {
-
-    public const PRESENCE_VIEW = 'seancefamille_presence';
-    public const PRESENCE_DELETE = 'seancefamille_presence_delete';
+class PresencefamilleVoter extends Voter 
+{
+    public const COTISATIONCELLULE_EDIT = 'presencefamille_edit';
+    public const COTISATIONCELLULE_VIEW = 'presencefamille_index';
+    public const COTISATIONCELLULE_DELETE = 'presencefamille_delete';
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security) 
+    {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $presencefamille): bool {
-        return in_array($attribute, [self::PRESENCE_VIEW, self::PRESENCE_DELETE]) 
-            && $presencefamille instanceof Presencefamille;
+    protected function supports(string $attribute, $presencefamille): bool 
+    {
+        return in_array($attribute, [
+            self::COTISATIONCELLULE_EDIT, 
+            self::COTISATIONCELLULE_VIEW, 
+            self::COTISATIONCELLULE_DELETE
+        ]) && $presencefamille instanceof Presencefamille;
     }
 
-    protected function voteOnAttribute(string $attribute, $presencefamille, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $presencefamille, TokenInterface $token): bool 
+    {
         $user = $token->getUser();
         
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             return false;
         }
-        
-        // ROLES SUPERIEURS : ROLE_ADMIN, ROLE_PASTEUR, ROLE_SECRETAIRE
-        // Ces rôles voient TOUTES les présences de l'église
-        if ($this->security->isGranted('ROLE_ADMIN') || 
-            $this->security->isGranted('ROLE_PASTEUR') || 
-            $this->security->isGranted('ROLE_SECRETAIRE')) {
-            return $this->checkAttribute($attribute, $presencefamille, $user);
+
+        // Les admins ont tous les accès
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            return true;
         }
+
+        $famille = $presencefamille->getFamille();
         
-        // ROLE_RESPONSABLE_ZONE : voit les présences des familles de sa zone
-        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            return $this->canViewByZone($attribute, $presencefamille, $user);
-        }
-        
-        // ROLE_RESPONSABLE_FAMILLE : voit uniquement les présences de sa famille
-        if ($this->security->isGranted('ROLE_RESPONSABLE_FAMILLE')) {
-            return $this->canViewByCellule($attribute, $presencefamille, $user);
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Responsable de zone : voit les présences des familles de sa zone
-     */
-    private function canViewByZone(string $attribute, Presencefamille $presencefamille, User $user): bool {
-        $famille = $presencefamille->getCellule();
-        if (!$famille) {
+        if (null === $famille) {
             return false;
         }
-        
-        $zone = $famille->getZone();
-        if (!$zone) {
+
+        // Vérifier si l'utilisateur a accès à cette presence
+        if (!$this->canAccessPresence($user, $famille)) {
             return false;
         }
-        
-        // Vérifier que la zone appartient au responsable
-        $zoneResponsable = $zone->getUsers();
-        if (!$zoneResponsable || $zoneResponsable !== $user) {
-            return false;
-        }
-        
-        return $this->checkAttribute($attribute, $presencefamille, $user);
-    }
-    
-    /**
-     * Responsable de famille : voit uniquement sa famille
-     */
-    private function canViewByCellule(string $attribute, Presencefamille $presencefamille, User $user): bool {
-        $famille = $presencefamille->getCellule();
-        if (!$famille) {
-            return false;
-        }
-        
-        // Vérifier que l'utilisateur est responsable de cette famille
-        // ou qu'il appartient à la famille (si plusieurs utilisateurs par famille)
-        $familleResponsable = $famille->getUsers();
-        
-        if ($familleResponsable && $familleResponsable === $user) {
-            return $this->checkAttribute($attribute, $presencefamille, $user);
-        }
-        
-        // Vérifier si l'utilisateur appartient à la famille (pour les membres)
-        if (method_exists($famille, 'getUsers') && $famille->getUsers()->contains($user)) {
-            return $this->checkAttribute($attribute, $presencefamille, $user);
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Vérifie le type d'action (view, delete)
-     */
-    private function checkAttribute(string $attribute, Presencefamille $presencefamille, User $user): bool {
+
         switch ($attribute) {
-            case self::PRESENCE_VIEW:
+            case self::COTISATIONCELLULE_VIEW:
                 return true;
                 
-            case self::PRESENCE_DELETE:
-                return $this->canDelete($presencefamille, $user);
+            case self::COTISATIONCELLULE_EDIT:
+                return $this->canEdit($user, $famille);
+                
+            case self::COTISATIONCELLULE_DELETE:
+                return $this->canDelete($user, $famille);
+                
+            default:
+                return false;
         }
-        
-        return false;
     }
-    
+
     /**
-     * Vérifie si l'utilisateur peut supprimer
+     * Vérifie si l'utilisateur peut accéder à la presence
+     * Accès si : 
+     * - L'utilisateur appartient à la famille (User.famille)
+     * - OU l'utilisateur est responsable de la zone de cette famille (User.zone)
      */
-    private function canDelete(Presencefamille $presencefamille, User $user): bool {
-        // Les rôles supérieurs peuvent tout supprimer
-        if ($this->security->isGranted('ROLE_ADMIN') || 
-            $this->security->isGranted('ROLE_PASTEUR') || 
-            $this->security->isGranted('ROLE_SECRETAIRE')) {
+    private function canAccessPresence(User $user, $famille): bool
+    {
+        // Cas 1: L'utilisateur est membre de la famille
+        if ($user->getFamille() && $user->getFamille()->getId() === $famille->getId()) {
             return true;
         }
         
-        $famille = $presencefamille->getCellule();
-        if (!$famille) {
-            return false;
+        // Cas 2: L'utilisateur est responsable de la zone qui contient cette famille
+        $zone = $famille->getZone();
+        if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
+            return true;
         }
         
-        // Responsable de zone
+        return false;
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut modifier
+     * Modification possible si :
+     * - L'utilisateur est secrétaire
+     * - L'utilisateur est responsable de la zone
+     * - L'utilisateur est membre de la famille (si vous autorisez)
+     */
+    private function canEdit(User $user, $famille): bool
+    {
+        // Secrétaire peut tout modifier
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
+        
+        // Responsable de zone peut modifier les presences des familles de sa zone
         if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
             $zone = $famille->getZone();
-            if ($zone && $zone->getUsers() === $user) {
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
                 return true;
             }
         }
         
-        // Responsable de famille
-        if ($this->security->isGranted('ROLE_RESPONSABLE_FAMILLE')) {
-            if ($famille->getUsers() === $user) {
+        // Option: Les membres de la famille peuvent modifier
+        // Décommentez si vous voulez autoriser les membres à modifier
+        if ($user->getFamille() && $user->getFamille()->getId() === $famille->getId()) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut supprimer
+     * Suppression possible seulement pour :
+     * - Secrétaire
+     * - Responsable de zone
+     */
+    private function canDelete(User $user, $famille): bool
+    {
+        // Secrétaire peut tout supprimer
+        if ($this->security->isGranted('ROLE_SECRETAIRE')) {
+            return true;
+        }
+        
+        // Responsable de zone peut supprimer les presences des familles de sa zone
+        if ($this->security->isGranted('ROLE_RESPONSABLE_ZONE')) {
+            $zone = $famille->getZone();
+            if ($zone && $user->getZone() && $user->getZone()->getId() === $zone->getId()) {
                 return true;
             }
         }

@@ -20,16 +20,29 @@ class InvitezoneController extends AbstractController {
     use ClientIp;
 
     #[Route('/', name: 'app_invitezone_index', methods: ['GET'])]
-    public function index(InvitezoneRepository $invitezoneRepository): Response {
+    public function index(InvitezoneRepository $invitezoneRepository): Response
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_RESPONSABLE_ZONE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
-        }
+        
         $user = $this->getUser();
-        $eglise = $this->getUser()->getEglise();
-        $invitezone = $invitezoneRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
+        $eglise = $user->getEglise();
+        
+        // Récupérer tous les invités
+        $allInvites = $invitezoneRepository->findBy([
+            'eglise' => $eglise,
+            'deletedAt' => NULL
+        ], ['id' => 'DESC']);
+        
+        // Filtrer selon les droits via le Voter
+        $invites = [];
+        foreach ($allInvites as $invite) {
+            if ($this->isGranted('invitezone_view', $invite)) {
+                $invites[] = $invite;
+            }
+        }
+        
         return $this->render('invitezone/index.html.twig', [
-                    'invitezones' => $invitezone,
+            'invitezones' => $invites,
         ]);
     }
 
@@ -51,7 +64,7 @@ class InvitezoneController extends AbstractController {
         $type = $invitezone === null ? 'new' : 'edit';
                 $invitezone = $invitezone === null ? new Invitezone() : $invitezone;
         $zone = $zoneRepo->findOneByUser($user);
-        $seancezone = $seancezoneRepository->findBy(["zone" => $zone, "deletedAt" => NULL]);
+        $seancezone = $seancezoneRepository->findBy(["zone" => $zone, "deletedAt" => NULL], ["id" => "DESC"]);
         $form = $this->createForm(InvitezoneType::class, $invitezone, ['seancezone' => $seancezone]);
         $form->handleRequest($request);
 
@@ -101,8 +114,8 @@ class InvitezoneController extends AbstractController {
         $eglise = $this->getUser()->getEglise();
   
         
-        $zone = $zoneRepo->findBy(['eglise' => $eglise, "user" => $user, "deletedAt" => NULL]);
-        $seancezone = $seancezoneRepository->findBy(["zone" => $zone, "deletedAt" => NULL]);
+          $zone = $zoneRepo->findOneByUser($user);
+        $seancezone = $seancezoneRepository->findBy(["zone" => $zone, "deletedAt" => NULL], ["id" => "DESC"]);
         $form = $this->createForm(InvitezoneType::class, $invitezone, ['seancezone' => $seancezone]);
         $form->handleRequest($request);
 

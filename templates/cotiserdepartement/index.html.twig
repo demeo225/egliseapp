@@ -1,6 +1,6 @@
 {% extends "home/index.html.twig" %}
 
-{% block title %}Liste des cotisations {% endblock %}
+{% block title %}Paiements cotisations departement {% endblock %}
 
 {% block body %}
 
@@ -8,7 +8,7 @@
 
     <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title">Paiements des cotisations</h3>
+            <h3 class="card-title">Paiements des cotisations département</h3>
         </div>
     <div class="offset-1 col-md-10 mt-2 mb-2">
         {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
@@ -33,7 +33,7 @@
             <a href='{{ path('cotiserdepartement_detaildepartement') }}'>
                 <button class="btn btn-danger">Details </button>
             </a>
-   <a href={{ path('app_depensedepartement_index') }}>
+             <a href={{ path('app_depensedepartement_index') }}>
                     <button class="btn btn-primary">Depenses</button>
 
                 </a>
@@ -63,14 +63,9 @@
                                 <td>{{ cotiserdepartement.montantpayer }}</td>
                                 <td>{% if  cotiserdepartement.reste ==0 %} <b>Soldé</b> 
                                 {% elseif cotiserdepartement.reste >0 %} {{ cotiserdepartement.reste }} {% elseif cotiserdepartement.reste < 0 %} 
-                                    <b> Soldé </b> {% endif %}</td>
-                             {#   <td>
-                                    {% if cotiserdepartement.reste <= 0 %} {% else %}
-                                        <a href="{{ path('cotiserdepartement_edit', {'id': cotiserdepartement.id}) }}">  <span style="font-size: 1em; color: Dodgerblue;">
-                                                <i class="fas fa-edit"></i>
-                                            </span></a>
-                                        {% endif %}
-                                </td> #}
+                                    <b> Soldé </b> {% endif %}
+                                    </td>
+                        
                             </tr>
                         {% endif %}
                  

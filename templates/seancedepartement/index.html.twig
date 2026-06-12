@@ -1,6 +1,6 @@
 {% extends "home/index.html.twig" %}
 
-{% block title %}Liste des séances{% endblock %}
+{% block title %}Liste des séances departements{% endblock %}
 
 {% block body %}
 
@@ -10,7 +10,7 @@
         <div class="card-header">
             <h3 class="card-title">Activités des departements</h3>
         </div>
- <div class="offset-1 col-md-10 mt-2 mb-2">
+  <div class="offset-1 col-md-10 mt-2 mb-2">
         {% for label, messages in app.flashes(['success', 'warning', 'danger']) %}
             {% for message in messages %}
                 <div class="alert alert-{{ label }} my-alert" role="alert">
@@ -19,42 +19,35 @@
             {% endfor %}
         {% endfor %}
     </div>
-          
-        {% if is_granted('ROLE_RESPONSABLE_GROUPE') %}
-            <div class="card-body">
-
-                <a href='{{ path('seancedepartement_new') }}'>
-                    <button class="btn btn-primary">Nouveau</button>
-                </a>
-                <a href={{ path('app_invitedepartement_index') }}>
-                    <button class="btn btn-success">Invités</button>
-                </a>
-                <a href='{{ path('cotisationdepartement_index') }}'>
-                    <button class="btn btn-success">Cotisations </button>
-                </a>
-
-                <a href={{ path('cotiserdepartement_index') }}>
-                    <button class="btn btn-success">Paiements de cotisation</button>
-
-                </a>
-                <a href={{ path('seancedepartement_listeparticipant') }}>
-                    <button class="btn btn-success">Liste présence</button>
-                </a>
-                <a href={{ path('app_bilan_departement2') }}>
-                    <button class="btn btn-danger">Bilan</button>
-
-                </a>
-                <a href={{ path('app_depensedepartement_index') }}>
-                    <button class="btn btn-success">Depenses</button>
-
-                </a>
-
-               <a href={{ path('seancedepartement_membredep') }}>
-                    <button class="btn btn-success">Membres</button>
-
+           
+        <!-- /.card-header -->
+        <div class="card-body">
+            {% if is_granted('seancedepartement_create') %}
+                <a href="{{ path('seancedepartement_new') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nouveau
                 </a>
             {% endif %}
+            <a href="{{ path('app_invitedepartement_index') }}" class="btn btn-success">
+                <i class="fas fa-user-plus"></i> Invités
+            </a>
+            <a href="{{ path('cotisationdepartement_index') }}" class="btn btn-success">
+                <i class="fas fa-hand-holding-usd"></i> Cotisation
+            </a>
+            <a href="{{ path('cotiserdepartement_index') }}" class="btn btn-success">
+                <i class="fas fa-money-bill"></i> Paiement de cotisation
+            </a>
+            <a href="{{ path('seancedepartement_listeparticipant') }}" class="btn btn-success">
+                <i class="fas fa-list"></i> Liste de présence
+            </a>
+            <a href="{{ path('app_bilan_departement2') }}" class="btn btn-danger">
+                <i class="fas fa-chart-bar"></i> Bilan
+            </a>
+            <a href="{{ path('app_depensedepartement_index') }}" class="btn btn-primary">
+                <i class="fas fa-shopping-cart"></i> Dépenses
+            </a>
+        </div>
             <hr style="visibility: hidden" />
+
             <table id="example1" class="table table-bordered table-striped">
 
                 <thead>
@@ -63,35 +56,33 @@
                         <th>Departement</th>
                         <th>Lieu</th>
                         <th>Theme</th>
-                        <th>Total présents</th>
                         <th>Invités</th>
                         <th>Présents</th>
                         <th>Absents</th>
                         <th>Details</th>
 
-
                     </tr>
                 </thead>
-                <tbody>
-                    {% if is_granted('ROLE_SECRETAIRE') %}
-                        {% for diff in differences %}
-                            {% set totaux = 0 %}
-                            {% for seancedepartement in seancedepartements %}
-                                {% if diff.datesuper ==  seancedepartement.datesuper %}
-                                    {% if is_granted("seancedepartement_edit", seancedepartement) %}
-                                        <tr>
-                                            <td>{{ seancedepartement.datesuper ? seancedepartement.datesuper|date('d-m-Y') : '' }}</td>
-                                            <td>{{ seancedepartement.departement.nom }}</td>
-                                            <td>{{ seancedepartement.lieu }}</td>
-                                            <td>{{ seancedepartement.theme }}</td>
-                                            <td>                                    {% set nbrepresent =seancedepartement.nbrepresent %}
-                                                {% set femme =seancedepartement.femme %}
-                                                {% set enfant =seancedepartement.enfant %}
-                                                {% set total = enfant +nbrepresent + femme %}
-                                                {% set totaux = total + totaux ?? 0 %}
-                                                {{ total }}
-                                            </td>
-                                          <td class="text-center">
+                  <tbody>
+                {% if is_granted('ROLE_RESPONSABLE_ZONE') %}
+                    {% for diff in differences %}
+                        {% set totaux = 0 %}
+                        {% for seancedepartement in seancedepartements %}
+                            {% if diff.datesuper == seancedepartement.datesuper %}
+                                {% if is_granted("seancedepartement_edit", seancedepartement) %}
+                                    <tr>
+                                        <td>{{ seancedepartement.datesuper|format_datetime('full', 'none', locale='fr') }}</td>
+                                        <td>{{ seancedepartement.departement.nom }}</td>
+                                        <td>{{ seancedepartement.lieu }}</td>
+                                        <td>
+                                            {% set nbrepresent = seancedepartement.nbrepresent|default(0) %}
+                                            {% set femme = seancedepartement.femme|default(0) %}
+                                            {% set enfant = seancedepartement.enfant|default(0) %}
+                                            {% set total = enfant + nbrepresent + femme %}
+                                            {% set totaux = total + totaux %}
+                                            {{ total }}
+                                        </td>
+                                        <td class="text-center">
                                             <button type="button" class="btn btn-sm btn-info btn-invites" 
                                                     data-target="{{ path('seancedepartement_search_invitedepartements', {'id': seancedepartement.id}) }}">
                                                 <i class="fas fa-users"></i> {{ seancedepartement.invitedepartements|length }}
@@ -116,42 +107,32 @@
                                                 <i class="fas fa-list"></i>
                                             </a>
                                         </td>
-
-                                        </tr>
-                                    {% endif %}
+                                    </tr>
                                 {% endif %}
-
-                            {% endfor %}
-                            {% if totaux == 0  %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="4"> <b>Totaux</b> </td>
-                                    <td><b> {{ totaux }}</b> </td>
-                                    <td colspan="2"></td>
-                                </tr>
                             {% endif %}
                         {% endfor %}
-
-
-                    {% else %}
-                        {% for diff in differences %}
-                            {% set totaux = 0 %}
-                            {% for seancedepartement in seancedepartements %}
-                                {% if diff.datesuper ==  seancedepartement.datesuper %}
-                                    {% if is_granted("seancedepartement_edit", seancedepartement) %}
-                                        <tr>
-                                            <td>{{ seancedepartement.datesuper ? seancedepartement.datesuper|date('d-m-Y') : '' }}</td>
-                                            <td>{{ seancedepartement.departement.nom }}</td>
-                                            <td>{{ seancedepartement.lieu }}</td>
-                                            <td>{{ seancedepartement.theme }}</td>
-                                            <td>                                    {% set nbrepresent =seancedepartement.nbrepresent %}
-                                                {% set femme =seancedepartement.femme %}
-                                                {% set enfant =seancedepartement.enfant %}
-                                                {% set total = enfant +nbrepresent + femme %}
-                                                {% set totaux = total + totaux ?? 0 %}
-                                                {{ total }}
-                                            </td>
-                                            <td class="text-center">
+                        {% if totaux > 0 %}
+                            <tr class="bg-light">
+                                <td colspan="3"><strong>Totaux</strong></td>
+                                <td><strong>{{ totaux }}</strong></td>
+                                <td colspan="4"></td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    {% for seancedepartement in seancedepartements %}
+                        {% if is_granted("seancedepartement_edit", seancedepartement) %}
+                            <tr>
+                                <td>{{ seancedepartement.datesuper ? seancedepartement.datesuper|date('d-m-Y') : '' }}</td>
+                                <td>{{ seancedepartement.departement.nom }}</td>
+                                <td>{{ seancedepartement.lieu }}</td>
+                                <td>
+                                    {% set nbrepresent = seancedepartement.nbrepresent|default(0) %}
+                                    {% set femme = seancedepartement.femme|default(0) %}
+                                    {% set enfant = seancedepartement.enfant|default(0) %}
+                                    {{ enfant + nbrepresent + femme }}
+                                </td>
+                                <td class="text-center">
                                     <button type="button" class="btn btn-sm btn-info btn-invites" 
                                             data-target="{{ path('seancedepartement_search_invitedepartements', {'id': seancedepartement.id}) }}">
                                         <i class="fas fa-users"></i> {{ seancedepartement.invitedepartements|length }}
@@ -176,21 +157,14 @@
                                         <i class="fas fa-list"></i>
                                     </a>
                                 </td>
-
-                                        </tr>
-                                    {% endif %}
-                                {% endif %}
-
-                            {% endfor %}
-
-                        {% endfor %}  
-                    {% endif %}
-                </tbody>
-            </table>
-
-        </div>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
     </div>
-
+</div>
 
 {# Modal pour les présents #}
 <div class="modal fade" id="presentModal" tabindex="-1">
@@ -247,9 +221,9 @@
 </div>
 {% endblock %}
 
-
 {% block javascripts %}
-    {{ parent() }}
+{{ parent() }}
+  
     
 <script>
 $(document).ready(function() {
@@ -329,8 +303,4 @@ $(document).ready(function() {
     });
 });
 </script>
-
-
-
 {% endblock %}
-
