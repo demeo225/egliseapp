@@ -145,11 +145,19 @@ class Culte extends AbstractEntity
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
+
+        /**
+         * @ORM\OneToMany(targetEntity=Presenceculte::class, mappedBy="culte", cascade={"persist", "remove"})
+         */
+
+    private $presencecultes;
     private ?\DateTimeInterface $dateExpirationQr = null;
 
     public function __construct()
     {
         $this->invites = new ArrayCollection();
+            $this->presencecultes = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -465,4 +473,32 @@ class Culte extends AbstractEntity
             $this->dateExpirationQr = $dateExpirationQr;
             return $this;
         }
+
+        
+/**
+ * @return Collection<int, Presenceculte>
+ */
+public function getPresencecultes(): Collection
+{
+    return $this->presencecultes;
+}
+
+public function addPresence(Presenceculte $presence): self
+{
+    if (!$this->presencecultes->contains($presence)) {
+        $this->presencecultes[] = $presence;
+        $presence->setCulte($this);
+    }
+    return $this;
+}
+
+public function removePresence(Presenceculte $presence): self
+{
+    if ($this->presencecultes->removeElement($presence)) {
+        if ($presence->getCulte() === $this) {
+            $presence->setCulte(null);
+        }
+    }
+    return $this;
+}
 }

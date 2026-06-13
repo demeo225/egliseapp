@@ -136,6 +136,363 @@
                 </table>
             </div>
         </div>
+
+        {# Graphique d'évolution #}
+    {# Graphique d'évolution - Version corrigée #}
+{% if bilan.cultes|length > 1 %}
+<div class="card card-success mt-3">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-chart-line"></i> Évolution de l'assistance par culte
+        </h3>
+    </div>
+    <div class="card-body">
+        <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+            <canvas id="evolutionChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+        {# Section Statistiques de présence individuelle #}
+        {% if bilan.totalPresencesEnregistrees > 0 %}
+        <div class="card card-info mt-3">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-user-check"></i> Statistiques de présence individuelle
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="info-box bg-info">
+                            <span class="info-box-icon"><i class="fas fa-calendar-check"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Présences enregistrées</span>
+                                <span class="info-box-number">{{ bilan.totalPresencesEnregistrees|number_format }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-success">
+                            <span class="info-box-icon"><i class="fas fa-users"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Fidèles uniques</span>
+                                <span class="info-box-number">{{ bilan.totalFidelesUniques|number_format }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-warning">
+                            <span class="info-box-icon"><i class="fas fa-chart-bar"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Moyenne présences/culte</span>
+                                <span class="info-box-number">{{ bilan.moyennePresencesParCulte|number_format(0) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-primary">
+                            <span class="info-box-icon"><i class="fas fa-percent"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Taux d'occupation</span>
+                                <span class="info-box-number">{{ bilan.tauxOccupationMoyen|number_format(0) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if bilan.topFidelesPresent|length > 0 %}
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">
+                                    <i class="fas fa-trophy"></i> Top 10 des fidèles les plus assidus
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Nom complet</th>
+                                            <th class="text-center">Présences</th>
+                                            <th class="text-center">Taux (%)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for fidele in bilan.topFidelesPresent %}
+                                        <tr>
+                                            <td>{{ loop.index }}</td>
+                                            <td>{{ fidele.prenom }} {{ fidele.nom }}</td>
+                                            <td class="text-center">{{ fidele.nombre_presences }}</td>
+                                            <td class="text-center">
+                                                {{ ((fidele.nombre_presences / bilan.totalCultes) * 100)|number_format(1) }}%
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">
+                                    <i class="fas fa-chart-line"></i> Présences par mois
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Mois</th>
+                                            <th class="text-center">Cultes</th>
+                                            <th class="text-center">Présences</th>
+                                            <th class="text-center">Moyenne/culte</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for mois, stats in bilan.presencesParMois|reverse %}
+                                        <tr>
+                                            <td>{{ stats.libelle }}</td>
+                                            <td class="text-center">{{ stats.nombre_cultes }}</td>
+                                            <td class="text-center">{{ stats.nombre_presences|number_format }}</td>
+                                            <td class="text-center">{{ stats.moyenne_presences|number_format(0) }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     {% endif %}
 {% endif %}
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique d'évolution des cultes
+    {% if bilan is defined and bilan is not null and not bilan.isEmpty and bilan.cultes|length > 1 %}
+        // Préparer les données pour le graphique
+        const cultesData = [
+            {% for culte in bilan.cultes|reverse %}
+                {
+                    date: '{{ culte.dateculte|date('d/m/Y') }}',
+                    total: {{ culte.nmbrehomme|default(0) + culte.nobrefemme|default(0) + culte.nbrefant|default(0) + culte.invite|default(0) }}
+                }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
+        const labels = cultesData.map(item => item.date);
+        const totals = cultesData.map(item => item.total);
+        
+        const canvas = document.getElementById('evolutionChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            
+            // Calculer la hauteur en fonction du nombre de points
+            const chartHeight = Math.max(400, labels.length * 30);
+            canvas.style.height = chartHeight + 'px';
+            
+            let chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Nombre de participants',
+                        data: totals,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Participants: ' + context.parsed.y + ' personnes';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre de personnes',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date du culte',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                rotation: 45,
+                                autoSkip: true,
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 10,
+                            top: 10,
+                            bottom: 20
+                        }
+                    }
+                }
+            });
+            
+            // Redimensionner le graphique lors du redimensionnement de la fenêtre
+            window.addEventListener('resize', function() {
+                chart.resize();
+            });
+        }
+    {% endif %}
+    
+    // Graphique des présences par mois (optionnel)
+    {% if bilan is defined and bilan is not null and not bilan.isEmpty and bilan.presencesParMois|length > 1 %}
+        const moisLabels = [
+            {% for mois, stats in bilan.presencesParMois %}
+                '{{ stats.libelle }}'{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+        const presencesData = [
+            {% for mois, stats in bilan.presencesParMois %}
+                {{ stats.nombre_presences }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
+        const ctxPresences = document.getElementById('presencesChart');
+        if (ctxPresences) {
+            new Chart(ctxPresences, {
+                type: 'bar',
+                data: {
+                    labels: moisLabels,
+                    datasets: [{
+                        label: 'Présences individuelles',
+                        data: presencesData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre de présences'
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Mois'
+                            },
+                            ticks: {
+                                rotation: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    {% endif %}
+});
+</script>
+
+<style>
+    .chart-container {
+        position: relative;
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+    
+    canvas {
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 400px;
+    }
+    
+    /* Ajustement pour les petits écrans */
+    @media (max-width: 768px) {
+        .chart-container {
+            height: 350px !important;
+        }
+    }
+    
+    /* Style pour le défilement horizontal si nécessaire */
+    .table-responsive {
+        overflow-x: auto;
+    }
+</style>
 {% endblock %}

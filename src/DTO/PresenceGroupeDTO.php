@@ -3,103 +3,149 @@
 namespace App\DTO;
 
 use App\Entity\Presencegroupe;
+use App\Entity\Seancegroupe;
+use App\Entity\Groupe;
+use App\Entity\Fidele;
 use DateTimeInterface;
 
 class PresenceGroupeDTO
 {
-    private array $presences = [];
-    private array $presencesGroupees = [];
-    private array $statistiquesParGroupe = [];
-    private int $totalPresences = 0;
-    private int $fidelesDistincts = 0;
-    private float $moyennePresencesParFidele = 0;
-    private int $seancesAvecPresences = 0;
-
-    public function __construct(?array $presences = null)
+    private ?int $id = null;
+    private ?int $fideleId = null;
+    private ?string $fideleNom = null;
+   // private ?string $fidelePrenom = null;
+    private ?string $fideleContact1 = null;
+    private ?int $groupeId = null;
+    private ?string $groupeNom = null;
+    private ?int $seanceId = null;
+    private ?string $seanceLieu = null;
+    private ?DateTimeInterface $seanceDate = null;
+    private ?int $seanceOffrande = null;
+    private ?int $seanceHommes = null;
+    private ?int $seanceFemmes = null;
+    private ?int $seanceEnfants = null;
+    private ?DateTimeInterface $datePresence = null;
+    private ?string $periode = null;
+    
+    // Statistiques
+    private int $nombrePresences = 1;
+    private array $presencesParMois = [];
+    private ?float $tauxPresence = null;
+    
+    public function __construct(?Presencegroupe $presence = null)
     {
-        if ($presences !== null) {
-            $this->presences = $presences;
-            $this->calculerStatistiques();
+        if ($presence !== null) {
+            $this->hydrateFromEntity($presence);
         }
     }
-
-    private function calculerStatistiques(): void
+    
+    /**
+     * Hydrate le DTO à partir d'une entité Presencegroupe
+     */
+    public function hydrateFromEntity(Presencegroupe $presence): self
     {
-        $this->totalPresences = count($this->presences);
+        $this->id = $presence->getId();
         
-        $fidelesIds = [];
-        $seancesIds = [];
-        $groupesStats = [];
+        // Récupérer les informations du fidèle
+        $fidele = $presence->getFidele();
+        if ($fidele) {
+            $this->fideleId = $fidele->getId();
+            $this->fideleNom = $fidele->getNomfidele();
+         //   $this->fidelePrenom = $fidele->getPrenomfidele();
+            $this->fideleContact = $fidele->getContact1();
+        }
         
-        foreach ($this->presences as $presence) {
-            if ($presence->getFidele()) {
-                $fidelesIds[$presence->getFidele()->getId()] = true;
-            }
-            if ($presence->getSeancegroupe()) {
-                $seancesIds[$presence->getSeancegroupe()->getId()] = true;
-            }
+        // Récupérer les informations du département
+        $groupe = $presence->getGroupe();
+        if ($groupe) {
+            $this->groupeId = $groupe->getId();
+            $this->groupeNom = $groupe->getNom();
+        }
+        
+        // Récupérer les informations de la séance
+        $seance = $presence->getSeancegroupe();
+        if ($seance) {
+            $this->seanceId = $seance->getId();
+            $this->seanceLieu = $seance->getLieu();
+            $this->seanceDate = $seance->getDatesuper();
+            $this->seanceOffrande = $seance->getOffrande();
+            $this->seanceHommes = $seance->getNbrepresent();
+            $this->seanceFemmes = $seance->getFemme();
+            $this->seanceEnfants = $seance->getEnfant();
             
-            $groupe = $presence->getGroupe();
-            $groupeNom = $groupe ? $groupe->getNom() : 'Non défini';
-            $groupeId = $groupe ? $groupe->getId() : null;
+            // Définir la date de présence (utilise la date de la séance)
+            $this->datePresence = $seance->getDatesuper();
             
-            if (!isset($groupesStats[$groupeNom])) {
-                $groupesStats[$groupeNom] = [
-                    'groupe_id' => $groupeId,
-                    'groupe_nom' => $groupeNom,
-                    'total_presences' => 0,
-                    'fideles_distincts' => [],
-                    'seances_distinctes' => []
-                ];
-            }
-            
-            $groupesStats[$groupeNom]['total_presences']++;
-            
-            if ($presence->getFidele()) {
-                $groupesStats[$groupeNom]['fideles_distincts'][$presence->getFidele()->getId()] = true;
-            }
-            if ($presence->getSeancegroupe()) {
-                $groupesStats[$groupeNom]['seances_distinctes'][$presence->getSeancegroupe()->getId()] = true;
+            // Définir la période
+            if ($this->datePresence) {
+                $this->periode = $this->datePresence->format('F Y');
             }
         }
         
-        foreach ($groupesStats as &$stat) {
-            $stat['nb_fideles_distincts'] = count($stat['fideles_distincts']);
-            $stat['nb_seances_distinctes'] = count($stat['seances_distinctes']);
-            unset($stat['fideles_distincts'], $stat['seances_distinctes']);
-        }
-        
-        $this->statistiquesParGroupe = $groupesStats;
-        $this->fidelesDistincts = count($fidelesIds);
-        $this->seancesAvecPresences = count($seancesIds);
-        
-        $this->moyennePresencesParFidele = $this->fidelesDistincts > 0 
-            ? round($this->totalPresences / $this->fidelesDistincts, 2) 
-            : 0;
-        
-        $this->presencesGroupees = $this->groupByFidele();
+        return $this;
     }
-
-    private function groupByFidele(): array
+    
+    /**
+     * Crée un tableau de DTOs à partir d'une collection d'entités
+     */
+    public static function createFromCollection(array $presences): array
+    {
+        $dtos = [];
+        $compteurPresences = [];
+        
+        // Premier passage : compter les présences par fidèle et par séance
+        foreach ($presences as $presence) {
+            $fideleId = $presence->getFidele()?->getId();
+            $seanceId = $presence->getSeancegroupe()?->getId();
+            $key = $fideleId . '_' . $seanceId;
+            
+            if (!isset($compteurPresences[$key])) {
+                $compteurPresences[$key] = 0;
+            }
+            $compteurPresences[$key]++;
+        }
+        
+        // Deuxième passage : créer les DTOs avec les compteurs
+        foreach ($presences as $presence) {
+            $dto = new self($presence);
+            
+            $fideleId = $presence->getFidele()?->getId();
+            $seanceId = $presence->getSeancegroupe()?->getId();
+            $key = $fideleId . '_' . $seanceId;
+            
+            if (isset($compteurPresences[$key])) {
+                $dto->setNombrePresences($compteurPresences[$key]);
+            }
+            
+            $dtos[] = $dto;
+        }
+        
+        return $dtos;
+    }
+    
+    /**
+     * Groupe les présences par fidèle
+     */
+    public static function groupByFidele(array $presences): array
     {
         $grouped = [];
         
-        foreach ($this->presences as $presence) {
-            $fidele = $presence->getFidele();
-            if ($fidele) {
-                $fideleId = $fidele->getId();
-                if (!isset($grouped[$fideleId])) {
-                    $grouped[$fideleId] = [
-                        'fidele_id' => $fideleId,
-                        'fidele_nom' => $fidele->getNomfidele(),
-                        'fidele_prenom' => $fidele->getContact1(),
-                        'groupe_nom' => $presence->getGroupe()?->getNom(),
-                        'presences' => [],
-                        'total_presences' => 0,
-                        'derniere_presence' => null
-                    ];
-                }
-                
+        foreach ($presences as $presence) {
+            $fideleId = $presence->getFidele()?->getId();
+            if ($fideleId && !isset($grouped[$fideleId])) {
+                $grouped[$fideleId] = [
+                    'fidele_id' => $fideleId,
+                    'fidele_nom' => $presence->getFidele()?->getNomfidele(),
+                    'fidele_prenom' => $presence->getFidele()?->getContact1(),
+                    'groupe_nom' => $presence->getGroupe()?->getNom(),
+                    'presences' => [],
+                    'total_presences' => 0,
+                    'derniere_presence' => null
+                ];
+            }
+            
+            if ($fideleId) {
+                $grouped[$fideleId]['presences'][] = $presence;
                 $grouped[$fideleId]['total_presences']++;
                 
                 $datePresence = $presence->getSeancegroupe()?->getDatesuper();
@@ -111,13 +157,118 @@ class PresenceGroupeDTO
         
         return $grouped;
     }
-
-    public function getPresences(): array { return $this->presences; }
-    public function getPresencesGroupees(): array { return $this->presencesGroupees; }
-    public function getStatistiquesParGroupe(): array { return $this->statistiquesParGroupe; }
-    public function getTotalPresences(): int { return $this->totalPresences; }
-    public function getFidelesDistincts(): int { return $this->fidelesDistincts; }
-    public function getMoyennePresencesParFidele(): float { return $this->moyennePresencesParFidele; }
-    public function getSeancesAvecPresences(): int { return $this->seancesAvecPresences; }
-    public function hasPresences(): bool { return !empty($this->presences); }
+    
+    /**
+     * Calcule les statistiques des présences par département
+     */
+    public static function calculerStatistiquesParGroupe(array $presences): array
+    {
+        $statistiques = [];
+        
+        foreach ($presences as $presence) {
+            $groupeId = $presence->getGroupe()?->getId();
+            $groupeNom = $presence->getGroupe()?->getNom() ?? 'Non défini';
+            
+            if (!isset($statistiques[$groupeId])) {
+                $statistiques[$groupeId] = [
+                    'groupe_id' => $groupeId,
+                    'groupe_nom' => $groupeNom,
+                    'total_presences' => 0,
+                    'fideles_distincts' => [],
+                    'seances_distinctes' => []
+                ];
+            }
+            
+            $statistiques[$groupeId]['total_presences']++;
+            
+            $fideleId = $presence->getFidele()?->getId();
+            if ($fideleId) {
+                $statistiques[$groupeId]['fideles_distincts'][$fideleId] = true;
+            }
+            
+            $seanceId = $presence->getSeancegroupe()?->getId();
+            if ($seanceId) {
+                $statistiques[$groupeId]['seances_distinctes'][$seanceId] = true;
+            }
+        }
+        
+        // Convertir les tableaux en compteurs
+        foreach ($statistiques as &$stat) {
+            $stat['nb_fideles_distincts'] = count($stat['fideles_distincts']);
+            $stat['nb_seances_distinctes'] = count($stat['seances_distinctes']);
+            unset($stat['fideles_distincts'], $stat['seances_distinctes']);
+            
+            $stat['moyenne_presences_par_seance'] = $stat['nb_seances_distinctes'] > 0 
+                ? round($stat['total_presences'] / $stat['nb_seances_distinctes'], 2) 
+                : 0;
+        }
+        
+        return $statistiques;
+    }
+    
+    // Getters
+    
+    public function getId(): ?int { return $this->id; }
+    public function getFideleId(): ?int { return $this->fideleId; }
+    public function getFideleNom(): ?string { return $this->fideleNom; }
+ //   public function getFidelePrenom(): ?string { return $this->fidelePrenom; }
+    public function getFideleNomComplet(): ?string { 
+        return $this->fideleNom ? $this->fideleNom  : null;
+    }
+    public function getFideleContact(): ?string { return $this->fideleContact; }
+    public function getGroupeId(): ?int { return $this->groupeId; }
+    public function getGroupeNom(): ?string { return $this->groupeNom; }
+    public function getSeanceId(): ?int { return $this->seanceId; }
+    public function getSeanceLieu(): ?string { return $this->seanceLieu; }
+    public function getSeanceDate(): ?DateTimeInterface { return $this->seanceDate; }
+    public function getSeanceOffrande(): ?int { return $this->seanceOffrande; }
+    public function getSeanceHommes(): ?int { return $this->seanceHommes; }
+    public function getSeanceFemmes(): ?int { return $this->seanceFemmes; }
+    public function getSeanceEnfants(): ?int { return $this->seanceEnfants; }
+    public function getSeanceTotal(): int { 
+        return ($this->seanceHommes ?? 0) + ($this->seanceFemmes ?? 0) + ($this->seanceEnfants ?? 0);
+    }
+    public function getDatePresence(): ?DateTimeInterface { return $this->datePresence; }
+    public function getPeriode(): ?string { return $this->periode; }
+    public function getNombrePresences(): int { return $this->nombrePresences; }
+    public function getTauxPresence(): ?float { return $this->tauxPresence; }
+    
+    // Setters
+    public function setNombrePresences(int $nombrePresences): self { 
+        $this->nombrePresences = $nombrePresences; 
+        return $this;
+    }
+    public function setTauxPresence(?float $tauxPresence): self { 
+        $this->tauxPresence = $tauxPresence; 
+        return $this;
+    }
+    
+    // Méthodes utilitaires
+    public function getDatePresenceFormatee(): string {
+        return $this->datePresence ? $this->datePresence->format('d/m/Y') : 'Non définie';
+    }
+    
+    public function getSeanceDateFormatee(): string {
+        return $this->seanceDate ? $this->seanceDate->format('d/m/Y') : 'Non définie';
+    }
+    
+    public function getSeanceOffrandeFormatee(): string {
+        return number_format($this->seanceOffrande ?? 0, 0, ',', ' ') . ' FCFA';
+    }
+    
+    public function getStatutPresence(): array {
+        if ($this->nombrePresences >= 4) {
+            return ['label' => 'Très assidu', 'class' => 'success', 'icon' => 'fas fa-star'];
+        } elseif ($this->nombrePresences >= 2) {
+            return ['label' => 'Assidu', 'class' => 'info', 'icon' => 'fas fa-thumbs-up'];
+        } elseif ($this->nombrePresences >= 1) {
+            return ['label' => 'Occasionnel', 'class' => 'warning', 'icon' => 'fas fa-calendar-week'];
+        } else {
+            return ['label' => 'Inactif', 'class' => 'danger', 'icon' => 'fas fa-ban'];
+        }
+    }
+    
+    public function estPresentPourSeance(int $seanceId): bool {
+        return $this->seanceId === $seanceId;
+    }
 }

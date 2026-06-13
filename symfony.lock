@@ -322,6 +322,15 @@
             "ref": "224aedffb66812dc2b0965dabc14d5f800941da6"
         }
     },
+    "symfony/stimulus-bundle": {
+        "version": "2.36",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.8",
+            "ref": "9e33a8a3794b603fb4be6c04ee5ecab901ce549e"
+        }
+    },
     "symfony/translation": {
         "version": "5.2",
         "recipe": {

@@ -1,64 +1,240 @@
-{# templates/culte/qrcode_print.html.twig #}
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>QR Code - {{ culte.theme }}</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
+            background: white;
+            padding: 0;
             margin: 0;
-            padding: 20px;
         }
-        .qr-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-        }
-        .qr-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .qr-subtitle {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #666;
-        }
-        .qr-code img {
-            max-width: 300px;
-            height: auto;
-        }
+        
+        /* Style pour l'impression A4 */
         @media print {
             body {
                 margin: 0;
                 padding: 0;
             }
+            
+            .page {
+                page-break-after: always;
+            }
+            
             .qr-container {
-                border: none;
+                page-break-inside: avoid;
+            }
+            
+            button, .no-print {
+                display: none !important;
+            }
+        }
+        
+        /* Conteneur principal */
+        .print-container {
+            width: 100%;
+            min-height: 100vh;
+            background: white;
+        }
+        
+        /* Style pour une page A4 */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 15mm;
+            background: white;
+            position: relative;
+        }
+        
+        /* Grille pour 2 QR codes par page */
+        .qr-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20mm;
+            height: 100%;
+        }
+        
+        /* Conteneur QR code individuel */
+        .qr-container {
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+        
+        .qr-header {
+            margin-bottom: 15px;
+        }
+        
+        .qr-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .qr-subtitle {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .qr-code {
+            margin: 20px 0;
+        }
+        
+        .qr-code img {
+            max-width: 200px;
+            height: auto;
+            margin: 0 auto;
+        }
+        
+        .qr-info {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #555;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        
+        .qr-info p {
+            margin: 5px 0;
+        }
+        
+        /* Bouton d'impression */
+        .print-btn-container {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .print-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        
+        .print-btn:hover {
+            background: #2980b9;
+        }
+        
+        .close-btn {
+            background: #e74c3c;
+        }
+        
+        .close-btn:hover {
+            background: #c0392b;
+        }
+        
+        /* Version simple pour un seul QR code */
+        .single-qr {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .single-qr .qr-code img {
+            max-width: 250px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .qr-grid {
+                grid-template-columns: 1fr;
+                gap: 20mm;
+            }
+            
+            .page {
+                width: 100%;
+                padding: 10mm;
             }
         }
     </style>
 </head>
 <body>
-    <div class="qr-container">
-        <div class="qr-title">QR Code - Culte</div>
-        <div class="qr-subtitle">{{ culte.theme }}</div>
-        <div class="qr-code">
-            <img src="{{ culte.qrCode }}" alt="QR Code">
-        </div>
-        <div class="qr-info">
-            Date: {{ culte.dateculte|date('d/m/Y H:i') }}<br>
-            Scannez pour enregistrer votre présence
+    <div class="print-container">
+        <!-- Page avec 2 QR codes -->
+        <div class="page">
+            <div class="qr-grid">
+                <!-- QR Code 1 -->
+                <div class="qr-container">
+                    <div class="qr-header">
+                        <div class="qr-title">{{ culte.typeculte ? culte.typeculte.libelle : 'Culte' }}</div>
+                        <div class="qr-subtitle">{{ culte.theme }}</div>
+                    </div>
+                    <div class="qr-code">
+                        <img src="{{ asset('qrcode/culte_' ~ culte.id ~ '.png') }}" alt="QR Code">
+                    </div>
+                    <div class="qr-info">
+                        <p><strong>Eglise:</strong> {{ culte.eglise ? culte.eglise.denomination }}.
+                        <strong>Date:</strong> {{ culte.dateculte|date('d/m/Y') }}.
+                        <strong>Lieu:</strong> {{ culte.lieu|default('Église') }}</p>
+                        <p><strong>Orateur:</strong> {{ culte.orateur|default(culte.messager ? culte.messager.nomfidele : '') }}</p>
+                        <p><small>Scannez ce code pour enregistrer votre présence</small></p>
+                    </div>
+                </div>
+                
+                <!-- QR Code 2 -->
+                <div class="qr-container">
+                    <div class="qr-header">
+                        <div class="qr-title">{{ culte.typeculte ? culte.typeculte.libelle : 'Culte' }}</div>
+                        <div class="qr-subtitle">{{ culte.theme }}</div>
+                    </div>
+                    <div class="qr-code">
+                        <img src="{{ asset('qrcode/culte_' ~ culte.id ~ '.png') }}" alt="QR Code">
+                    </div>
+                    <div class="qr-info">
+                        <p><strong>Date:</strong> {{ culte.dateculte|date('d/m/Y H:i') }}</p>
+                        <p><strong>Lieu:</strong> {{ culte.lieu|default('Église') }}</p>
+                        <p><strong>Orateur:</strong> {{ culte.orateur|default(culte.messager ? culte.messager.nomfidele : '') }}</p>
+                        <p><small>Scannez ce code pour enregistrer votre présence</small></p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    
+    <div class="print-btn-container no-print">
+        <button class="print-btn" onclick="window.print()">
+            <i class="fas fa-print"></i> Imprimer
+        </button>
+        <button class="print-btn close-btn" onclick="window.close()">
+            <i class="fas fa-times"></i> Fermer
+        </button>
+    </div>
+    
     <script>
-        window.onload = function() {
-            window.print();
-        }
+        // Impression automatique au chargement (optionnel)
+        // window.onload = function() {
+        //     window.print();
+        // }
+        
+        // Fermeture après impression (optionnel)
+        window.onafterprint = function() {
+            // window.close();
+        };
     </script>
 </body>
 </html>

@@ -242,5 +242,78 @@ public function rechercheCulte(
             ->getQuery()
             ->getResult();
     }
+
+  /**
+ * Recherche les cultes pour le bilan avec chargement des présences
+ */
+public function rechercheCulteForBilan(
+    array $criteria = [], 
+    ?\DateTime $dateDebut = null, 
+    ?\DateTime $dateFin = null, 
+    ?int $limit = null
+): array {
+    try {
+        $qb = $this->createQueryBuilder('c');
+        
+        // Condition de base
+        $qb->where("c.deletedAt IS NULL");
+        
+        // Filtre église
+        if (isset($criteria['eglise'])) {
+            $qb->andWhere("c.eglise = :eglise")
+               ->setParameter('eglise', $criteria['eglise']);
+        }
+        
+        // Filtres de dates
+        if ($dateDebut) {
+            $qb->andWhere("c.dateculte >= :dateDebut")
+               ->setParameter('dateDebut', $dateDebut);
+        }
+        
+        if ($dateFin) {
+            $dateFinClone = clone $dateFin;
+            $dateFinClone->setTime(23, 59, 59);
+            $qb->andWhere("c.dateculte <= :dateFin")
+               ->setParameter('dateFin', $dateFinClone);
+        }
+        
+        // Filtres optionnels
+        if (isset($criteria['typeculte']) && $criteria['typeculte']) {
+            $qb->andWhere("c.typeculte = :typeculte")
+               ->setParameter('typeculte', $criteria['typeculte']);
+        }
+        
+        if (isset($criteria['messager']) && $criteria['messager']) {
+            $qb->andWhere("c.messager = :messager")
+               ->setParameter('messager', $criteria['messager']);
+        }
+        
+        if (isset($criteria['dirigeant']) && $criteria['dirigeant']) {
+            $qb->andWhere("c.dirigeant = :dirigeant")
+               ->setParameter('dirigeant', $criteria['dirigeant']);
+        }
+        
+        // Tri et limite
+        $qb->orderBy('c.dateculte', 'DESC');
+        
+        if ($limit) {
+            $qb->setMaxResults($limit);
+        }
+        
+        // Exécuter la requête
+        $result = $qb->getQuery()->getResult();
+        
+        // Pour chaque culte, forcer le chargement des présences
+        foreach ($result as $culte) {
+            $culte->getPresencecultes()->count();
+        }
+        
+        return $result;
+        
+    } catch (\Exception $exc) {
+        error_log('Erreur: ' . $exc->getMessage());
+        return [];
+    }
+}
    
 }

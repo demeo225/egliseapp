@@ -1258,7 +1258,7 @@ public function rechercheGroupeByUser(
             $seancegroupes = $qbSeances->orderBy('s.datesuper', 'DESC')->getQuery()->getResult();
             
             // DEBUG: Vérifier les séances trouvées
-            // dump('Séances trouvées: ' . count($seancegroupes));
+       
             
             // 2. RECHERCHE DES COTISATIONS
             $qbCotisations = $cotisationgroupeRepository->createQueryBuilder('c')
@@ -1280,7 +1280,7 @@ public function rechercheGroupeByUser(
             $cotisations = $qbCotisations->getQuery()->getResult();
             
             // DEBUG: Vérifier les cotisations trouvées
-            // dump('Cotisations trouvées: ' . count($cotisations));
+         
             
             // Calcul du total des cotisations
             foreach ($cotisations as $cotisation) {
@@ -1364,7 +1364,7 @@ public function rechercheGroupeByUser(
                 $totalInvites = count($invitegroupes);
                 
                 // DEBUG: Vérifier les invités trouvés
-                dump('Invités trouvés pour ces séances: ' . $totalInvites);
+               // dump('Invités trouvés pour ces séances: ' . $totalInvites);
             }
             
             // 7. RECHERCHE DES DETAILS DE COTISATION
@@ -3377,7 +3377,8 @@ public function rechercheGroupeByUser(
 //                     'cultes' => $cultes,
 //         ]);
 //     }
-//Nouveau bilan cultes
+
+
 #[Route('/bilanculte', name: 'app_bilan_culte', methods: ['GET', 'POST'])]
 public function rechercheCulte(
     Request $request, 
@@ -3427,7 +3428,7 @@ public function rechercheCulte(
             $cultes = [];
         } else {
             $limit = 1000;
-            $cultes = $culteRepository->rechercheCulte($searchCriteria, $dateDebut, $dateFin, $limit);
+            $cultes = $culteRepository->rechercheCulteForBilan($searchCriteria, $dateDebut, $dateFin, $limit);
         }
         
         $bilanDTO = new BilanCulteDTO($cultes ?? []);

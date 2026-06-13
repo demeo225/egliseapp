@@ -1,52 +1,99 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}Enregistrement présence - {{ culte.theme }}{% endblock %}
+
 {% block body %}
-
 <div class="container mt-5">
-
-    <h3>{{ culte.theme }}</h3>
-
-    <p>
-        Veuillez renseigner vos informations.
-    </p>
-
-    <form
-        hx-post="{{ path('presence_save',{token: culte.tokenPresence}) }}"
-        hx-target="#resultat"
-        hx-swap="innerHTML"
-    >
-
-        <div class="form-group mb-3">
-            <label>Nom complet</label>
-            <input
-                type="text"
-                name="nomfidele"
-                class="form-control"
-                required
-            >
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>{{ culte.theme }}</h4>
+                    <p class="mb-0">{{ culte.dateculte ? culte.dateculte|date('d/m/Y H:i') : '' }}</p>
+                </div>
+                <div class="card-body">
+                    <div id="message-container"></div>
+                    
+                   <form method="post" action="{{ path('presence_save', {'token': culte.tokenPresence}) }}">
+                        <div class="form-group mb-3">
+                            <label for="nomfidele">Nom complet</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="nomfidele" 
+                                   name="nomfidele" 
+                                   placeholder="Votre nom complet"
+                                   autocomplete="off">
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            <label for="contact1">Numéro de téléphone *</label>
+                            <input type="tel" 
+                                   class="form-control" 
+                                   id="contact1" 
+                                   name="contact1" 
+                                   placeholder="Ex: 0707070707"
+                                   required
+                                   autocomplete="off">
+                            <small class="text-muted">Le numéro de téléphone est obligatoire</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100" id="submit-btn">
+                            <i class="fas fa-check-circle"></i> Enregistrer ma présence
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <div class="form-group mb-3">
-            <label>Téléphone</label>
-            <input
-                type="text"
-                name="contact1"
-                class="form-control"
-                required
-            >
-        </div>
-
-        <button
-            class="btn btn-primary"
-            type="submit"
-        >
-            Valider ma présence
-        </button>
-
-    </form>
-
-    <div id="resultat" class="mt-3"></div>
-
+    </div>
 </div>
+{% endblock %}
 
+{% block javascripts %}
+{{ parent() }}
+<script src="https://unpkg.com/htmx.org"></script>
+<script>
+$(document).ready(function() {
+    $('#presence-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        let $form = $(this);
+        let $submitBtn = $('#submit-btn');
+        let $messageContainer = $('#message-container');
+        
+        // Désactiver le bouton pendant l'envoi
+        $submitBtn.prop('disabled', true);
+        $submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Enregistrement...');
+        
+        // Récupérer le token depuis l'URL
+        let urlParts = window.location.pathname.split('/');
+        let token = urlParts[urlParts.length - 1];
+        
+        $.ajax({
+            url: '/presence/' + token + '/save',
+            type: 'POST',
+            data: {
+                nomfidele: $('#nomfidele').val(),
+                contact1: $('#contact1').val()
+            },
+            success: function(response) {
+                $messageContainer.html(response);
+                $form[0].reset();
+                
+                // Auto-redirection après 3 secondes
+                setTimeout(function() {
+                    window.location.href = '/';
+                }, 3000);
+            },
+            error: function(xhr) {
+                let errorMsg = xhr.responseText || 'Une erreur est survenue';
+                $messageContainer.html(errorMsg);
+            },
+            complete: function() {
+                $submitBtn.prop('disabled', false);
+                $submitBtn.html('<i class="fas fa-check-circle"></i> Enregistrer ma présence');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

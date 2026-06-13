@@ -8,13 +8,12 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass=PresenceculteRepository::class)
- */
-/**
  * @ORM\Table(
+ *     name="presenceculte",
  *     uniqueConstraints={
  *         @ORM\UniqueConstraint(
  *             name="presence_unique",
- *             columns={"fidele_id","culte_id"}
+ *             columns={"fidele_id", "culte_id"}
  *         )
  *     }
  * )
@@ -29,21 +28,24 @@ class Presenceculte extends AbstractEntity
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Fidele::class)
+     * @ORM\ManyToOne(targetEntity=Fidele::class, inversedBy="presences")
+     * @ORM\JoinColumn(name="fidele_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
     private $fidele;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Culte::class)
+     * @ORM\ManyToOne(targetEntity=Culte::class, inversedBy="presences")
+     * @ORM\JoinColumn(name="culte_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
     private $culte;
 
     /**
      * @ORM\ManyToOne(targetEntity=Eglise::class)
+     * @ORM\JoinColumn(name="eglise_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
     private $eglise;
 
-         /**
+    /**
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=true)
      */
@@ -68,7 +70,6 @@ class Presenceculte extends AbstractEntity
     public function setFidele(?Fidele $fidele): self
     {
         $this->fidele = $fidele;
-
         return $this;
     }
 
@@ -80,7 +81,6 @@ class Presenceculte extends AbstractEntity
     public function setCulte(?Culte $culte): self
     {
         $this->culte = $culte;
-
         return $this;
     }
 
@@ -92,31 +92,28 @@ class Presenceculte extends AbstractEntity
     public function setEglise(?Eglise $eglise): self
     {
         $this->eglise = $eglise;
-
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreateAt(): ?\DateTimeInterface
     {
-        return $this->createdAt;
+        return $this->createAt;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $createdAt): self
+    public function setCreateAt(?\DateTimeInterface $createAt): self
     {
-        $this->createdAt = $createdAt;
-
+        $this->createAt = $createAt;
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdateAt(): ?\DateTimeInterface
     {
-        return $this->updatedAt;
+        return $this->updateAt;
     }
 
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
+    public function setUpdateAt(?\DateTimeInterface $updateAt): self
     {
-        $this->updatedAt = $updatedAt;
-
+        $this->updateAt = $updateAt;
         return $this;
     }
 }

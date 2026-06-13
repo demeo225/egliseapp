@@ -29,9 +29,15 @@ class Cotisationparzone extends Cotiser
      */
     private $detailparzones;
 
+     /**
+     * @ORM\OneToMany(targetEntity=Cotiserpazone::class, mappedBy="cotisationparzone")
+     */
+    private Collection $cotiserpazones;
+
     public function __construct()
     {
         $this->detailparzones = new ArrayCollection();
+         $this->cotiserpazones = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -75,6 +81,37 @@ class Cotisationparzone extends Cotiser
             // set the owning side to null (unless already changed)
             if ($detailparzone->getCotisationparzone() === $this) {
                 $detailparzone->setCotisationparzone(null);
+            }
+        }
+
+        return $this;
+    }
+
+    
+    /**
+     * @return Collection<int, Cotiserpazone>
+     */
+    public function getCotiserpazones(): Collection
+    {
+        return $this->cotiserpazones;
+    }
+
+    public function addCotiserpazone(Cotiserpazone $cotiserpazone): self
+    {
+        if (!$this->cotiserpazones->contains($cotiserpazone)) {
+            $this->cotiserpazones[] = $cotiserpazone;
+            $cotiserpazone->setCotisationparzone($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCotiserpazone(Cotiserpazone $cotiserpazone): self
+    {
+        if ($this->cotiserpazones->removeElement($cotiserpazone)) {
+            // set the owning side to null (unless already changed)
+            if ($cotiserpazone->getCotisationparzone() === $this) {
+                $cotiserpazone->setCotisationparzone(null);
             }
         }
 

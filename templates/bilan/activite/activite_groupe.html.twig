@@ -13,7 +13,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
-                        {{ form_row(form_recherche.groupe, {'label': 'Groupe'}) }}
+                        {{ form_row(form_recherche.groupe, {'label': 'Département'}) }}
                     </div>
                     <div class="col-md-3">
                         {{ form_row(form_recherche.dateDebut, {'label': 'Date début'}) }}
@@ -57,7 +57,7 @@
                     <div class="col-md-4">
                         <div class="small-box bg-danger">
                             <div class="inner">
-                                <h3>{{ bilanComplet.totalMontantDepenses|default(0)|number_format(0, ',', ' ') }} FCFA</h3>
+                                <h3>{{ bilanComplet.bilanDepenses ? bilanComplet.bilanDepenses.totalMontantDepenses|number_format(0, ',', ' ') }} FCFA</h3>
                                 <p>Total des dépenses</p>
                             </div>
                             <div class="icon">
@@ -68,7 +68,7 @@
                     <div class="col-md-4">
                         <div class="small-box bg-info">
                             <div class="inner">
-                                {% set solde = (bilanComplet.bilanCotisations ? bilanComplet.bilanCotisations.totalMontantPayes : 0) - (bilanComplet.totalMontantDepenses|default(0)) %}
+                                {% set solde = (bilanComplet.bilanCotisations ? bilanComplet.bilanCotisations.totalMontantPayes : 0) - (bilanComplet.bilanDepenses ? bilanComplet.bilanDepenses.totalMontantDepenses : 0) %}
                                 <h3>{{ solde|number_format(0, ',', ' ') }} FCFA</h3>
                                 <p>Solde disponible</p>
                             </div>
@@ -90,17 +90,56 @@
         <h3 class="card-title">
             <i class="fas fa-calendar-alt"></i> Activités des groupes
         </h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
     </div>
     <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="info-box bg-info">
+                    <span class="info-box-icon"><i class="fas fa-church"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total séances</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanActivites.totalSeances }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-box bg-success">
+                    <span class="info-box-icon"><i class="fas fa-users"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total participants</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanActivites.totalParticipants|number_format }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-box bg-warning">
+                    <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Moyenne/séance</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanActivites.moyenneParSeance|number_format(0) }} pers.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="table-responsive">
-            <table class="table table-bordered table-striped">
+            <table class="table table-bordered table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Groupe</th>
+                        <th>Département</th>
                         <th>Lieu</th>
                         <th>Offrande</th>
-                        <th>Total participants</th>
+                        <th>Hommes</th>
+                        <th>Femmes</th>
+                        <th>Enfants</th>
+                        <th>Total</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -110,22 +149,43 @@
                         <td>{{ seance.groupe ? seance.groupe.nom : '-' }}</td>
                         <td>{{ seance.lieu|default('-') }}</td>
                         <td class="text-right">{{ seance.offrande|number_format(0, ',', ' ') }} FCFA</td>
-                        <td class="text-right">{{ seance.nbrepresent|default(0) + seance.femme|default(0) + seance.enfant|default(0) }}</td>
+                        <td class="text-right">{{ seance.nbrepresent|default(0) }}</td>
+                        <td class="text-right">{{ seance.femme|default(0) }}</td>
+                        <td class="text-right">{{ seance.enfant|default(0) }}</td>
+                        <td class="text-right">
+                            <strong>{{ (seance.nbrepresent|default(0) + seance.femme|default(0) + seance.enfant|default(0)) }}</strong>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ path('seancegroupe_show', {'id': seance.id}) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-list"></i>
+                            </a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
+                <tfoot>
+                    <tr class="bg-light">
+                        <th colspan="3" class="text-right">TOTAUX :</th>
+                        <th class="text-right">{{ bilanComplet.bilanActivites.totalOffrandes|default(0)|number_format(0, ',', ' ') }} FCFA</th>
+                        <th colspan="2"></th>
+                        <th class="text-right">{{ bilanComplet.bilanActivites.totalParticipants|number_format }}</th>
+                        <th colspan="2"></th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
 </div>
 {% endif %}
 
+
+{# ==================== SECTION PRÉSENCES ==================== #}
 {# ==================== SECTION PRÉSENCES ==================== #}
 {% if bilanComplet.hasPresences %}
 <div class="card card-warning mt-3">
     <div class="card-header">
         <h3 class="card-title">
-            <i class="fas fa-user-check"></i> Présences par groupe
+            <i class="fas fa-user-check"></i> Présences par fidèle
         </h3>
     </div>
     <div class="card-body">
@@ -134,7 +194,7 @@
                 <div class="info-box bg-warning">
                     <div class="info-box-content">
                         <span class="info-box-text">Total présences</span>
-                        <span class="info-box-number">{{ bilanComplet.bilanPresences.totalPresences|number_format }}</span>
+                        <span class="info-box-number">{{ bilanComplet.totalPresences|number_format }}</span>
                     </div>
                 </div>
             </div>
@@ -142,7 +202,7 @@
                 <div class="info-box bg-info">
                     <div class="info-box-content">
                         <span class="info-box-text">Fidèles distincts</span>
-                        <span class="info-box-number">{{ bilanComplet.bilanPresences.fidelesDistincts|number_format }}</span>
+                        <span class="info-box-number">{{ bilanComplet.fidelesDistincts|number_format }}</span>
                     </div>
                 </div>
             </div>
@@ -150,7 +210,7 @@
                 <div class="info-box bg-success">
                     <div class="info-box-content">
                         <span class="info-box-text">Moyenne/fidèle</span>
-                        <span class="info-box-number">{{ bilanComplet.bilanPresences.moyennePresencesParFidele|number_format(1) }}</span>
+                        <span class="info-box-number">{{ bilanComplet.moyennePresencesParFidele|number_format(1) }}</span>
                     </div>
                 </div>
             </div>
@@ -158,8 +218,193 @@
                 <div class="info-box bg-primary">
                     <div class="info-box-content">
                         <span class="info-box-text">Séances concernées</span>
-                        <span class="info-box-number">{{ bilanComplet.bilanPresences.seancesAvecPresences|number_format }}</span>
+                        <span class="info-box-number">{{ bilanComplet.seancesAvecPresences|number_format }}</span>  <!-- Maintenant cette propriété existe -->
                     </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tableau des présences groupées par fidèle -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Fidèle</th>
+                        <th>Département</th>
+                        <th>Nombre présences</th>
+                        <th>Dernière présence</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fideleId, data in bilanComplet.presencesGroupees %}
+                    <tr>
+                        <td>{{ data.fidele_nom }} {{ data.fidele_prenom }}</td>
+                        <td>{{ data.groupe_nom ?? '-' }}</td>
+                        <td class="text-center">
+                            <span class="badge badge-success">{{ data.total_presences }}</span>
+                        </td>
+                        <td>{{ data.derniere_presence ? data.derniere_presence|date('d/m/Y') : '-' }}</td>
+                        <td class="text-center">
+                            {% if data.total_presences >= 4 %}
+                                <span class="badge badge-success">Très assidu</span>
+                            {% elseif data.total_presences >= 2 %}
+                                <span class="badge badge-info">Assidu</span>
+                            {% else %}
+                                <span class="badge badge-warning">Occasionnel</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{# ==================== SECTION COTISATIONS ==================== #}
+{% if bilanComplet.hasCotisations %}
+<div class="card card-success mt-3">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-hand-holding-usd"></i> Cotisations des groupes
+        </h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <div class="info-box bg-info">
+                    <span class="info-box-icon"><i class="fas fa-file-invoice"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Nombre cotisations</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanCotisations.totalCotisations }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-box bg-primary">
+                    <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Montant prévu</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanCotisations.totalMontantPrevus|number_format(0, ',', ' ') }} FCFA</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-box bg-success">
+                    <span class="info-box-icon"><i class="fas fa-money-bill"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Montant payé</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanCotisations.totalMontantPayes|number_format(0, ',', ' ') }} FCFA</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-box bg-warning">
+                    <span class="info-box-icon"><i class="fas fa-percent"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Taux réalisation</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanCotisations.tauxRealisationGlobal|number_format(1) }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Département</th>
+                        <th>Objet</th>
+                        <th>Montant prévu</th>
+                        <th>Montant payé</th>
+                        <th>Reste</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cotisation in bilanComplet.cotisations %}
+                        {% set montantPaye = cotisation.montantPayeCalcule ?? cotisation.montantpayer ?? 0 %}
+                        {% set resteCalcule = cotisation.resteCalcule ?? (cotisation.montant - montantPaye) %}
+                        {% set taux = cotisation.montant > 0 ? (montantPaye / cotisation.montant) * 100 : 0 %}
+                        {% set statutClass = resteCalcule <= 0 ? 'success' : (montantPaye > 0 ? 'warning' : 'danger') %}
+                        {% set statutText = resteCalcule <= 0 ? 'Payé' : (montantPaye > 0 ? 'Partiel' : 'Impayé') %}
+                        
+                        <tr>
+                            <td>{{ cotisation.createAt ? cotisation.createAt|date('d/m/Y') : '-' }}</td>
+                            <td>{{ cotisation.groupe ? cotisation.groupe.nom : '-' }}</td>
+                            <td>{{ cotisation.objet|default('-') }}</td>
+                            <td class="text-right">{{ cotisation.montant|number_format(0, ',', ' ') }} FCFA</td>
+                            <td class="text-right text-success">{{ montantPaye|number_format(0, ',', ' ') }} FCFA</td>
+                            <td class="text-right">{{ resteCalcule|number_format(0, ',', ' ') }} FCFA</td>
+                            <td>
+                                <span class="badge badge-{{ statutClass }}">{{ statutText }}</span>
+                                <div class="progress mt-1" style="height: 5px;">
+                                    <div class="progress-bar bg-{{ statutClass }}" style="width: {{ taux }}%"></div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-info btn-cotisation-details" 
+                                        data-id="{{ cotisation.id }}">
+                                    <i class="fas fa-eye"></i> Détails
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="bg-light">
+                        <th colspan="3" class="text-right">TOTAUX :</th>
+                        <th class="text-right">{{ bilanComplet.bilanCotisations.totalMontantPrevus|number_format(0, ',', ' ') }} FCFA</th>
+                        <th class="text-right">{{ bilanComplet.bilanCotisations.totalMontantPayes|number_format(0, ',', ' ') }} FCFA</th>
+                        <th class="text-right">{{ bilanComplet.bilanCotisations.totalReste|number_format(0, ',', ' ') }} FCFA</th>
+                        <th colspan="2"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# ==================== SECTION PAIEMENTS ==================== #}
+{% if bilanComplet.hasPaiements and bilanComplet.bilanPaiements is not null %}
+<div class="card card-info mt-3">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-money-bill-wave"></i> Détails des paiements
+        </h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="alert alert-info">
+                    <strong>Total payé:</strong>
+                    {{ bilanComplet.bilanPaiements.totalMontantPaye|number_format(0, ',', ' ') }} FCFA
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert alert-secondary">
+                    <strong>Nombre de paiements:</strong>
+                    {{ bilanComplet.bilanPaiements.nombrePaiements }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert alert-success">
+                    <strong>Moyenne par paiement:</strong>
+                    {{ bilanComplet.bilanPaiements.moyennePaiement|number_format(0, ',', ' ') }} FCFA
                 </div>
             </div>
         </div>
@@ -169,68 +414,117 @@
                 <thead>
                     <tr>
                         <th>Fidèle</th>
-                        <th>Groupe</th>
-                        <th>Nombre présences</th>
-                        <th>Dernière présence</th>
+                        <th>Montant payé</th>
+                        <th>Reste</th>
+                        <th>Date</th>
+                        <th>Cotisation</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for fideleId, data in bilanComplet.bilanPresences.presencesGroupees %}
+                    {% for paiement in bilanComplet.paiements %}
                     <tr>
-                        <td>{{ data.fidele_nom }} {{ data.fidele_prenom }}</td>
-                        <td>{{ data.groupe_nom ?? '-' }}</td>
-                        <td class="text-center">{{ data.total_presences }}</td>
-                        <td>{{ data.derniere_presence ? data.derniere_presence|date('d/m/Y') : '-' }}</td>
+                        <td>{{ paiement.fidele ? paiement.fidele.nomfidele ~ ' ' ~ paiement.fidele.contact1 : '-' }}</td>
+                        <td class="text-end text-success">{{ paiement.montantpayer|number_format(0, ',', ' ') }} FCFA</td>
+                        <td class="text-end">{{ paiement.reste|number_format(0, ',', ' ') }} FCFA</td>
+                        <td>{{ paiement.datecotiser ? paiement.datecotiser|date('d/m/Y') : '-' }}</td>
+                        <td>{{ paiement.cotisationgroupe ? paiement.cotisationgroupe.objet : '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Aucun paiement trouvé</td>
                     </tr>
                     {% endfor %}
                 </tbody>
+                <tfoot>
+                    <tr class="bg-light">
+                        <th class="text-right">TOTAL :</th>
+                        <th class="text-end">{{ bilanComplet.bilanPaiements.totalMontantPaye|number_format(0, ',', ' ') }} FCFA</th>
+                        <th colspan="3"></th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
 </div>
 {% endif %}
 
-{# ==================== SECTION COTISATIONS ==================== #}
-{% if bilanComplet.hasCotisations %}
-<div class="card card-success mt-3">
+{# ==================== SECTION DÉPENSES ==================== #}
+{% if bilanComplet.hasDepenses %}
+<div class="card card-danger mt-3">
     <div class="card-header">
         <h3 class="card-title">
-            <i class="fas fa-hand-holding-usd"></i> Cotisations des groupes
+            <i class="fas fa-shopping-cart"></i> Dépenses des groupes
         </h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
     </div>
     <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="info-box bg-danger">
+                    <span class="info-box-icon"><i class="fas fa-receipt"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Nombre de dépenses</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanDepenses.totalDepenses }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-box bg-warning">
+                    <span class="info-box-icon"><i class="fas fa-money-bill-wave"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total des dépenses</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanDepenses.totalMontantDepenses|number_format(0, ',', ' ') }} FCFA</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-box bg-info">
+                    <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Moyenne par dépense</span>
+                        <span class="info-box-number">{{ bilanComplet.bilanDepenses.moyenneParDepense|number_format(0, ',', ' ') }} FCFA</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="table-responsive">
-            <table class="table table-bordered table-striped">
+            <table class="table table-bordered table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Groupe</th>
+                        <th>Département</th>
                         <th>Objet</th>
-                        <th>Montant prévu</th>
-                        <th>Montant payé</th>
-                        <th>Reste</th>
+                        <th>Montant</th>
+                        <th>Détail</th>
+                        <th>Type</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for cotisation in bilanComplet.cotisations %}
-                        {% set montantPaye = cotisation.montantPayeCalcule ?? 0 %}
-                        {% set reste = cotisation.resteCalcule ?? cotisation.montant %}
-                    <tr>
-                        <td>{{ cotisation.createAt ? cotisation.createAt|date('d/m/Y') : '-' }}</td>
-                        <td>{{ cotisation.groupe ? cotisation.groupe.nom : '-' }}</td>
-                        <td>{{ cotisation.objet|default('-') }}</td>
-                        <td class="text-right">{{ cotisation.montant|number_format(0, ',', ' ') }} FCFA</td>
-                        <td class="text-right text-success">{{ montantPaye|number_format(0, ',', ' ') }} FCFA</td>
-                        <td class="text-right">{{ reste|number_format(0, ',', ' ') }} FCFA</td>
-                    </tr>
+                    {% for depense in bilanComplet.depenses %}
+                        {% set typeLabel = depense.typeoff == true ? 'Dépense principale' : 'Dépense secondaire' %}
+                        {% set typeClass = depense.typeoff == true ? 'danger' : 'warning' %}
+                        <tr>
+                            <td>{{ depense.datedepense ? depense.datedepense|date('d/m/Y') : '-' }}</td>
+                            <td>{{ depense.groupe ? depense.groupe.nom : '-' }}</td>
+                            <td>{{ depense.objet|default('-') }}</td>
+                            <td class="text-danger font-weight-bold">{{ depense.montant|number_format(0, ',', ' ') }} FCFA</td>
+                            <td>{{ depense.detail|default('-') }}</td>
+                            <td>
+                                <span class="badge badge-{{ typeClass }}">{{ typeLabel }}</span>
+                            </td>
+                        </tr>
                     {% endfor %}
                 </tbody>
                 <tfoot>
                     <tr class="bg-light">
-                        <th colspan="3" class="text-right">TOTAUX :</th>
-                        <th class="text-right">{{ bilanComplet.bilanCotisations.totalMontantPrevus|number_format(0, ',', ' ') }} FCFA</th>
-                        <th class="text-right">{{ bilanComplet.bilanCotisations.totalMontantPayes|number_format(0, ',', ' ') }} FCFA</th>
-                        <th class="text-right">{{ bilanComplet.bilanCotisations.totalReste|number_format(0, ',', ' ') }} FCFA</th>
+                        <th colspan="3" class="text-right">TOTAL :</th>
+                        <th class="text-danger">{{ bilanComplet.bilanDepenses.totalMontantDepenses|number_format(0, ',', ' ') }} FCFA</th>
+                        <th colspan="2"></th>
                     </tr>
                 </tfoot>
             </table>
@@ -244,4 +538,49 @@
     <i class="fas fa-info-circle"></i> Aucune donnée trouvée pour les critères sélectionnés.
 </div>
 {% endif %}
+
+{# Modals #}
+<div class="modal fade" id="cotisationModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title"><i class="fas fa-hand-holding-usd"></i> Détails de la cotisation</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(document).ready(function() {
+    // Gestion des détails de cotisation
+    $('.btn-cotisation-details').click(function() {
+        let modal = $('#cotisationModal');
+        let container = modal.find('.modal-body');
+        let cotisationId = $(this).data('id');
+        
+        container.html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Chargement des détails...</p></div>');
+        
+        $.ajax({
+            type: 'GET',
+            url: '{{ path('app_bilan_groupe') }}',
+            data: { cotisation_id: cotisationId },
+            success: function(html) {
+                container.html(html);
+                modal.modal('show');
+            },
+            error: function() {
+                container.html('<div class="alert alert-danger">Erreur lors du chargement des détails</div>');
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

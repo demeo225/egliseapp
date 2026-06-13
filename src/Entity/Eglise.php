@@ -615,6 +615,31 @@ class Eglise extends AbstractEntity
 
 
 
+    
+    /**
+     * @ORM\OneToMany(targetEntity=Courrier::class, mappedBy="eglise")
+     */
+    private Collection $courriers;
+    
+    /**
+     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="eglise")
+     */
+    private Collection $niveaux;
+    
+  
+    
+    /**
+     * @ORM\OneToMany(targetEntity=Objetdepense::class, mappedBy="eglise")
+     */
+    private Collection $objetdepenses;
+    
+  
+  
+    
+    /**
+     * @ORM\OneToMany(targetEntity=Typeculte::class, mappedBy="eglise")
+     */
+    private Collection $typecultes;
   
 
    
@@ -709,6 +734,11 @@ class Eglise extends AbstractEntity
         $this->depensecellules = new ArrayCollection();
         $this->depensefamilles = new ArrayCollection();
         $this->depensezones = new ArrayCollection();
+        //!
+        $this->courriers = new ArrayCollection();
+        $this->niveaux = new ArrayCollection();
+        $this->objetdepenses = new ArrayCollection();
+        $this->typecultes = new ArrayCollection();
    
     }
 
@@ -3653,5 +3683,131 @@ class Eglise extends AbstractEntity
         return $this;
     }
 
+
+    
+
+        
+    /**
+     * @return Collection<int, Typeculte>
+     */
+    public function getTypecultes(): Collection
+    {
+        return $this->typecultes;
+    }
+
+    public function addTypeculte(Typeculte $typeculte): self
+    {
+        if (!$this->typecultes->contains($typeculte)) {
+            $this->typecultes[] = $typeculte;
+            $typeculte->setEglise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTypeculte(Typeculte $typeculte): self
+    {
+        if ($this->typecultes->removeElement($typeculte)) {
+            // set the owning side to null (unless already changed)
+            if ($typeculte->getEglise() === $this) {
+                $typeculte->setEglise(null);
+            }
+        }
+
+        return $this;
+    }
+
+        
+    /**
+     * @return Collection<int, Objetdepense>
+     */
+    public function getObjetdepenses(): Collection
+    {
+        return $this->objetdepenses;
+    }
+
+    public function addObjetdepense(Objetdepense $objetdepense): self
+    {
+        if (!$this->objetdepenses->contains($objetdepense)) {
+            $this->objetdepenses[] = $objetdepense;
+            $objetdepense->setEglise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeObjetdepense(Objetdepense $objetdepense): self
+    {
+        if ($this->objetdepenses->removeElement($objetdepense)) {
+            // set the owning side to null (unless already changed)
+            if ($objetdepense->getEglise() === $this) {
+                $objetdepense->setEglise(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+        
+    /**
+     * @return Collection<int, Niveau>
+     */
+    public function getNiveaux(): Collection
+    {
+        return $this->niveaux;
+    }
+
+    public function addNiveau(Niveau $niveau): self
+    {
+        if (!$this->niveaux->contains($niveau)) {
+            $this->niveaux[] = $niveau;
+            $niveau->setEglise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNiveau(Niveau $niveau): self
+    {
+        if ($this->niveaux->removeElement($niveau)) {
+            // set the owning side to null (unless already changed)
+            if ($niveau->getEglise() === $this) {
+                $niveau->setEglise(null);
+            }
+        }
+
+        return $this;
+    }
+        
+    /**
+     * @return Collection<int, Courrier>
+     */
+    public function getCourriers(): Collection
+    {
+        return $this->courriers;
+    }
+
+    public function addCourrier(Courrier $courrier): self
+    {
+        if (!$this->courriers->contains($courrier)) {
+            $this->courriers[] = $courrier;
+            $courrier->setEglise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCourrier(Courrier $courrier): self
+    {
+        if ($this->courriers->removeElement($courrier)) {
+            // set the owning side to null (unless already changed)
+            if ($courrier->getEglise() === $this) {
+                $courrier->setEglise(null);
+            }
+        }
+
+        return $this;
+    }
   
 }

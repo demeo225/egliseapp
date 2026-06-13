@@ -39,7 +39,7 @@ class CulteController extends AbstractController {
         }
         $eglise = $this->getUser()->getEglise();
         $user = $this->getUser();
-        $culte = $culteRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL], ["createAt"=>"ASC"]);
+        $culte = $culteRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL], ['id' => 'DESC'] );
         return $this->render('culte/index.html.twig', [
                     'cultes' => $culte,
         ]);
@@ -56,14 +56,91 @@ class CulteController extends AbstractController {
         ]);
     }
 
-    #[Route('/listepresence', name: 'culte_listepresence', methods: ['GET'])]
+
+       #[Route('/presence', name: 'culte_presence', methods: ['POST', 'GET'])]
+public function presenceCulte(FideleRepository $fideleRepository, Request $request, CulteRepository $culteRepository, PresenceculteRepository $presenceRepo): Response {
+    $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    if (!$this->isGranted('ROLE_SECRETAIRE')) {
+        throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
+    }
+    
+    $eglise = $this->getUser()->getEglise();
+    $user = $this->getUser();
+    
+    if ($request->isMethod('POST')) {
+        $culte = $request->request->get('culte');
+        $tabpost = $request->request->get('tab');
+        
+        if (empty($tabpost)) {
+            $this->addFlash('warning', 'Veuillez sélectionner au moins un fidèle.');
+            return $this->redirectToRoute('culte_presence');
+        }
+        
+        $em = $this->getDoctrine()->getManager();
+        $idculte = $culteRepository->find($culte);
+        
+        foreach ($tabpost as $value) {
+            $idfidele = $fideleRepository->find($value);
+            
+            // Vérifier si la présence existe déjà
+            $existingPresence = $presenceRepo->findOneBy([
+                'fidele' => $idfidele, 
+                'culte' => $idculte
+            ]);
+            
+            if (!$existingPresence) {
+                $presenceculte = new Presenceculte();
+                $presenceculte->setFidele($idfidele);
+                $presenceculte->setCulte($idculte);
+                $presenceculte->setEglise($eglise);
+                $presenceculte->setCreatedBy($this->getUser());
+                $em->persist($presenceculte);
+            }
+        }
+        
+        $em->flush();
+        $this->addFlash('message', 'Enregistrement effectué avec succès');
+        
+        return $this->redirectToRoute('culte_listepresence');
+    } else {
+        $fidele = $fideleRepository->findBy([
+            'eglise' => $eglise, 
+            "deletedAt" => NULL, 
+            "etatfidele" => 1
+        ]);
+        
+        // Trier les cultes par date décroissante
+        $cultes = $culteRepository->findBy(
+            ['eglise' => $eglise], 
+            ['dateculte' => 'DESC']
+        );
+        
+        // Récupérer toutes les présences existantes pour chaque culte
+        $presencesParCulte = [];
+        foreach ($cultes as $culte) {
+            $presences = $presenceRepo->findBy(['culte' => $culte]);
+            $presencesParCulte[$culte->getId()] = array_map(function($presence) {
+                return $presence->getFidele()->getId();
+            }, $presences);
+        }
+        
+        return $this->render('culte/presence.html.twig', [
+            'fideles' => $fidele,
+            'cultes' => $cultes,
+            'presences_par_culte' => $presencesParCulte
+        ]);
+    }
+}
+
+        #[Route('/listepresence', name: 'culte_listepresence', methods: ['GET'])]
     public function listePresence(PresenceculteRepository $presenceRepository, Request $request, CulteRepository $culteRepo): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         if (!$this->isGranted('ROLE_SECRETAIRE')) {
             throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
         }
+         $user = $this->getUser();
         $eglise = $this->getUser()->getEglise();
-        $user = $this->getUser();
+       
         $presenceculte = $presenceRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL]);
         $difference = $culteRepo->getCultesByDates();
         return $this->render('culte/listepresence.html.twig', [
@@ -71,61 +148,6 @@ class CulteController extends AbstractController {
                     'differences' => $difference,
         ]);
     }
-
-    #[Route('/presence', name: 'culte_presence', methods: ['POST', 'GET'])]
-    public function presenceCulte(FideleRepository $fideleRepository, Request $request, CulteRepository $culteRepository, PresenceculteRepository $presenceRepo): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if (!$this->isGranted('ROLE_SECRETAIRE')) {
-            throw $this->createAccessDeniedException('Accès réfusé, vous n\'avez pas les droits d\'accès ici!');
-        }
-        $eglise = $this->getUser()->getEglise();
-        $user = $this->getUser();
-        if ($request->isMethod('POST')) {
-            $culte = $request->request->get('culte');
-            $tabpost = $request->request->get('tab');
-
-            foreach ($tabpost as $value) {
-                $em = $this->getDoctrine()->getManager();
-                $idfidele = $fideleRepository->find($value);
-                $presenceculte = new Presenceculte();
-
-                $idculte = $culteRepository->find($culte);
-//
-                $dql = $presenceRepo->findBy(['fidele' => $presenceculte->getFidele(), 'culte' => $presenceculte->getCulte()
-                ]);
-                if ($dql) {
-
-
-                    $this->addFlash('present', 'Fidele déjà participant à cette activité.');
-                    return $this->redirectToRoute('culte_presence', [], Response::HTTP_SEE_OTHER);
-                } else {
-
-
-                    $eglise = $this->getUser()->getEglise();
-                    $user = $this->getUser();
-                    $presenceculte->setFidele($idfidele);
-                    $presenceculte->setCulte($idculte);
-                    $presenceculte->setEglise($eglise);
-                    $presenceculte->setCreatedBy($this->getUser());
-                    $em->persist($presenceculte);
-                    $em->flush();
-                }
-            }
-            $this->addFlash('message', 'Enregistrement effectué avec succès');
-
-            return $this->redirectToRoute('culte_listepresence');
-        } else {
-            $fidele = $fideleRepository->findBy(['eglise' => $eglise, "deletedAt" => NULL, "etatfidele" => 1]);
-
-            $culte = $culteRepository->findBy(['eglise' => $eglise]);
-            return $this->render('culte/presence.html.twig',
-                            [
-                                'fideles' => $fidele,
-                                'cultes' => $culte
-            ]);
-        }
-    }
-
 
 #[Route('/{id}/update', name: 'culte_update', methods: ['GET', 'POST'])]
 #[Route('/add', name: 'culte_add', methods: ['GET', 'POST'])]
@@ -279,18 +301,7 @@ public function add(EntityManagerInterface $entityManager, Request $request, QrC
 // }
 
 // // Dans CulteController.php
-// #[Route('/qrcode/print/{id}', name: 'culte_qrcode_print', methods: ['GET'])]
-// public function printQrCode(Culte $culte): Response
-// {
-//     if (!$culte->getQrCode() || $culte->getEtat() != 1) {
-//         $this->addFlash('warning', 'QR code non disponible pour ce culte');
-//         return $this->redirectToRoute('culte');
-//     }
-    
-//     return $this->render('culte/qrcode_print.html.twig', [
-//         'culte' => $culte,
-//     ]);
-// }
+
 
 // #[Route('/scan/register', name: 'culte_scan_register', methods: ['POST'])]
 // public function registerFromScan(Request $request, FideleRepository $fideleRepository, CulteRepository $culteRepository, PresenceculteRepository $presenceRepo, EntityManagerInterface $entityManager): Response
@@ -387,6 +398,19 @@ public function add(EntityManagerInterface $entityManager, Request $request, QrC
 //         'fidele' => $fidele->getNomfidele()
 //     ], 200);
 // }
+
+    #[Route('/qrcode/print/{id}', name: 'culte_qrcode_print', methods: ['GET'])]
+public function printQrCode(Culte $culte): Response
+{
+    if (!$culte->getTokenPresence() || $culte->getEtat() != 1) {
+        $this->addFlash('warning', 'QR code non disponible pour ce culte');
+        return $this->redirectToRoute('culte');
+    }
+    
+    return $this->render('culte/qrcode_print.html.twig', [
+        'culte' => $culte,
+    ]);
+}
 
     #[Route('/print', name: 'culte_print', methods: ['GET', 'POST'])]
     public function printculte(CulteRepository $culteRepository): Response {

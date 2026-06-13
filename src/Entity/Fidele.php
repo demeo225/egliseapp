@@ -71,6 +71,11 @@ class Fidele extends AbstractEntity {
      */
     private $datenaiss;
 
+       /**
+     * @ORM\OneToMany(targetEntity=Scene::class, mappedBy="pasteur1")
+     */
+    private $scenes;
+
     /**
      * @ORM\Column(type="string", length=128, nullable=true)
      * @Groups("public")
@@ -271,19 +276,18 @@ class Fidele extends AbstractEntity {
      */
     private $dirigeant;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Enfant::class, mappedBy="peremembre")
-     */
-    private $peremembre;
+   
 
-    /**
-     * @ORM\OneToMany(targetEntity=Enfant::class, mappedBy="merembre")
+  
+
+       /**
+     * @ORM\ManyToOne(targetEntity=Niveau::class, inversedBy="fideles")
      */
-    private $meremembre;
+    private $niveau;
 
     /**
      * @ORM\OneToMany(targetEntity=Mariage::class, mappedBy="epouxmembre")
-      @ORM\JoinTable(name="mariage")
+      *@ORM\JoinTable(name="mariage")
      */
     private $epouxmembre;
 
@@ -499,10 +503,6 @@ class Fidele extends AbstractEntity {
      */
     private $emploi;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Scene::class, mappedBy="pasteur1")
-     */
-    private $scenes;
 
     /**
      * @ORM\OneToMany(targetEntity=Pastorale::class, mappedBy="pasteur1")
@@ -553,21 +553,81 @@ class Fidele extends AbstractEntity {
      */
     private $visite2s;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Fiancaille::class, mappedBy="fiancemembre")
+     */
+    private ?Fiancaille $fiancailleFiance = null;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Fiancaille::class, mappedBy="fianceemembre")
+     */
+    private ?Fiancaille $fiancailleFiancee = null;
+
+     
+
+        /**
+         * @ORM\OneToMany(targetEntity=Enfant::class, mappedBy="peremembre")
+         */
+        private Collection $peremembre;
+
+        /**
+         * @ORM\OneToMany(targetEntity=Enfant::class, mappedBy="merembre")
+         */
+        private Collection $merembre;
+
+  
+    
+   /**
+     * @ORM\ManyToOne(targetEntity=Fidele::class)
+     * @ORM\JoinColumn(name="pasteur1_id", referencedColumnName="id", nullable=true)
+     */
+    private $pasteur1;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Fidele::class)
+     * @ORM\JoinColumn(name="pasteur2_id", referencedColumnName="id", nullable=true)
+     */
+    private $pasteur2;
+
+ 
+            /**
+         * @ORM\OneToMany(targetEntity=Naissance::class, mappedBy="perenaisse")
+         */
+        private Collection $perenaisse;
+
+        /**
+         * @ORM\OneToMany(targetEntity=Naissance::class, mappedBy="merenaisse")
+         */
+        private Collection $merenaisse;
+
+        /**
+         * @ORM\OneToMany(targetEntity=Pastorale::class, mappedBy="fidele1")
+         */
+        private $pastoralesCommeFidele1;
+
+        /**
+         * @ORM\OneToMany(targetEntity=Pastorale::class, mappedBy="fidele2")
+         */
+        private $pastoralesCommeFidele2;
+    
+
     public function __construct() {
+        $this->pastoralesCommeFidele1 = new ArrayCollection();
+        $this->pastoralesCommeFidele2 = new ArrayCollection();
         $this->groupefideles = new ArrayCollection();
         $this->departementfideles = new ArrayCollection();
         $this->dimes = new ArrayCollection();
         $this->actiongraces = new ArrayCollection();
-//        $this->fideleenfants = new ArrayCollection();
-//        $this->enfantfideles = new ArrayCollection();
+        $this->pastorales = new ArrayCollection();
+        $this->perenaisse = new ArrayCollection();
+        $this->merenaisse = new ArrayCollection();
         $this->fidelecotisers = new ArrayCollection();
-       // \DateTime::class;
+        $this->scenes = new ArrayCollection();
         $this->recommandations = new ArrayCollection();
         $this->fideleRepo = \App\Repository\FideleRepository::class;
         $this->cultes = new ArrayCollection();
         $this->dirigeant = new ArrayCollection();
         $this->peremembre = new ArrayCollection();
-        $this->meremembre = new ArrayCollection();
         $this->epouxmembre = new ArrayCollection();
         $this->epousemembre = new ArrayCollection();
         $this->fiancemembre = new ArrayCollection();
@@ -589,8 +649,7 @@ class Fidele extends AbstractEntity {
         $this->detailsociales = new ArrayCollection();
         $this->invites = new ArrayCollection();
         $this->visites = new ArrayCollection();
-        $this->scenes = new ArrayCollection();
-        $this->pastorales = new ArrayCollection();
+        //$this->scenes = new ArrayCollection();
         $this->presencepastorales = new ArrayCollection();
         $this->disciplines = new ArrayCollection();
         $this->conges = new ArrayCollection();
@@ -828,6 +887,16 @@ class Fidele extends AbstractEntity {
 
     public function setCellule(?Cellule $cellule): self {
         $this->cellule = $cellule;
+
+        return $this;
+    }
+
+        public function getNiveau(): ?Niveau {
+        return $this->niveau;
+    }
+
+    public function setNiveau(?Niveau $niveau): self {
+        $this->niveau = $niveau;
 
         return $this;
     }
@@ -1205,59 +1274,64 @@ class Fidele extends AbstractEntity {
         return $this;
     }
 
-    /**
-     * @return Collection|Enfant[]
-     */
-    public function getPeremembre(): Collection {
-        return $this->peremembre;
+
+   /**
+ * @return Collection|Enfant[]
+ */
+public function getPeremembre(): Collection
+{
+    return $this->peremembre;
+}
+
+public function addPeremembre(Enfant $enfant): self
+{
+    if (!$this->peremembre->contains($enfant)) {
+        $this->peremembre[] = $enfant;
+        $enfant->setPeremembre($this);
     }
 
-    public function addPeremembre(Enfant $peremembre): self {
-        if (!$this->peremembre->contains($peremembre)) {
-            $this->peremembre[] = $peremembre;
-            $peremembre->setPeremembre($this);
+    return $this;
+}
+
+public function removePeremembre(Enfant $enfant): self
+{
+    if ($this->peremembre->removeElement($enfant)) {
+        if ($enfant->getPeremembre() === $this) {
+            $enfant->setPeremembre(null);
         }
-
-        return $this;
     }
 
-    public function removePeremembre(Enfant $peremembre): self {
-        if ($this->peremembre->removeElement($peremembre)) {
-            // set the owning side to null (unless already changed)
-            if ($peremembre->getPeremembre() === $this) {
-                $peremembre->setPeremembre(null);
-            }
+    return $this;
+}
+
+/**
+ * @return Collection|Enfant[]
+ */
+public function getMeremembre(): Collection
+{
+    return $this->meremembre;
+}
+
+public function addMeremembre(Enfant $enfant): self
+{
+    if (!$this->meremembre->contains($enfant)) {
+        $this->meremembre[] = $enfant;
+        $enfant->setMerembre($this);
+    }
+
+    return $this;
+}
+
+public function removeMeremembre(Enfant $enfant): self
+{
+    if ($this->meremembre->removeElement($enfant)) {
+        if ($enfant->getMerembre() === $this) {
+            $enfant->setMerembre(null);
         }
-
-        return $this;
     }
 
-    /**
-     * @return Collection|Enfant[]
-     */
-    public function getMeremembre(): Collection {
-        return $this->meremembre;
-    }
-
-    public function addMeremembre(Enfant $meremembre): self {
-        if (!$this->meremembre->contains($meremembre)) {
-            $this->meremembre[] = $meremembre;
-            $meremembre->setMerembre($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMeremembre(Enfant $meremembre): self {
-        if ($this->meremembre->removeElement($meremembre)) {
-            // set the owning side to null (unless already changed)
-            if ($meremembre->getMerembre() === $this) {
-                $meremembre->setMerembre(null);
-            }
-        }
-
-        return $this;
-    }
+    return $this;
+}
 
     /**
      * @return Collection|Mariage[]
@@ -1314,32 +1388,6 @@ class Fidele extends AbstractEntity {
     }
 
  
-    /**
-     * @return Collection|Naissance[]
-     */
-    public function getMerenaisse(): Collection {
-        return $this->merenaisse;
-    }
-
-    public function addMerenaisse(Naissance $merenaisse): self {
-        if (!$this->merenaisse->contains($merenaisse)) {
-            $this->merenaisse[] = $merenaisse;
-            $merenaisse->setMerenaisse($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMerenaisse(Naissance $merenaisse): self {
-        if ($this->merenaisse->removeElement($merenaisse)) {
-            // set the owning side to null (unless already changed)
-            if ($merenaisse->getMerenaisse() === $this) {
-                $merenaisse->setMerenaisse(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getDatemariage(): ?\DateTimeInterface {
         return $this->datemariage;
@@ -2035,32 +2083,6 @@ class Fidele extends AbstractEntity {
         return $this;
     }
 
-    /**
-     * @return Collection<int, Scene>
-     */
-    public function getScenes(): Collection {
-        return $this->scenes;
-    }
-
-    public function addScene(Scene $scene): self {
-        if (!$this->scenes->contains($scene)) {
-            $this->scenes[] = $scene;
-            $scene->setPasteur1($this);
-        }
-
-        return $this;
-    }
-
-    public function removeScene(Scene $scene): self {
-        if ($this->scenes->removeElement($scene)) {
-            // set the owning side to null (unless already changed)
-            if ($scene->getPasteur1() === $this) {
-                $scene->setPasteur1(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Pastorale>
@@ -2246,6 +2268,144 @@ class Fidele extends AbstractEntity {
             // set the owning side to null (unless already changed)
             if ($visite2->getFidele() === $this) {
                 $visite2->setFidele(null);
+            }
+        }
+
+        return $this;
+    }
+
+/**
+ * @return Collection|Naissance[]
+ */
+public function getPerenaisse(): Collection
+{
+    return $this->perenaisse;
+}
+
+public function addPerenaisse(Naissance $naissance): self
+{
+    if (!$this->perenaisse->contains($naissance)) {
+        $this->perenaisse[] = $naissance;
+        $naissance->setPerenaisse($this);
+    }
+
+    return $this;
+}
+
+public function removePerenaisse(Naissance $naissance): self
+{
+    if ($this->perenaisse->removeElement($naissance)) {
+        if ($naissance->getPerenaisse() === $this) {
+            $naissance->setPerenaisse(null);
+        }
+    }
+
+    return $this;
+}
+
+/**
+ * @return Collection|Naissance[]
+ */
+public function getMerenaisse(): Collection
+{
+    return $this->merenaisse;
+}
+
+public function addMerenaisse(Naissance $naissance): self
+{
+    if (!$this->merenaisse->contains($naissance)) {
+        $this->merenaisse[] = $naissance;
+        $naissance->setMerenaisse($this);
+    }
+
+    return $this;
+}
+
+public function removeMerenaisse(Naissance $naissance): self
+{
+    if ($this->merenaisse->removeElement($naissance)) {
+        if ($naissance->getMerenaisse() === $this) {
+            $naissance->setMerenaisse(null);
+        }
+    }
+
+    return $this;
+}
+
+public function getPastoralesCommeFidele1(): Collection
+{
+    return $this->pastoralesCommeFidele1;
+}
+
+public function addPastoraleCommeFidele1(Pastorale $pastorale): self
+{
+    if (!$this->pastoralesCommeFidele1->contains($pastorale)) {
+        $this->pastoralesCommeFidele1[] = $pastorale;
+        $pastorale->setFidele1($this);
+    }
+
+    return $this;
+}
+
+public function removePastoraleCommeFidele1(Pastorale $pastorale): self
+{
+    if ($this->pastoralesCommeFidele1->removeElement($pastorale)) {
+        if ($pastorale->getFidele1() === $this) {
+            $pastorale->setFidele1(null);
+        }
+    }
+
+    return $this;
+}
+
+public function getPastoralesCommeFidele2(): Collection
+{
+    return $this->pastoralesCommeFidele2;
+}
+
+public function addPastoraleCommeFidele2(Pastorale $pastorale): self
+{
+    if (!$this->pastoralesCommeFidele2->contains($pastorale)) {
+        $this->pastoralesCommeFidele2[] = $pastorale;
+        $pastorale->setFidele2($this);
+    }
+
+    return $this;
+}
+
+public function removePastoraleCommeFidele2(Pastorale $pastorale): self
+{
+    if ($this->pastoralesCommeFidele2->removeElement($pastorale)) {
+        if ($pastorale->getFidele2() === $this) {
+            $pastorale->setFidele2(null);
+        }
+    }
+
+    return $this;
+}
+
+
+    /**
+     * @return Collection<int, Scene>
+     */
+    public function getScenes(): Collection {
+        return $this->scenes;
+    }
+
+    public function addScene(Scene $scene): self {
+        if (!$this->scenes->contains($scene)) {
+            $this->scenes[] = $scene;
+            $scene->setPasteur1($this);
+        }
+
+        return $this;
+    }
+
+    public function removeScene(Scene $scene): self {
+        if ($this->scenes->removeElement($scene)) {
+            // set the owning side to null (unless already changed)
+            if ($scene->getPasteur1() === $this) {
+                $scene->setPasteur1(null);
             }
         }
 

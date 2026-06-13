@@ -192,10 +192,10 @@ class Enfant extends AbstractEntity {
     /**
      * @ORM\ManyToOne(targetEntity=Fidele::class, inversedBy="peremembre")
      */
-    private $peremembre;
+    private $peremembre; 
 
     /**
-     * @ORM\ManyToOne(targetEntity=Fidele::class, inversedBy="meremembre")
+     * @ORM\ManyToOne(targetEntity=Fidele::class, inversedBy="merembre")
      */
     private $merembre;
 

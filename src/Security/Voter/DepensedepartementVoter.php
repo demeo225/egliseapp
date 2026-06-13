@@ -2,19 +2,19 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\Depensezone;
+use App\Entity\Depensedepartement;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class DepensezoneVoter extends Voter {
+class DepensedepartementVoter extends Voter {
 
-    public const DEPENSEDEPARTEMENT_VIEW = 'depensezone_view';
-    public const DEPENSEDEPARTEMENT_EDIT = 'depensezone_edit';
-    public const DEPENSEDEPARTEMENT_DELETE = 'depensezone_delete';
-    public const DEPENSEDEPARTEMENT_CREATE = 'depensezone_create';
+    public const DEPENSEDEPARTEMENT_VIEW = 'depensedepartement_view';
+    public const DEPENSEDEPARTEMENT_EDIT = 'depensedepartement_edit';
+    public const DEPENSEDEPARTEMENT_DELETE = 'depensedepartement_delete';
+    public const DEPENSEDEPARTEMENT_CREATE = 'depensedepartement_create';
 
     private Security $security;
 
@@ -22,16 +22,16 @@ class DepensezoneVoter extends Voter {
         $this->security = $security;
     }
 
-    protected function supports(string $attribute, $depensezone): bool {
+    protected function supports(string $attribute, $depensedepartement): bool {
         return in_array($attribute, [
             self::DEPENSEDEPARTEMENT_VIEW, 
             self::DEPENSEDEPARTEMENT_EDIT, 
             self::DEPENSEDEPARTEMENT_DELETE,
             self::DEPENSEDEPARTEMENT_CREATE
-        ]) && ($depensezone instanceof Depensezone || $depensezone === null);
+        ]) && ($depensedepartement instanceof Depensedepartement || $depensedepartement === null);
     }
 
-    protected function voteOnAttribute(string $attribute, $depensezone, TokenInterface $token): bool {
+    protected function voteOnAttribute(string $attribute, $depensedepartement, TokenInterface $token): bool {
         $user = $token->getUser();
         
         if (!$user instanceof UserInterface) {
@@ -42,55 +42,55 @@ class DepensezoneVoter extends Voter {
         if ($this->security->isGranted('ROLE_ADMIN') || 
             $this->security->isGranted('ROLE_PASTEUR') || 
             $this->security->isGranted('ROLE_SECRETAIRE')) {
-            return $this->checkAttribute($attribute, $depensezone, $user);
+            return $this->checkAttribute($attribute, $depensedepartement, $user);
         }
         
-        // ROLE_RESPONSABLE_DEPARTEMENT : voit les depenses de sa zone
+        // ROLE_RESPONSABLE_DEPARTEMENT : voit les depenses de sa departement
         if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            return $this->canViewByDepartement($attribute, $depensezone, $user);
+            return $this->canViewByDepartement($attribute, $depensedepartement, $user);
         }
         
         return false;
     }
     
     /**
-     * Responsable de zone : voit les depenses de sa zone
+     * Responsable de departement : voit les depenses de sa departement
      */
-    private function canViewByDepartement(string $attribute, ?Depensezone $depensezone, User $user): bool {
-        $zone = $user->getDepartement();
-        if (!$zone) {
+    private function canViewByDepartement(string $attribute, ?Depensedepartement $depensedepartement, User $user): bool {
+        $departement = $user->getDepartement();
+        if (!$departement) {
             return false;
         }
         
         // Pour la création (pas de depense spécifique)
-        if ($depensezone === null) {
+        if ($depensedepartement === null) {
             return $this->checkAttribute($attribute, null, $user);
         }
         
-        $depenseDepartement = $depensezone->getDepartement();
-        if (!$depenseDepartement || $depenseDepartement->getId() !== $zone->getId()) {
+        $depenseDepartement = $depensedepartement->getDepartement();
+        if (!$depenseDepartement || $depenseDepartement->getId() !== $departement->getId()) {
             return false;
         }
         
-        return $this->checkAttribute($attribute, $depensezone, $user);
+        return $this->checkAttribute($attribute, $depensedepartement, $user);
     }
     
     /**
      * Vérifie le type d'action
      */
-    private function checkAttribute(string $attribute, ?Depensezone $depensezone, User $user): bool {
+    private function checkAttribute(string $attribute, ?Depensedepartement $depensedepartement, User $user): bool {
         switch ($attribute) {
             case self::DEPENSEDEPARTEMENT_VIEW:
                 return true;
                 
             case self::DEPENSEDEPARTEMENT_CREATE:
-                return $this->canCreate($depensezone, $user);
+                return $this->canCreate($depensedepartement, $user);
                 
             case self::DEPENSEDEPARTEMENT_EDIT:
-                return $this->canEdit($depensezone, $user);
+                return $this->canEdit($depensedepartement, $user);
                 
             case self::DEPENSEDEPARTEMENT_DELETE:
-                return $this->canDelete($depensezone, $user);
+                return $this->canDelete($depensedepartement, $user);
         }
         
         return false;
@@ -99,7 +99,7 @@ class DepensezoneVoter extends Voter {
     /**
      * Vérifie si l'utilisateur peut créer une depense
      */
-    private function canCreate(?Depensezone $depensezone, User $user): bool {
+    private function canCreate(?Depensedepartement $depensedepartement, User $user): bool {
         // Les rôles supérieurs peuvent créer
         if ($this->security->isGranted('ROLE_ADMIN') || 
             $this->security->isGranted('ROLE_PASTEUR') || 
@@ -107,7 +107,7 @@ class DepensezoneVoter extends Voter {
             return true;
         }
         
-        // Responsable de zone
+        // Responsable de departement
         if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
             return true;
         }
@@ -118,7 +118,7 @@ class DepensezoneVoter extends Voter {
     /**
      * Vérifie si l'utilisateur peut modifier une depense
      */
-    private function canEdit(Depensezone $depensezone, User $user): bool {
+    private function canEdit(Depensedepartement $depensedepartement, User $user): bool {
         // Les rôles supérieurs peuvent tout modifier
         if ($this->security->isGranted('ROLE_ADMIN') || 
             $this->security->isGranted('ROLE_PASTEUR') || 
@@ -126,11 +126,11 @@ class DepensezoneVoter extends Voter {
             return true;
         }
         
-        // Responsable de zone
+        // Responsable de departement
         if ($this->security->isGranted('ROLE_RESPONSABLE_DEPARTEMENT')) {
-            $zone = $user->getDepartement();
-            $depenseDepartement = $depensezone->getDepartement();
-            if ($zone && $depenseDepartement && $zone->getId() === $depenseDepartement->getId()) {
+            $departement = $user->getDepartement();
+            $depenseDepartement = $depensedepartement->getDepartement();
+            if ($departement && $depenseDepartement && $departement->getId() === $depenseDepartement->getId()) {
                 return true;
             }
         }
@@ -141,8 +141,8 @@ class DepensezoneVoter extends Voter {
     /**
      * Vérifie si l'utilisateur peut supprimer une depense
      */
-    private function canDelete(Depensezone $depensezone, User $user): bool {
+    private function canDelete(Depensedepartement $depensedepartement, User $user): bool {
         // Même logique que l'édition
-        return $this->canEdit($depensezone, $user);
+        return $this->canEdit($depensedepartement, $user);
     }
 }

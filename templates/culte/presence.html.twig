@@ -3,66 +3,305 @@
 {% block title %}Présences & absences {% endblock %}
 
 {% block body %}
-
-     <div class="card card-primary">
-        <div class="card-header">
-            <h3 class="card-title">Enregistrrement de présence aux cultes</h3>
-        </div>
-        <div class="card card-body">
-
-                <!-- /.card-header -->
-                <div class="card-body">
-                    {% for message in app.flashes('present') %}
-                        <div class="primary">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-     
-
-                    <form action="{{ path('culte_presence') }}" method="post">
-                        <div class="row">
-                            <div class="md-col-5">
-                                <select name="culte" id="culte" class="select2" required="true">
-                                    <option value=""> -- Choix du culte--</option>
-                                    {% for culte in cultes %}
-                                        <option value="{{ culte.id }}"> {{ culte.dateculte|date('d-m-Y')}} </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-
-
-                        </div>
-
-                        <hr style="visibility: hidden" />  
-
-                        <table id="example1" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Fidèle</th>
-                                    <th>Photo</th>
-                                    <th>Présent</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for fidele in fideles %}
-
-                                    <tr>
-                                        <td> {{fidele.nomfidele|upper }}</td>
-                                        <td> 
-                                            <img src="{{ asset('uploads/photos/'~fidele.photoFile )}}"  class="img-size-50 mr-3 img-suqare"/> 
-                                        </td>
-                                        <td><input type="checkbox" name ="tab[]" id="tab[]" value="{{ fidele.id }}" title="Présent(e)"> </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                        <button class="btn btn-primary">{{ button_label|default('Valider') }}</button>
-                        <a href="{{ path('culte_listepresence') }}" class="btn btn-success">Liste de présence</a>
-                    </form>
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Enregistrement de présence aux cultes</h3>
+    </div>
+    <div class="card card-body">
+        <div class="card-body">
+            {% for message in app.flashes('present') %}
+                <div class="alert alert-warning alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <i class="icon fas fa-exclamation-triangle"></i>
+                    {{ message }}
                 </div>
-            </div>
+            {% endfor %}
+            
+            {% for message in app.flashes('warning') %}
+                <div class="alert alert-warning alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <i class="icon fas fa-exclamation-triangle"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
 
+            <form action="{{ path('culte_presence') }}" method="post" id="presenceForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="culte">Sélectionner le culte *</label>
+                            <select name="culte" id="culte" class="form-control select2" required="true">
+                                <option value=""> -- Choix du culte --</option>
+                                {% for culte in cultes %}
+                                    <option value="{{ culte.id }}" data-date="{{ culte.dateculte|date('Y-m-d') }}">
+                                        {{ culte.dateculte|date('d-m-Y') }} - 
+                                        {% if culte.typeculte %}
+                                            {{ culte.typeculte.libelle }}
+                                        {% else %}
+                                            Culte
+                                        {% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">
+                                Les cultes sont affichés du plus récent au plus ancien
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="table-responsive">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Fidèle</th>
+                                <th>Photo</th>
+                                <th>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="select-all">  
+                                        <label class="custom-control-label" for="select-all"> Présent (Tous)</label>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fidele in fideles %}
+                                <tr id="fidele-row-{{ fidele.id }}" data-fidele-id="{{ fidele.id }}">
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ fidele.nomfidele|upper }}  <br>
+                                        <small class="text-muted">{{ fidele.contact1 }}</small>
+                                    </td>
+                                    <td>
+                                        {% if fidele.photoFile %}
+                                            <img src="{{ asset('uploads/photos/' ~ fidele.photoFile) }}" class="img-size-50 img-circle" alt="Photo"/>
+                                        {% else %}
+                                            <img src="{{ asset('dist/img/avatar.png') }}" class="img-size-50 img-circle" alt="No photo"/>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input presence-checkbox" name="tab[]" id="check{{ fidele.id }}" value="{{ fidele.id }}">
+                                            <label class="custom-control-label" for="check{{ fidele.id }}"></label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-12 text-center">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Valider
+                        </button>
+                        <a href="{{ path('culte_listepresence') }}" class="btn btn-success">
+                            <i class="fas fa-list"></i> Liste de présence
+                        </a>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-undo"></i> Réinitialiser
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
+    </div>
+</div>
+{% endblock %}
 
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function () {
+    // Initialisation du select2
+    $('.select2').select2();
+    
+    // Stocker les présences par culte (transférées depuis PHP)
+    const presencesParCulte = {{ presences_par_culte|json_encode|raw }};
+    
+    // Fonction pour mettre à jour l'état des checkboxes en fonction du culte sélectionné
+    function updateCheckboxesByCulte() {
+        const culteId = $('#culte').val();
+        
+        if (!culteId) {
+            // Aucun culte sélectionné, activer toutes les checkboxes
+            $('.presence-checkbox').prop('disabled', false);
+            $('.presence-checkbox').closest('tr').css('opacity', '1');
+            $('#select-all').prop('disabled', false);
+            return;
+        }
+        
+        // Récupérer les IDs des fidèles déjà présents pour ce culte
+        const presentesIds = presencesParCulte[culteId] || [];
+        
+        // Parcourir toutes les checkboxes
+        $('.presence-checkbox').each(function() {
+            const fideleId = parseInt($(this).val());
+            const isPresent = presentesIds.includes(fideleId);
+            const $row = $(this).closest('tr');
+            
+            if (isPresent) {
+                // Désactiver la checkbox et griser la ligne
+                $(this).prop('disabled', true);
+                $(this).prop('checked', false);
+                $row.css('opacity', '0.5');
+                $row.css('background-color', '#f5f5f5');
+                $row.find('td:first-child').append(' <span class="badge badge-success"><i class="fas fa-check"></i> Déjà présent</span>');
+            } else {
+                // Activer la checkbox
+                $(this).prop('disabled', false);
+                $row.css('opacity', '1');
+                $row.css('background-color', '');
+                // Supprimer le badge si présent
+                $row.find('td:first-child .badge').remove();
+            }
+        });
+        
+        // Mettre à jour l'état du bouton "Sélectionner tout"
+        const enabledCheckboxes = $('.presence-checkbox:not(:disabled)');
+        if (enabledCheckboxes.length === 0) {
+            $('#select-all').prop('disabled', true);
+            $('#select-all').prop('checked', false);
+        } else {
+            $('#select-all').prop('disabled', false);
+        }
+        
+        // Afficher un résumé
+        const totalFideles = $('.presence-checkbox').length;
+        const dejaPresents = $('.presence-checkbox:disabled').length;
+        const disponibles = totalFideles - dejaPresents;
+        
+        // Ajouter ou mettre à jour le message d'information
+        let infoDiv = $('#presence-info');
+        if (infoDiv.length === 0) {
+            infoDiv = $('<div id="presence-info" class="alert alert-info mt-2"></div>');
+            $('.table-responsive').after(infoDiv);
+        }
+        
+        if (culteId && dejaPresents > 0) {
+            infoDiv.html(`
+                <i class="fas fa-info-circle"></i> 
+                <strong>Information :</strong> ${dejaPresents} fidèle(s) déjà présent(s) à ce culte (grisé(s) et désactivé(s)).
+                ${disponibles} fidèle(s) disponible(s) à sélectionner.
+            `).show();
+        } else if (culteId) {
+            infoDiv.html(`
+                <i class="fas fa-info-circle"></i> 
+                <strong>Information :</strong> Aucun fidèle n'a encore été enregistré pour ce culte.
+                ${disponibles} fidèle(s) disponible(s) à sélectionner.
+            `).show();
+        } else {
+            infoDiv.hide();
+        }
+    }
+    
+    // Fonction pour sélectionner/désélectionner tous les fidèles disponibles
+    function toggleSelectAll() {
+        const isChecked = $('#select-all').prop('checked');
+        // Ne sélectionner que les checkboxes non désactivées
+        $('.presence-checkbox:not(:disabled)').prop('checked', isChecked);
+    }
+    
+    // Fonction pour réinitialiser le formulaire
+    function resetForm() {
+        $('#culte').val('').trigger('change');
+        $('.presence-checkbox').prop('checked', false);
+        $('.presence-checkbox').prop('disabled', false);
+        $('.presence-checkbox').closest('tr').css('opacity', '1');
+        $('.presence-checkbox').closest('tr').css('background-color', '');
+        $('.presence-checkbox').closest('tr').find('td:first-child .badge').remove();
+        $('#select-all').prop('checked', false);
+        $('#select-all').prop('disabled', false);
+        $('#presence-info').hide();
+    }
+    
+    // Événement lors du changement de culte
+    $('#culte').on('change', function() {
+        updateCheckboxesByCulte();
+        // Décocher "Sélectionner tout" après changement
+        $('#select-all').prop('checked', false);
+    });
+    
+    // Événement pour le bouton "Sélectionner tout"
+    $('#select-all').on('change', function() {
+        toggleSelectAll();
+    });
+    
+    // Mettre à jour l'état du bouton "Sélectionner tout" quand on coche/décoche individuellement
+    $(document).on('change', '.presence-checkbox:not(:disabled)', function() {
+        const totalEnabled = $('.presence-checkbox:not(:disabled)').length;
+        const checkedEnabled = $('.presence-checkbox:not(:disabled):checked').length;
+        
+        if (checkedEnabled === 0) {
+            $('#select-all').prop('checked', false);
+            $('#select-all').prop('indeterminate', false);
+        } else if (checkedEnabled === totalEnabled) {
+            $('#select-all').prop('checked', true);
+            $('#select-all').prop('indeterminate', false);
+        } else {
+            $('#select-all').prop('indeterminate', true);
+        }
+    });
+    
+    // Bouton de réinitialisation
+    $('button[type="reset"]').on('click', function(e) {
+        e.preventDefault();
+        resetForm();
+    });
+    
+    // Validation avant soumission
+    $('#presenceForm').on('submit', function(e) {
+        const culteId = $('#culte').val();
+        if (!culteId) {
+            e.preventDefault();
+            alert('Veuillez sélectionner un culte avant de valider.');
+            return false;
+        }
+        
+        const checkedCount = $('.presence-checkbox:checked').length;
+        if (checkedCount === 0) {
+            e.preventDefault();
+            alert('Veuillez sélectionner au moins un fidèle.');
+            return false;
+        }
+        
+        return true;
+    });
+    
+    // Initialiser au chargement de la page
+    updateCheckboxesByCulte();
+});
+</script>
+
+<style>
+    /* Style pour les lignes désactivées */
+    .presence-checkbox:disabled + label {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .custom-control-input:disabled ~ .custom-control-label {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    /* Animation pour les checkboxes */
+    .presence-checkbox:not(:disabled) {
+        cursor: pointer;
+    }
+    
+    /* Style pour l'indicateur de déjà présent */
+    .badge-success {
+        margin-left: 5px;
+        font-size: 10px;
+    }
+    
+    /* Transition douce */
+    tr {
+        transition: all 0.3s ease;
+    }
+</style>
 {% endblock %}

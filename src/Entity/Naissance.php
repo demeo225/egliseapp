@@ -108,13 +108,14 @@ class Naissance extends AbstractEntity
      */
     private $typemere;
 
+  
     /**
-     * @ORM\ManyToOne(targetEntity=Fidele::class, inversedBy="naissance")
+     * @ORM\ManyToOne(targetEntity=Fidele::class, inversedBy="perenaisse")
      */
     private $perenaisse;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Fidele::class, inversedBy="naissance")
+     * @ORM\ManyToOne(targetEntity=Fidele::class, inversedBy="merenaisse")
      */
     private $merenaisse;
 

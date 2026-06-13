@@ -210,7 +210,7 @@ public function detailCotisationcellule(
 ): Response {
     $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
     
-    if (!$this->isGranted('ROLE_RESPONSABLE_ZONE')) {
+    if (!$this->isGranted('ROLE_RESPONSABLE_CELLULE')) {
         throw $this->createAccessDeniedException('Accès refusé');
     }
     

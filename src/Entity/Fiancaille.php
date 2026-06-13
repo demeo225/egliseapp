@@ -41,6 +41,10 @@ class Fiancaille extends AbstractEntity
      */
     private $pasteurfiancaille;
 
+   
+
+  
+
     /**
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=true)
@@ -87,16 +91,18 @@ class Fiancaille extends AbstractEntity
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $mariage;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Fidele::class, inversedBy="fiancaille")
+  /** 
+     * @ORM\OneToOne(targetEntity=Fidele::class, inversedBy="fiancailleFiance")
+     * @ORM\JoinColumn(name="fiance_membre_id", referencedColumnName="id", nullable=true)
      */
     private $fiancemembre;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Fidele::class, inversedBy="fiancaille")
+     * @ORM\OneToOne(targetEntity=Fidele::class, inversedBy="fiancailleFiancee")
+     * @ORM\JoinColumn(name="fiancee_membre_id", referencedColumnName="id", nullable=true)
      */
     private $fianceemembre;
+
 
     public function getId(): ?int
     {
@@ -111,7 +117,6 @@ class Fiancaille extends AbstractEntity
     public function setDatefiancaille(?\DateTimeInterface $datefiancaille): self
     {
         $this->datefiancaille = $datefiancaille;
-
         return $this;
     }
 
@@ -123,7 +128,6 @@ class Fiancaille extends AbstractEntity
     public function setFiancee(?string $fiancee): self
     {
         $this->fiancee = $fiancee;
-
         return $this;
     }
 
@@ -135,7 +139,6 @@ class Fiancaille extends AbstractEntity
     public function setFiance(?string $fiance): self
     {
         $this->fiance = $fiance;
-
         return $this;
     }
 
@@ -147,7 +150,6 @@ class Fiancaille extends AbstractEntity
     public function setPasteurfiancaille(?string $pasteurfiancaille): self
     {
         $this->pasteurfiancaille = $pasteurfiancaille;
-
         return $this;
     }
 
@@ -159,7 +161,6 @@ class Fiancaille extends AbstractEntity
     public function setCreateAt(?\DateTimeInterface $createAt): self
     {
         $this->createAt = $createAt;
-
         return $this;
     }
 
@@ -171,7 +172,6 @@ class Fiancaille extends AbstractEntity
     public function setUpdateAt(?\DateTimeInterface $updateAt): self
     {
         $this->updateAt = $updateAt;
-
         return $this;
     }
 
@@ -183,7 +183,6 @@ class Fiancaille extends AbstractEntity
     public function setEtatfiancaille(?bool $etatfiancaille): self
     {
         $this->etatfiancaille = $etatfiancaille;
-
         return $this;
     }
 
@@ -195,7 +194,6 @@ class Fiancaille extends AbstractEntity
     public function setEglise(?Eglise $eglise): self
     {
         $this->eglise = $eglise;
-
         return $this;
     }
 
@@ -207,7 +205,6 @@ class Fiancaille extends AbstractEntity
     public function setTypefiancaille(?bool $typefiancaille): self
     {
         $this->typefiancaille = $typefiancaille;
-
         return $this;
     }
 
@@ -219,7 +216,6 @@ class Fiancaille extends AbstractEntity
     public function setTypefiancee(?bool $typefiancee): self
     {
         $this->typefiancee = $typefiancee;
-
         return $this;
     }
 
@@ -231,7 +227,6 @@ class Fiancaille extends AbstractEntity
     public function setCode(?string $code): self
     {
         $this->code = $code;
-
         return $this;
     }
 
@@ -243,7 +238,6 @@ class Fiancaille extends AbstractEntity
     public function setDatemariage(?\DateTimeInterface $datemariage): self
     {
         $this->datemariage = $datemariage;
-
         return $this;
     }
 
@@ -255,7 +249,6 @@ class Fiancaille extends AbstractEntity
     public function setMariage(?bool $mariage): self
     {
         $this->mariage = $mariage;
-
         return $this;
     }
 
@@ -267,7 +260,6 @@ class Fiancaille extends AbstractEntity
     public function setFiancemembre(?Fidele $fiancemembre): self
     {
         $this->fiancemembre = $fiancemembre;
-
         return $this;
     }
 
@@ -279,7 +271,6 @@ class Fiancaille extends AbstractEntity
     public function setFianceemembre(?Fidele $fianceemembre): self
     {
         $this->fianceemembre = $fianceemembre;
-
         return $this;
     }
 }

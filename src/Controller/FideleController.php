@@ -123,7 +123,7 @@ class FideleController extends AbstractController {
                 $fidele->setNommariage(NULL);
             }
             if ($mariage == 'Marié(e)') {
-                $fidele->setEtatmariage('1');
+                $fidele->setEtatmariage(1);
             }
             //Comparaison entre de naissance $datenaiss  et date de conversion $dateconversion
 
@@ -268,14 +268,14 @@ class FideleController extends AbstractController {
             $mariage = $form['statutmatri']->getData();
 
             if ($mariage != 'Marié(e)') {
-                $fidele->setEtatmariage('0');
+                $fidele->setEtatmariage(0);
                 $fidele->setDatemariage(NULL);
                 $fidele->setPasteurmariage(NULL);
                 $fidele->setLieumariage(NULL);
                 $fidele->setNommariage(NULL);
             }
             if ($mariage == 'Marié(e)') {
-                $fidele->setEtatmariage('1');
+                $fidele->setEtatmariage(1);
             }
 
             $this->getDoctrine()->getManager()->flush();
@@ -429,8 +429,8 @@ class FideleController extends AbstractController {
 
             $fidele->setDeletedFromIp($this->GetIp());
             $fidele = $form->getData();
-            $fidele->setEtatfidele("0");
-            $fidele->setEditable("0");
+            $fidele->setEtatfidele(0);
+            $fidele->setEditable(0);
             $fidele->setUpdatedBy($user);
             $fidele->setDeletedBy($user);
             $fidele->setDeletedAt(new DateTime("now"));
@@ -950,14 +950,14 @@ public function preinscriptionSuccess(Fidele $fidele): Response
             $mariage = $form['statutmatri']->getData();
 
             if ($mariage != 'Marié(e)') {
-                $fidele->setEtatmariage('0');
+                $fidele->setEtatmariage(0);
                 $fidele->setDatemariage(NULL);
                 $fidele->setPasteurmariage(NULL);
                 $fidele->setLieumariage(NULL);
                 $fidele->setNommariage(NULL);
             }
             if ($mariage == 'Marié(e)') {
-                $fidele->setEtatmariage('1');
+                $fidele->setEtatmariage(1);
             }
 
             $this->getDoctrine()->getManager()->flush();

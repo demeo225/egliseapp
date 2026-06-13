@@ -86,10 +86,11 @@
 
                     <br><br>
 
-                    <button onclick="window.print()"
-                            class="btn btn-success">
-                        Imprimer le QR Code
-                    </button> </td>
+                       <a href="{{ path('culte_qrcode_print', {'id': culte.id}) }}" 
+                           class="btn btn-success" 
+                           target="_blank">
+                            <i class="fas fa-print"></i> Imprimer QR Code (A4)
+                        </a> </td>
                     </tr>
 
                     {% else %}

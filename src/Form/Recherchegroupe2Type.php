@@ -19,7 +19,8 @@ class Recherchegroupe2Type extends AbstractType
             ->add('groupe', EntityType::class, [
                 'class' => Groupe::class,
                 'choices' =>$groupe,
-                'required' => true,
+                'required' => false,
+                'placeholder' => '-- Choix du groupe --',
                 'attr' => ['class' => 'form-control select2']
             ])
             ->add('dateDebut', DateType::class, [

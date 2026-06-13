@@ -5,7 +5,9 @@ namespace App\DTO;
 use App\Entity\Culte;
 use App\Entity\Fidele;
 use App\Entity\Typeculte;
+use App\Entity\Presenceculte;
 use DateTime;
+use IntlDateFormatter;
 use Traversable;
 
 class BilanCulteDTO
@@ -20,6 +22,14 @@ class BilanCulteDTO
     private int $totalInvites = 0;
     private array $statistiquesParType = [];
     private array $statistiquesParMois = [];
+    
+    // NOUVEAU: Statistiques de présence individuelle
+    private array $presencesParCulte = [];
+    private int $totalPresencesEnregistrees = 0;
+    private float $moyennePresencesParCulte = 0;
+    private int $totalFidelesUniques = 0;
+    private array $topFidelesPresent = [];
+    private array $presencesParMois = [];
     
     // Propriétés pour les filtres de recherche
     private ?Typeculte $typeculte = null;
@@ -40,11 +50,30 @@ class BilanCulteDTO
     }
 
     /**
+     * Formate une date en français
+     */
+    private function formatDateFr(DateTime $date, string $format = 'F Y'): string
+    {
+        $formatter = new IntlDateFormatter(
+            'fr_FR',
+            IntlDateFormatter::LONG,
+            IntlDateFormatter::NONE,
+            null,
+            null,
+            $format
+        );
+        return $formatter->format($date);
+    }
+
+    /**
      * Calcule toutes les statistiques à partir des cultes
      */
     private function calculerStatistiques(): void
     {
         $this->totalCultes = count($this->cultes);
+        
+        // Pour le suivi des présences individuelles
+        $fidelesPresences = [];
         
         foreach ($this->cultes as $culte) {
             // Calcul des totaux par catégorie
@@ -73,13 +102,17 @@ class BilanCulteDTO
             $this->statistiquesParType[$typeLibelle]['nombre_cultes']++;
             $this->statistiquesParType[$typeLibelle]['total_fideles'] += $totalCulte;
             
-            // Statistiques par mois
+            // Statistiques par mois (version française)
             if ($culte->getDateculte()) {
                 $mois = $culte->getDateculte()->format('Y-m');
-                $moisLibelle = $culte->getDateculte()->format('F Y');
+                $moisLibelleFr = $this->formatDateFr($culte->getDateculte(), 'MMMM YYYY');
+                // Première lettre en majuscule
+                $moisLibelleFr = ucfirst($moisLibelleFr);
+                
                 if (!isset($this->statistiquesParMois[$mois])) {
                     $this->statistiquesParMois[$mois] = [
-                        'libelle' => $moisLibelle,
+                        'libelle' => $moisLibelleFr,
+                        'libelle_en' => $culte->getDateculte()->format('F Y'),
                         'nombre_cultes' => 0,
                         'total_fideles' => 0,
                         'moyenne' => 0
@@ -87,6 +120,48 @@ class BilanCulteDTO
                 }
                 $this->statistiquesParMois[$mois]['nombre_cultes']++;
                 $this->statistiquesParMois[$mois]['total_fideles'] += $totalCulte;
+            }
+            
+            // Traitement des présences individuelles
+            $presences = $culte->getPresencecultes();
+            $nbPresences = count($presences);
+            $this->presencesParCulte[$culte->getId()] = $nbPresences;
+            $this->totalPresencesEnregistrees += $nbPresences;
+            
+            // Compter les fidèles uniques
+            foreach ($presences as $presence) {
+                $fidele = $presence->getFidele();
+                if ($fidele && $fidele->getId()) {
+                    $fideleId = $fidele->getId();
+                    if (!isset($fidelesPresences[$fideleId])) {
+                        $fidelesPresences[$fideleId] = [
+                            'fidele' => $fidele,
+                            'nombre_presences' => 0,
+                            'nom' => $fidele->getNomfidele(),
+                            'prenom' => $fidele->getContact1() 
+                        ];
+                    }
+                    $fidelesPresences[$fideleId]['nombre_presences']++;
+                }
+            }
+            
+            // Statistiques de présence par mois (version française)
+            if ($culte->getDateculte()) {
+                $mois = $culte->getDateculte()->format('Y-m');
+                $moisLibelleFr = $this->formatDateFr($culte->getDateculte(), 'MMMM YYYY');
+                $moisLibelleFr = ucfirst($moisLibelleFr);
+                
+                if (!isset($this->presencesParMois[$mois])) {
+                    $this->presencesParMois[$mois] = [
+                        'libelle' => $moisLibelleFr,
+                        'libelle_en' => $culte->getDateculte()->format('F Y'),
+                        'nombre_presences' => 0,
+                        'nombre_cultes' => 0,
+                        'moyenne_presences' => 0
+                    ];
+                }
+                $this->presencesParMois[$mois]['nombre_presences'] += $nbPresences;
+                $this->presencesParMois[$mois]['nombre_cultes']++;
             }
         }
         
@@ -107,29 +182,26 @@ class BilanCulteDTO
         // Calcul de la moyenne générale
         if ($this->totalCultes > 0) {
             $this->moyenneParCulte = $this->totalFideles / $this->totalCultes;
+            $this->moyennePresencesParCulte = $this->totalPresencesEnregistrees / $this->totalCultes;
         }
+        
+        // Calcul des moyennes de présence par mois
+        foreach ($this->presencesParMois as &$stat) {
+            if ($stat['nombre_cultes'] > 0) {
+                $stat['moyenne_presences'] = $stat['nombre_presences'] / $stat['nombre_cultes'];
+            }
+        }
+        
+        // Top des fidèles les plus présents
+        $this->totalFidelesUniques = count($fidelesPresences);
+        usort($fidelesPresences, function($a, $b) {
+            return $b['nombre_presences'] - $a['nombre_presences'];
+        });
+        $this->topFidelesPresent = array_slice($fidelesPresences, 0, 10);
     }
 
-    /**
-     * Ajoute un culte au DTO et recalcule les statistiques
-     */
-    public function addCulte(Culte $culte): self
-    {
-        $this->cultes[] = $culte;
-        $this->calculerStatistiques();
-        return $this;
-    }
-
-    /**
-     * Définit les cultes et recalcule les statistiques
-     */
-    public function setCultes(array $cultes): self
-    {
-        $this->cultes = $cultes;
-        $this->calculerStatistiques();
-        return $this;
-    }
-
+    // ... (tous les autres getters et setters restent identiques)
+    
     // ==================== GETTERS PRINCIPAUX ====================
     
     public function getCultes(): array 
@@ -182,6 +254,48 @@ class BilanCulteDTO
         return !empty($this->cultes);
     }
     
+    // ==================== STATISTIQUES DE PRÉSENCE ====================
+    
+    public function getTotalPresencesEnregistrees(): int
+    {
+        return $this->totalPresencesEnregistrees;
+    }
+    
+    public function getMoyennePresencesParCulte(): float
+    {
+        return $this->moyennePresencesParCulte;
+    }
+    
+    public function getTotalFidelesUniques(): int
+    {
+        return $this->totalFidelesUniques;
+    }
+    
+    public function getTopFidelesPresent(): array
+    {
+        return $this->topFidelesPresent;
+    }
+    
+    public function getPresencesParCulte(): array
+    {
+        return $this->presencesParCulte;
+    }
+    
+    public function getPresencesParMois(): array
+    {
+        return $this->presencesParMois;
+    }
+    
+    public function getTauxOccupationMoyen(): float
+    {
+        if ($this->totalCultes == 0) {
+            return 0;
+        }
+        
+        $capaciteTheorique = 200;
+        return ($this->moyennePresencesParCulte / $capaciteTheorique) * 100;
+    }
+    
     // ==================== STATISTIQUES DÉTAILLÉES ====================
     
     public function getStatistiquesParType(): array
@@ -204,6 +318,21 @@ class BilanCulteDTO
         foreach ($this->statistiquesParMois as $mois) {
             if ($meilleur === null || $mois['total_fideles'] > $meilleur['total_fideles']) {
                 $meilleur = $mois;
+            }
+        }
+        return $meilleur;
+    }
+    
+    public function getMoisPlusFrequente(): ?array
+    {
+        if (empty($this->presencesParMois)) {
+            return null;
+        }
+        
+        $meilleur = null;
+        foreach ($this->presencesParMois as $mois => $stat) {
+            if ($meilleur === null || $stat['nombre_presences'] > $meilleur['nombre_presences']) {
+                $meilleur = array_merge(['mois' => $mois], $stat);
             }
         }
         return $meilleur;
@@ -300,9 +429,6 @@ class BilanCulteDTO
     
     // ==================== MÉTHODES UTILITAIRES ====================
     
-    /**
-     * Convertit le DTO en tableau pour les API
-     */
     public function toArray(): array
     {
         return [
@@ -316,12 +442,13 @@ class BilanCulteDTO
             'statistiques_par_type' => $this->statistiquesParType,
             'statistiques_par_mois' => $this->statistiquesParMois,
             'taux_croissance' => $this->getTauxCroissanceMensuel(),
+            'total_presences_enregistrees' => $this->totalPresencesEnregistrees,
+            'moyenne_presences_par_culte' => $this->moyennePresencesParCulte,
+            'total_fideles_uniques' => $this->totalFidelesUniques,
+            'top_fideles_presents' => $this->topFidelesPresent,
         ];
     }
     
-    /**
-     * Retourne un résumé textuel des statistiques
-     */
     public function getResume(): string
     {
         if ($this->isEmpty()) {
@@ -329,14 +456,11 @@ class BilanCulteDTO
         }
         
         return sprintf(
-            '%d culte(s) | %d fidèle(s) | Moyenne: %d par culte | %d hommes, %d femmes, %d enfants, %d invités',
+            '%d culte(s) | %d fidèle(s) | Moyenne: %d par culte | %d présences individuelles enregistrées',
             $this->totalCultes,
             $this->totalFideles,
             (int)$this->moyenneParCulte,
-            $this->totalHommes,
-            $this->totalFemmes,
-            $this->totalEnfants,
-            $this->totalInvites
+            $this->totalPresencesEnregistrees
         );
     }
 }

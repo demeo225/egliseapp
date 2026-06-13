@@ -906,7 +906,7 @@
 
                                                             </li>
                                                         {% endif %}
-                                                        {% if is_granted('ROLE_SUPER_ADMIN') %}
+                                                        {% if is_granted('ROLE_SECRETAIRE') %}
 
                                                             <li class="nav-item has-treeview">
                                                                 <a href="#" class="nav-link">
@@ -918,23 +918,12 @@
                                                                 </a>
                                                                 <ul class="nav nav-treeview">
                                                                     <li class="nav-item">
-                                                                        <a href="#" class="nav-link">
+                                                                        <a href="{{path('app_courrier_index') }}" class="nav-link">
                                                                             <i class="far fa-circle nav-icon"></i>
-                                                                            <p>Mails</p>
+                                                                            <p>Courrier</p>
                                                                         </a>
                                                                     </li>
-                                                                    <li class="nav-item">
-                                                                        <a href="#" class="nav-link">
-                                                                            <i class="far fa-circle nav-icon"></i>
-                                                                            <p>Compte SMS</p>
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="nav-item">
-                                                                        <a href="{{ path('sms_index') }}" class="nav-link">
-                                                                            <i class="far fa-circle nav-icon"></i>
-                                                                            <p>Envoi SMS</p>
-                                                                        </a>
-                                                                    </li>
+                                                                 
                                                                 </ul>
                                                             </li>
                                                         {% endif %}

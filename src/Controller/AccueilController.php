@@ -272,7 +272,7 @@ class AccueilController extends AbstractController {
 
         // Calculer le nombre de membres par tranche d'âge
         foreach ($allMembers as $member) {
-            $birthdate = $member->getDatenaiss(); // Supposons que vo   tre entité a une méthode getBirthdate()
+            $birthdate = $member->getDatenaiss(); 
             $age = $birthdate->diff(new \DateTime())->y;
 
             if ($age >= 5 && $age <= 20) {
