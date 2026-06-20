@@ -164,7 +164,120 @@ class Culte extends AbstractEntity
     {
         return $this->id;
     }
+    
+ /**
+     * Vérifie si le token a expiré (24h)
+     */
+    public function isTokenExpired(): bool
+    {
+        if (!$this->tokenPresence || !$this->dateExpirationQr) {
+            return true; // Pas de token ou pas de date d'expiration = considéré comme expiré
+        }
 
+        $now = new \DateTime();
+        return $now > $this->dateExpirationQr;
+    }
+
+    /**
+     * Vérifie si le token est valide (non expiré)
+     */
+    public function isValidToken(): bool
+    {
+        return !$this->isTokenExpired();
+    }
+
+    /**
+     * Génère un nouveau token avec expiration à 24h
+     */
+    public function generateToken(): void
+    {
+        $this->tokenPresence = \Symfony\Component\Uid\Uuid::v4()->toRfc4122();
+        $this->dateExpirationQr = (new \DateTime())->modify('+24 hours');
+    }
+
+    /**
+     * Renouvelle le token (nouveau token + nouvelle date d'expiration)
+     */
+    public function renewToken(): void
+    {
+        $this->generateToken();
+    }
+
+    /**
+     * Rafraîchit le token si expiré (pour les utilisations prolongées)
+     */
+    public function refreshTokenIfExpired(): bool
+    {
+        if ($this->isTokenExpired() && $this->tokenPresence) {
+            $this->renewToken();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Vérifie si le token est encore valide pour un nombre d'heures donné
+     */
+    public function isTokenValidForHours(int $hours): bool
+    {
+        if (!$this->dateExpirationQr) {
+            return false;
+        }
+
+        $now = new \DateTime();
+        $expiration = clone $this->dateExpirationQr;
+        $limit = clone $now;
+        $limit->modify("+{$hours} hours");
+
+        return $expiration > $limit;
+    }
+
+    /**
+     * Obtient le temps restant avant expiration en heures
+     */
+    public function getTokenRemainingHours(): float
+    {
+        if (!$this->dateExpirationQr) {
+            return 0;
+        }
+
+        $now = new \DateTime();
+        $diff = $now->diff($this->dateExpirationQr);
+        
+        if ($now > $this->dateExpirationQr) {
+            return 0;
+        }
+
+        return round($diff->h + ($diff->i / 60) + ($diff->d * 24), 1);
+    }
+
+    /**
+     * Obtient le temps restant avant expiration en format lisible
+     */
+    public function getTokenRemainingTime(): string
+    {
+        if (!$this->dateExpirationQr) {
+            return 'Expiré';
+        }
+
+        $now = new \DateTime();
+        if ($now > $this->dateExpirationQr) {
+            return 'Expiré';
+        }
+
+        $diff = $now->diff($this->dateExpirationQr);
+        
+        if ($diff->d > 0) {
+            return $diff->d . 'j ' . $diff->h . 'h';
+        }
+        if ($diff->h > 0) {
+            return $diff->h . 'h ' . $diff->i . 'min';
+        }
+        if ($diff->i > 0) {
+            return $diff->i . 'min ' . $diff->s . 's';
+        }
+        return 'Moins d\'une minute';
+    }
     public function getDateculte(): ?\DateTimeInterface
     {
         return $this->dateculte;
@@ -501,4 +614,6 @@ public function removePresence(Presenceculte $presence): self
     }
     return $this;
 }
+
+
 }

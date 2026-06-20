@@ -1,0 +1,39 @@
+{# templates/culte/_presents_modal.html.twig #}
+<div class="table-responsive">
+    <div class="alert alert-info">
+        <strong>Total des présents :</strong> {{ total }} 
+        {% if seance %}
+            <span class="ml-3"><strong>Culte :</strong> {{ seance.theme }}</span>
+            <span class="ml-3"><strong>Date :</strong> {{ seance.dateculte|date('d/m/Y H:i') }}</span>
+        {% endif %}
+    </div>
+    
+    <table class="table table-striped table-bordered">
+        <thead class="thead-success">
+            <tr>
+                <th>#</th>
+                <th>Nom du fidèle</th>
+                <th>Contact</th>
+                <th>Date d'enregistrement</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if presents|length > 0 %}
+                {% for present in presents %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td><i class="fas fa-user text-success"></i> {{ present.nom }}</td>
+                        <td>{{ present.contact }}</td>
+                        <td>{{ 'now'|date('d/m/Y H:i') }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">
+                        <i class="fas fa-info-circle"></i> Aucun présent enregistré pour ce culte
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>

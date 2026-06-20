@@ -30,10 +30,9 @@
                             <th>Date</th>
                             <th>Thème</th>
                             <th>Orateur</th>
-                            <th>Total fidèles</th>
-                            <th>Invités</th>
-                        
-                            <th>Fiche de rapport</th>
+                            <th>Présents</th>
+                            <th>Absents</th>
+                            <th>Rapport</th>
                             <th>Détail</th>
                             <th>Modifier</th>
                             <th>Supprimer</th>
@@ -46,15 +45,40 @@
                                 <td>{{ culte.theme}}</td>
                                 <td>{% if culte.messager is not empty %} {{ culte.messager.nomfidele}} {% else %}{{ culte.orateur}}{% endif %}</td>
 
+                                {# Calcul du nombre total de présents #}
                                 {% set nmbrehomme = culte.nmbrehomme|default(0) %}
                                 {% set nobrefemme = culte.nobrefemme|default(0) %}
                                 {% set nbrefant = culte.nbrefant|default(0) %}
                                 {% set nbreinvite = culte.invite|default(0) %}
+                                {% set totalPresences = nmbrehomme + nobrefemme + nbrefant + nbreinvite %}
 
-                                <td>{{ nmbrehomme + nobrefemme + nbrefant + nbreinvite }}</td>
-                                <td>{{ nbreinvite }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge badge-success mr-2">{{ totalPresences }}</span>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-success btn-view-presents" 
+                                                data-culte-id="{{ culte.id }}"
+                                                data-toggle="modal" 
+                                                data-target="#presentModal"
+                                                title="Voir les présents">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </td>
                                 
-                           
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge badge-danger mr-2">{{ culte.nbreinvite|default(0) }}</span>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger btn-view-absents" 
+                                                data-culte-id="{{ culte.id }}"
+                                                data-toggle="modal" 
+                                                data-target="#absentModal"
+                                                title="Voir les absents">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </td>
                                 
                                 <td>
                                     {% if culte.photo is not empty %}
@@ -97,9 +121,6 @@
                                 </td>
                             </tr>
 
-                            <!-- Modal QR Code -->
-                            
-
                             <!-- Modal Détail du culte -->
                             <div class="modal fade" id="detailModal{{ culte.id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-lg">
@@ -136,6 +157,74 @@
     <!-- Zone d'impression cachée pour le QR code -->
     <div id="printArea" style="display: none;"></div>
 
+    {# Modal pour les présents #}
+    <div class="modal fade" id="presentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success">
+                    <h5 class="modal-title">
+                        <i class="fas fa-check-circle"></i> Liste des présents
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="presentContent">
+                        <div class="text-center">
+                            <div class="spinner-border text-success" role="status"></div>
+                            <p>Chargement des présents...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal pour les absents #}
+    <div class="modal fade" id="absentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title">
+                        <i class="fas fa-times-circle"></i> Liste des absents
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="absentContent">
+                        <div class="text-center">
+                            <div class="spinner-border text-danger" role="status"></div>
+                            <p>Chargement des absents...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal pour les invités (existant) #}
+    <div class="modal fade" id="fidelesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info">
+                    <h5 class="modal-title">
+                        <i class="fas fa-users"></i> Liste des invités
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block javascripts %}
@@ -148,14 +237,12 @@
                 var culteId = modalId.replace('detailModal', '');
                 var contentDiv = $('#detailContent' + culteId);
                 
-                // Générer l'URL correctement
                 var url = '{{ path('culte_detail', {'id': 'ID_PLACEHOLDER'}) }}';
                 url = url.replace('ID_PLACEHOLDER', culteId);
                 
                 $.ajax({
                     type: 'POST',
                     url: url,
-                    async: true,
                     beforeSend: function() {
                         contentDiv.html('<div class="text-center"><div class="spinner-border text-primary" role="status"></div><p>Chargement des détails...</p></div>');
                     },
@@ -164,6 +251,56 @@
                     },
                     error: function() {
                         contentDiv.html('<div class="alert alert-danger">Erreur lors du chargement des détails</div>');
+                    }
+                });
+            });
+
+            // Charger les présents
+            $('.btn-view-presents').on('click', function() {
+                var culteId = $(this).data('culte-id');
+                var contentDiv = $('#presentContent');
+                
+                var url = '{{ path('culte_presents') }}';
+                
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        culte_id: culteId
+                    },
+                    beforeSend: function() {
+                        contentDiv.html('<div class="text-center"><div class="spinner-border text-success" role="status"></div><p>Chargement des présents...</p></div>');
+                    },
+                    success: function(html) {
+                        contentDiv.html(html);
+                    },
+                    error: function() {
+                        contentDiv.html('<div class="alert alert-danger">Erreur lors du chargement des présents</div>');
+                    }
+                });
+            });
+
+            // Charger les absents
+            $('.btn-view-absents').on('click', function() {
+                var culteId = $(this).data('culte-id');
+                var contentDiv = $('#absentContent');
+                
+                var url = '{{ path('culte_absents') }}';
+                
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        culte_id: culteId
+                    },
+                    beforeSend: function() {
+                        contentDiv.html('<div class="text-center"><div class="spinner-border text-danger" role="status"></div><p>Chargement des absents...</p></div>');
+                    },
+                    success: function(html) {
+                        contentDiv.html(html);
+                    },
+                    error: function() {
+                        contentDiv.html('<div class="alert alert-danger">Erreur lors du chargement des absents</div>');
                     }
                 });
             });

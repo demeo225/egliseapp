@@ -23,6 +23,7 @@ use Dompdf\Options;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -55,6 +56,61 @@ class CulteController extends AbstractController {
                     'culte' => $culte,
         ]);
     }
+
+    
+//Doublon
+
+#[Route('/get-presencecultes-by-seance', name: 'culte_get_presences', methods: ['POST'])]
+public function getPresencesBySeance(Request $request, PresenceculteRepository $presenceculteRepository, CulteRepository $culteRepository): JsonResponse
+{
+    $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    
+    if (!$this->isGranted('ROLE_SECRETAIRE')) {
+        return $this->json(['error' => 'Accès refusé'], 403);
+    }
+    
+    $seanceId = $request->request->get('seanceId');
+    
+    if (!$seanceId) {
+        return $this->json(['error' => 'Séance non spécifiée'], 400);
+    }
+    
+    $seance = $culteRepository->find($seanceId);
+    
+    if (!$seance) {
+        return $this->json(['error' => 'Séance non trouvée'], 404);
+    }
+    
+    // Récupérer toutes les présences pour cette séance
+    $presences = $presenceculteRepository->findBy(['culte' => $seance]);
+    
+    // Extraire les IDs des fidèles présents
+    $presencesIds = [];
+    foreach ($presences as $presence) {
+        $presencesIds[] = $presence->getFidele()->getId();
+    }
+    
+    // Compter le nombre de présences par fidèle (au cas où)
+    $presencesCount = [];
+    foreach ($presences as $presence) {
+        $fideleId = $presence->getFidele()->getId();
+        if (!isset($presencesCount[$fideleId])) {
+            $presencesCount[$fideleId] = 0;
+        }
+        $presencesCount[$fideleId]++;
+    }
+    
+    return $this->json([
+        'success' => true,
+        'presences' => $presencesIds,
+        'presencesCount' => $presencesCount,
+        'seanceId' => $seanceId,
+        'seanceDate' => $seance->getDatesuper()->format('d-m-Y'),
+        'seanceTheme' => $seance->getTheme()
+    ]);
+}
+
+//Fin doublon presence
 
 
        #[Route('/presence', name: 'culte_presence', methods: ['POST', 'GET'])]
@@ -243,161 +299,7 @@ public function add(EntityManagerInterface $entityManager, Request $request, QrC
     ], $response);
 }
 
-//    private function generateQrCodeDirect(Culte $culte, EntityManagerInterface $entityManager): void
-// {
-//     try {
-//         if (!$culte->getId()) {
-//             return;
-//         }
-        
-//         $url = $this->generateUrl('culte_scan_qr', ['id' => $culte->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
-        
-//         $qrCode = new QrCode($url);
-//         $qrCode->setSize(300);
-//         $qrCode->setMargin(10);
-        
-//         $writer = new PngWriter();
-//         $result = $writer->write($qrCode);
-        
-//         $culte->setQrCode($result->getDataUri());
-        
-//         // Ne pas faire de flush ici, le flush sera fait après
-//         // $entityManager->flush();
-        
-//     } catch (\Exception $e) {
-//         error_log('Erreur génération QR: ' . $e->getMessage());
-//         $culte->setQrCode(null);
-//     }
-// }
 
-// #[Route('/scan/{id}', name: 'culte_scan_qr', methods: ['GET'])]
-// public function scanQrCode(Culte $culte, Request $request): Response
-// {
-//     // Vérifier si le culte est actif (etat == 1)
-//     if ($culte->getEtat() != 1) {
-//         $this->addFlash('warning', 'Ce culte n\'est pas actif ou est terminé.');
-//         return $this->render('culte/scan_error.html.twig', [
-//             'message' => 'Ce culte n\'est pas disponible pour l\'enregistrement.'
-//         ]);
-//     }
-    
-//     // Vérifier si la date du culte n'est pas dépassée
-//     $now = new \DateTime();
-//     if ($culte->getDateculte() < $now) {
-//         $this->addFlash('warning', 'Ce culte est déjà passé.');
-//         return $this->render('culte/scan_error.html.twig', [
-//             'message' => 'Ce culte est déjà terminé.'
-//         ]);
-//     }
-    
-//     // Stocker l'ID du culte en session
-//     $session = $request->getSession();
-//     $session->set('current_culte_id', $culte->getId());
-    
-//     return $this->render('culte/scan_form.html.twig', [
-//         'culte' => $culte,
-//         'csrf_token' => $this->generateCsrfToken('scan_culte')
-//     ]);
-// }
-
-// // Dans CulteController.php
-
-
-// #[Route('/scan/register', name: 'culte_scan_register', methods: ['POST'])]
-// public function registerFromScan(Request $request, FideleRepository $fideleRepository, CulteRepository $culteRepository, PresenceculteRepository $presenceRepo, EntityManagerInterface $entityManager): Response
-// {
-//     // Vérifier le token CSRF
-//     $submittedToken = $request->request->get('_token');
-//     if (!$this->isCsrfTokenValid('scan_culte', $submittedToken)) {
-//         return $this->json(['error' => 'Token invalide'], 400);
-//     }
-    
-//     $session = $request->getSession();
-//     $culteId = $session->get('current_culte_id');
-    
-//     if (!$culteId) {
-//         return $this->json(['error' => 'Session expirée, veuillez scanner à nouveau'], 400);
-//     }
-    
-//     $culte = $culteRepository->find($culteId);
-//     if (!$culte || $culte->getEtat() != 1) {
-//         return $this->json(['error' => 'Culte non disponible'], 400);
-//     }
-    
-//     $contact1 = $request->request->get('contact1');
-//     $nomfidele = $request->request->get('nomfidele');
-    
-//     // Validation
-//     if (empty($contact1)) {
-//         return $this->json(['error' => 'Le numéro de téléphone est requis'], 400);
-//     }
-    
-//     if (empty($nomfidele)) {
-//         return $this->json(['error' => 'Le nom est requis'], 400);
-//     }
-    
-//     $eglise = $culte->getEglise();
-    
-//     // Chercher si le fidèle existe déjà
-//     $fidele = $fideleRepository->findOneBy([
-//         'contact1' => $contact1,
-//         'eglise' => $eglise,
-//         'deletedAt' => null
-//     ]);
-    
-//     // Si le fidèle n'existe pas, le créer
-//     if (!$fidele) {
-//         $fidele = new Fidele();
-//         $fidele->setNomfidele($nomfidele)
-//                ->setContact1($contact1)
-//                ->setEglise($eglise)
-//                ->setEtatfidele(1)
-//                ->setCreatedBy($this->getUser() ?? 'system')
-//                ->setCreatedFromIp($request->getClientIp());
-        
-//         $entityManager->persist($fidele);
-//         $entityManager->flush();
-        
-//         $this->addFlash('success', 'Nouveau fidèle enregistré avec succès !');
-//     } else {
-//         // Mettre à jour le nom si différent
-//         if ($fidele->getNomfidele() !== $nomfidele) {
-//             $fidele->setNomfidele($nomfidele);
-//             $entityManager->flush();
-//         }
-//         $this->addFlash('success', 'Bienvenue ' . $fidele->getNomfidele() . ' !');
-//     }
-    
-//     // Vérifier si la présence existe déjà
-//     $existingPresence = $presenceRepo->findOneBy([
-//         'fidele' => $fidele,
-//         'culte' => $culte
-//     ]);
-    
-//     if ($existingPresence) {
-//         return $this->json(['error' => 'Vous avez déjà enregistré votre présence pour ce culte'], 400);
-//     }
-    
-//     // Créer la présence
-//     $presence = new Presenceculte();
-//     $presence->setFidele($fidele)
-//              ->setCulte($culte)
-//              ->setEglise($eglise)
-//              ->setCreatedBy($fidele->getNomfidele())
-//              ->setCreatedFromIp($request->getClientIp());
-    
-//     $entityManager->persist($presence);
-//     $entityManager->flush();
-    
-//     // Nettoyer la session
-//     $session->remove('current_culte_id');
-    
-//     return $this->json([
-//         'success' => true,
-//         'message' => 'Présence enregistrée avec succès !',
-//         'fidele' => $fidele->getNomfidele()
-//     ], 200);
-// }
 
     #[Route('/qrcode/print/{id}', name: 'culte_qrcode_print', methods: ['GET'])]
 public function printQrCode(Culte $culte): Response
@@ -489,6 +391,104 @@ public function printQrCode(Culte $culte): Response
         return $this->redirectToRoute('culte_listepresence', [], Response::HTTP_SEE_OTHER);
     }
 
+
+            /**
+             * Liste des présents pour une séance
+             */
+    #[Route('/presents', name: 'culte_presents', methods: ['POST'])]
+    public function getPresents(Request $request, FideleRepository $fideleRepository, CulteRepository $culteRepository): Response
+    {
+        $culteId = $request->request->get('culte_id');
+        
+        if (!$culteId) {
+            return $this->json(['error' => 'ID du culte manquant'], 400);
+        }
+        
+        // Récupérer le culte
+        $culte = $culteRepository->find($culteId);
+        
+        if (!$culte) {
+            return $this->json(['error' => 'Culte non trouvé'], 404);
+        }
+        
+        // Récupérer les présents (les Presenceculte pour ce culte)
+        $presents = [];
+        if ($culte) {
+            foreach ($culte->getPresencecultes() as $presence) {
+                $fidele = $presence->getFidele();
+                if ($fidele) {
+                    $presents[] = [
+                        'id' => $fidele->getId(),
+                        'nom' => $fidele->getNomfidele(),
+                        'contact' => $fidele->getContact1(),
+                        'date' => $presence->getCreateAt() ? $presence->getCreateAt()->format('d/m/Y H:i') : null
+                    ];
+                }
+            }
+        }
+        
+        return $this->render('culte/_presents_modal.html.twig', [
+            'presents' => $presents,
+            'seance' => $culte,
+            'total' => count($presents)
+        ]);
+    }
+
+    /**
+     * Liste des absents pour une séance
+     */
+    #[Route('/absents', name: 'culte_absents', methods: ['POST'])]
+    public function getAbsents(Request $request, FideleRepository $fideleRepository, CulteRepository $culteRepository): Response
+    {
+        $culteId = $request->request->get('culte_id');
+        
+        if (!$culteId) {
+            return $this->json(['error' => 'ID du culte manquant'], 400);
+        }
+        
+        // Récupérer le culte
+        $culte = $culteRepository->find($culteId);
+        
+        if (!$culte) {
+            return $this->json(['error' => 'Culte non trouvé'], 404);
+        }
+        
+        // Récupérer les IDs des présents
+        $presentIds = [];
+        if ($culte) {
+            foreach ($culte->getPresencecultes() as $presence) {
+                $fidele = $presence->getFidele();
+                if ($fidele) {
+                    $presentIds[] = $fidele->getId();
+                }
+            }
+        }
+        
+        // Récupérer tous les membres de la culte
+        $membresCellule = $fideleRepository->findBy([
+            'eglise' => $culte->getEglise() ? $culte->getEglise()->getId() : null,
+            'deletedAt' => null
+        ]);
+        
+        // Filtrer les absents (membres qui ne sont pas dans la liste des présents)
+        $absents = [];
+        foreach ($membresCellule as $membre) {
+            if (!in_array($membre->getId(), $presentIds)) {
+                $absents[] = [
+                    'id' => $membre->getId(),
+                    'nom' => $membre->getNomfidele(),
+                    'contact' => $membre->getContact1()
+                ];
+            }
+        }
+        
+        return $this->render('culte/_absents_modal.html.twig', [
+            'absents' => $absents,
+            'seance' => $culte,
+            'total' => count($absents),
+            'totalMembres' => count($membresCellule)
+        ]);
+    }
     
     
     

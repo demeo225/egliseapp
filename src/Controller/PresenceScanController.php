@@ -17,25 +17,53 @@ use Symfony\Component\Routing\Annotation\Route;
 class PresenceScanController extends AbstractController
 {
     
+    // #[Route('/presence/{token}', name: 'presence_scan')]
+    // public function scan(
+    //     string $token,
+    //     CulteRepository $culteRepository
+    // ): Response {
+
+    //     $culte = $culteRepository->findOneBy([
+    //         'tokenPresence' => $token,
+    //         'etat' => 1
+    //     ]);
+
+    //     if (!$culte) {
+    //         throw $this->createNotFoundException('QR Code invalide');
+    //     }
+
+    //     return $this->render('culte/scan.html.twig', [
+    //         'culte' => $culte
+    //     ]);
+    // }
+
     #[Route('/presence/{token}', name: 'presence_scan')]
-    public function scan(
-        string $token,
-        CulteRepository $culteRepository
-    ): Response {
+public function scan(
+    string $token,
+    CulteRepository $culteRepository
+): Response {
+    $culte = $culteRepository->findOneBy([
+        'tokenPresence' => $token,
+        'etat' => 1
+    ]);
 
-        $culte = $culteRepository->findOneBy([
-            'tokenPresence' => $token,
-            'etat' => 1
-        ]);
+    if (!$culte) {
+        throw $this->createNotFoundException('QR Code invalide');
+    }
 
-        if (!$culte) {
-            throw $this->createNotFoundException('QR Code invalide');
-        }
-
-        return $this->render('culte/scan.html.twig', [
+    // Vérifier si le token a expiré
+    if ($culte->isTokenExpired()) {
+        $this->addFlash('error', 'Le QR Code a expiré. Veuillez contacter l\'administrateur.');
+        return $this->render('culte/expired.html.twig', [
             'culte' => $culte
         ]);
     }
+
+    return $this->render('culte/scan.html.twig', [
+        'culte' => $culte,
+        'tempsRestant' => $culte->getTokenRemainingTime()
+    ]);
+}
 
         
     #[Route('/presence/{token}/save', name: 'presence_save', methods: ['POST'])]
@@ -56,12 +84,19 @@ class PresenceScanController extends AbstractController
             );
         }
 
-        if ($culte->getDateExpirationQr() && new \DateTime() > $culte->getDateExpirationQr()) {
-            return new Response(
-                '<div class="alert alert-danger">QR Code expiré</div>',
-                400
-            );
-        }
+        if ($culte->isTokenExpired()) {
+        return new Response(
+            '<div class="alert alert-danger">QR Code expiré</div>',
+            400
+        );
+     }
+
+    //     if ($culte->getDateExpirationQr() && new \DateTime() > $culte->getDateExpirationQr()) {
+    //         return new Response(
+    //             '<div class="alert alert-danger">QR Code expiré</div>',
+    //             400
+    //         );
+    //     }
 
         $nom = trim($request->request->get('nomfidele', ''));
         $contact = trim($request->request->get('contact1', ''));
@@ -91,6 +126,8 @@ class PresenceScanController extends AbstractController
             $fidele->setEglise($culte->getEglise());
              $fidele->setEtatfidele(0);
              $fidele->setDatenaiss(new \DateTime());
+             $fidele->setDateconversion(new \DateTime());
+             $fidele->setDatearriver(new \DateTime());
              $fidele->setCode($code);
 
           //  $fidele->setCreatedBy(0);
